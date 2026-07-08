@@ -6,7 +6,7 @@ import json
 import os
 import subprocess
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from faber.digests import sha256_digest
@@ -34,6 +34,82 @@ class LocalVerifierResult:
             "exit_code": self.exit_code,
             "timed_out": self.timed_out,
         }
+
+
+def _default_allowed_env() -> list[str]:
+    return [
+        "COMSPEC",
+        "HOME",
+        "PATH",
+        "PATHEXT",
+        "PYTHONPATH",
+        "SYSTEMROOT",
+        "TEMP",
+        "TMP",
+        "USERPROFILE",
+        "WINDIR",
+    ]
+
+
+@dataclass(frozen=True)
+class RunnerPolicy:
+    """Explicit local runner execution policy."""
+
+    allowed_working_directory_root: str | None = None
+    network_isolation: str = "none-local-runner-does-not-isolate-network"
+    allowed_environment_variables: list[str] = field(default_factory=_default_allowed_env)
+    timeout_seconds: int = 30
+    max_capture_bytes: int = 64_000
+    allow_shell: bool = False
+    schema: str = "faber.runner_policy.v1"
+
+    def __post_init__(self) -> None:
+        if self.timeout_seconds <= 0:
+            raise VerifierError("timeout_seconds must be positive")
+        if self.max_capture_bytes <= 0:
+            raise VerifierError("max_capture_bytes must be positive")
+        if self.allow_shell:
+            raise VerifierError("shell execution is not allowed by the local runner")
+        if self.allowed_working_directory_root is not None:
+            Path(self.allowed_working_directory_root).resolve()
+
+    def validate_working_directory(self, working_directory: str | Path) -> Path:
+        cwd = Path(working_directory).resolve()
+        if not cwd.exists() or not cwd.is_dir():
+            raise VerifierError(f"working_directory must exist: {cwd}")
+        if self.allowed_working_directory_root is not None:
+            root = Path(self.allowed_working_directory_root).resolve()
+            try:
+                cwd.relative_to(root)
+            except ValueError as exc:
+                raise VerifierError(
+                    f"working_directory {cwd} is outside allowed root {root}"
+                ) from exc
+        return cwd
+
+    def environment(self, extra_environment: dict[str, str] | None = None) -> dict[str, str]:
+        allowed = set(self.allowed_environment_variables)
+        environment = {key: value for key, value in os.environ.items() if key in allowed}
+        if extra_environment:
+            for key, value in extra_environment.items():
+                if key not in allowed:
+                    raise VerifierError(f"environment variable {key!r} is not allowed")
+                environment[key] = value
+        return environment
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "schema": self.schema,
+            "allowed_working_directory_root": self.allowed_working_directory_root,
+            "network_isolation": self.network_isolation,
+            "allowed_environment_variables": self.allowed_environment_variables,
+            "timeout_seconds": self.timeout_seconds,
+            "max_capture_bytes": self.max_capture_bytes,
+            "allow_shell": self.allow_shell,
+        }
+
+    def digest(self) -> str:
+        return sha256_digest(self.to_dict())
 
 
 @dataclass(frozen=True)
@@ -77,8 +153,9 @@ class LocalVerifierSpec:
 class LocalVerifierRunner:
     """Run registered verifier specs with Python's subprocess module."""
 
-    def __init__(self, registry: VerifierRegistry) -> None:
+    def __init__(self, registry: VerifierRegistry, policy: RunnerPolicy | None = None) -> None:
         self._registry = registry
+        self._policy = policy or RunnerPolicy()
 
     def run(
         self,
@@ -89,15 +166,11 @@ class LocalVerifierRunner:
         extra_environment: dict[str, str] | None = None,
     ) -> LocalVerifierResult:
         spec = self._registry.resolve(verifier_id)
-        cwd = Path(working_directory).resolve()
-        if not cwd.exists() or not cwd.is_dir():
-            raise VerifierError(f"working_directory must exist: {cwd}")
-        timeout = timeout_seconds or spec.allowed_timeout_seconds
-        timeout = min(timeout, spec.allowed_timeout_seconds)
+        cwd = self._policy.validate_working_directory(working_directory)
+        requested_timeout = timeout_seconds or spec.allowed_timeout_seconds
+        timeout = min(requested_timeout, spec.allowed_timeout_seconds, self._policy.timeout_seconds)
         command = spec.command()
-        environment = os.environ.copy()
-        if extra_environment:
-            environment.update(extra_environment)
+        environment = self._policy.environment(extra_environment)
         started = time.perf_counter()
         stdout = b""
         stderr = b""
@@ -114,8 +187,8 @@ class LocalVerifierRunner:
                 check=False,
                 shell=False,
             )
-            stdout = completed.stdout
-            stderr = completed.stderr
+            stdout = _limit_capture(completed.stdout, self._policy.max_capture_bytes)
+            stderr = _limit_capture(completed.stderr, self._policy.max_capture_bytes)
             exit_code = completed.returncode
             passed = completed.returncode == 0
             if not passed:
@@ -123,8 +196,8 @@ class LocalVerifierRunner:
         except subprocess.TimeoutExpired as exc:
             timed_out = True
             passed = False
-            stdout = _coerce_bytes(exc.stdout)
-            stderr = _coerce_bytes(exc.stderr)
+            stdout = _limit_capture(_coerce_bytes(exc.stdout), self._policy.max_capture_bytes)
+            stderr = _limit_capture(_coerce_bytes(exc.stderr), self._policy.max_capture_bytes)
             failure_reasons.append(f"verifier timed out after {timeout} seconds")
         elapsed = time.perf_counter() - started
         stdout_digest = sha256_digest(stdout)
@@ -161,6 +234,8 @@ class LocalVerifierRunner:
                 "stderr_digest": stderr_digest,
                 "runner": "local",
                 "shell": False,
+                "runner_policy_digest": self._policy.digest(),
+                "network_isolation": self._policy.network_isolation,
             },
         )
         return LocalVerifierResult(
@@ -179,9 +254,10 @@ def run_registered_verifier(
     *,
     working_directory: str | Path,
     timeout_seconds: int | None = None,
+    policy: RunnerPolicy | None = None,
 ) -> VerifierRun:
     return (
-        LocalVerifierRunner(registry)
+        LocalVerifierRunner(registry, policy=policy)
         .run(
             verifier_id,
             working_directory=working_directory,
@@ -197,6 +273,12 @@ def _coerce_bytes(value: bytes | str | None) -> bytes:
     if isinstance(value, bytes):
         return value
     return value.encode("utf-8")
+
+
+def _limit_capture(value: bytes, max_bytes: int) -> bytes:
+    if len(value) <= max_bytes:
+        return value
+    return value[:max_bytes]
 
 
 def _extract_metrics(stdout: bytes) -> dict[str, object]:
