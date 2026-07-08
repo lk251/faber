@@ -15,7 +15,13 @@ from faber.validation import (
     require_schema,
     require_sequence,
 )
-from faber.workers import WorkerProfile, WorkerRegistry
+from faber.workers import (
+    PLATFORM_SUPPORT,
+    WorkerProfile,
+    WorkerRegistry,
+    worker_metadata_trust_score,
+    worker_supported_platforms,
+)
 
 
 @dataclass(frozen=True)
@@ -94,6 +100,7 @@ class BaselineRouter:
                 not worker.supported_task_sources
                 or contract.task_source in worker.supported_task_sources
             )
+            and _supports_required_platforms(worker, _required_platforms(contract))
         ]
         if not workers:
             raise ValueError("no available workers support this task")
@@ -129,6 +136,13 @@ def score_worker(
     currency: str = "EUR",
 ) -> WorkerScore:
     task_text = " ".join([contract.title, contract.description, *contract.requirements]).casefold()
+    required_platforms = _required_platforms(contract)
+    supported_platforms = worker_supported_platforms(worker)
+    platform_matches = [
+        platform
+        for platform in required_platforms
+        if _platform_requirement_satisfied(platform, supported_platforms)
+    ]
     capability_matches = [
         capability
         for capability in worker.capabilities
@@ -143,11 +157,18 @@ def score_worker(
     verifier_failures = _int_value(worker.reputation.get("verifier_failures", 0))
     estimated_cost = worker.cost_model or Money(currency, 0)
     capability_score = len(capability_matches) * 100
+    platform_score = len(platform_matches) * 75
     source_score = 50 if source_match else -100
     reputation_score = accepted * 20 - rejected * 30 - verifier_failures * 20
+    metadata_trust_score = worker_metadata_trust_score(worker)
     expected_minor_units = max(
         0,
-        5000 + capability_score * 20 + reputation_score * 10 + source_score * 10,
+        5000
+        + capability_score * 20
+        + platform_score * 20
+        + reputation_score * 10
+        + source_score * 10
+        + metadata_trust_score * 10,
     )
     expected_value = Money(estimated_cost.currency, expected_minor_units)
     score = expected_value.minor_units - estimated_cost.minor_units
@@ -162,6 +183,10 @@ def score_worker(
             "accepted_attempts": accepted,
             "rejected_attempts": rejected,
             "verifier_failures": verifier_failures,
+            "required_platforms": required_platforms,
+            "supported_platforms": supported_platforms,
+            "platform_matches": platform_matches,
+            "metadata_trust_score": metadata_trust_score,
             "score": score,
         },
     )
@@ -184,3 +209,46 @@ def _int_value(value: object) -> int:
     if isinstance(value, str) and value.isdigit():
         return int(value)
     return 0
+
+
+def _required_platforms(contract: TaskContract) -> list[str]:
+    platforms: set[str] = set()
+    required = contract.environment.get("required_platforms")
+    if isinstance(required, list):
+        platforms.update(_normalize_platform(item) for item in required if isinstance(item, str))
+    platform = contract.environment.get("platform")
+    if isinstance(platform, str):
+        platforms.add(_normalize_platform(platform))
+    task_text = " ".join([contract.title, contract.description, *contract.requirements]).casefold()
+    for known_platform in PLATFORM_SUPPORT:
+        if known_platform in task_text:
+            platforms.add(known_platform)
+    return sorted(platforms)
+
+
+def _supports_required_platforms(worker: WorkerProfile, required_platforms: list[str]) -> bool:
+    if not required_platforms:
+        return True
+    supported_platforms = worker_supported_platforms(worker)
+    return all(
+        _platform_requirement_satisfied(platform, supported_platforms)
+        for platform in required_platforms
+    )
+
+
+def _platform_requirement_satisfied(platform: str, supported_platforms: list[str]) -> bool:
+    if platform in supported_platforms:
+        return True
+    return platform == "linux" and "nixos" in supported_platforms
+
+
+def _normalize_platform(value: str) -> str:
+    normalized = value.strip().casefold().replace("_", "-")
+    aliases = {
+        "darwin": "macos",
+        "mac-os": "macos",
+        "mac": "macos",
+        "nix": "nixos",
+        "remote": "remote-runner",
+    }
+    return aliases.get(normalized, normalized)
