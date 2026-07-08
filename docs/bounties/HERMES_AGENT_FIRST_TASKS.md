@@ -120,6 +120,8 @@ Deliverables:
 - expected trace evidence level
 - upstream contribution path
 
+Current fixture: `docs/bounties/HERMES_EXTERNAL_PILOT_TASK_CONTRACT.md`.
+
 ## Recommended ordering
 
 1. Survey and rank Hermes issues.
