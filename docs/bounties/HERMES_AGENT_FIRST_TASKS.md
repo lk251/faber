@@ -92,6 +92,8 @@ Deliverables:
 - trajectory exports
 - docs
 
+Current pilot rule: `docs/bounties/HERMES_BEST_OF_N_SELECTION_PILOT.md`.
+
 ## Idea 6: Hermes skills/plugin safety manifests
 
 Goal: create a manifest/checking path for skills/plugins that declares platform support, permissions, dependencies, and safety assumptions.
