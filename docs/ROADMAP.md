@@ -22,3 +22,24 @@ not implemented in this pass.
 9. Add trajectory privacy policies for redaction, retention, and training splits.
 10. Define payment adapter contracts around accepted receipts while keeping
     integer-money settlement and local fake settlement first.
+
+## Probabilistic Verification Scaling
+
+This research queue is tracked in `codex/future/0015` through `0022` and is based
+on `docs/research/llm-as-a-verifier-2607-05391.md`.
+
+1. Add provider-agnostic probabilistic verifier protocol objects and deterministic
+   fake scoring backends.
+2. Implement a budget-aware Probabilistic Pivot Tournament for multi-attempt
+   candidate ranking.
+3. Add a local multi-attempt selection loop that combines authoritative hard
+   verifier results, advisory probabilistic scores, and cost metadata.
+4. Add trajectory progress scoring primitives for long-running agent monitoring.
+5. Add dense reward export fields for supervised learning, preference learning,
+   and reinforcement learning experiments.
+6. Add verifier-quality and intelligence-per-euro metrics so Faber can compare
+   verifier strategies, not only workers.
+7. Harden authority boundaries so advisory LLM/probabilistic scores cannot settle
+   payment unless explicitly approved.
+8. Keep all initial work provider-agnostic, fake-backend-first, and independent
+   from real model APIs.

@@ -22,3 +22,20 @@ major implementation slice.
   all accepted work settle externally until the economics are clearer?
 - What governance model is needed for Faber Verifiers if third parties publish
   verifier specs?
+
+## Probabilistic Verification Scaling
+
+- Which verifier models expose logprobs or enough scoring-token distribution data
+  for calibrated fine-grained scoring?
+- What open verifier backends are best for self-hosted Faber Runner mode?
+- When, if ever, can an LLM verifier become authoritative for a task class?
+- How should Faber price verifier compute when repeated evaluation and criteria
+  decomposition increase cost?
+- How should Faber compare cheap-many-attempts-plus-verifier strategies against
+  expensive-single-frontier-attempt strategies?
+- How should human review be combined with probabilistic verifier scores?
+- What calibration datasets should Faber build first?
+- How do we prevent verifier gaming by workers or task authors?
+- How do we store reasoning traces without leaking private customer data?
+- What uncertainty threshold should force human review instead of advisory
+  auto-selection?
