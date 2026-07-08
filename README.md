@@ -71,6 +71,9 @@ python -m mypy src
 See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) for the full local workflow and
 troubleshooting notes.
 
+For the fastest end-to-end walkthrough, see [docs/QUICKSTART.md](docs/QUICKSTART.md)
+and [docs/GOLDEN_PATH.md](docs/GOLDEN_PATH.md).
+
 Useful local commands:
 
 ```bash

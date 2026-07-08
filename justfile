@@ -28,4 +28,7 @@ smoke:
     python -m faber.cli init-local-store --path .faber/smoke.sqlite3
     python -m faber.cli emit-demo-trajectory --out .faber/smoke_trajectory.json
 
+demo:
+    python -m faber.cli run-golden-path --store .faber/golden.sqlite3 --out .faber/golden_trajectory.json
+
 check: format-check lint typecheck test smoke

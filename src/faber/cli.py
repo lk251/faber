@@ -11,6 +11,17 @@ from pathlib import Path
 import faber
 from faber.canonical_json import canonical_json
 from faber.datasets import dataset_summary, export_trajectories_jsonl
+from faber.golden import (
+    create_demo_contract,
+    export_demo_trajectory,
+    issue_demo_receipt,
+    register_demo_verifier,
+    register_demo_worker,
+    run_demo_verifier,
+    run_golden_path,
+    settle_demo,
+    submit_demo_attempt,
+)
 from faber.store import export_trajectory, init_local_store, list_records, store_summary
 from faber.trajectories import build_demo_trajectory
 
@@ -51,6 +62,32 @@ def build_parser() -> argparse.ArgumentParser:
 
     dataset = subparsers.add_parser("dataset-summary", help="Summarize trajectory JSONL.")
     dataset.add_argument("path", help="Path to trajectory JSONL.")
+
+    for name, help_text in [
+        ("create-demo-contract", "Create and store the golden path demo contract."),
+        ("register-demo-worker", "Create and store the golden path demo worker."),
+        ("register-demo-verifier", "Create and store the golden path demo verifier spec."),
+        ("submit-demo-attempt", "Create and store the golden path demo attempt."),
+        ("run-demo-verifier", "Run and store the golden path verifier run."),
+        ("issue-demo-receipt", "Create and store the golden path verification receipt."),
+        ("settle-demo", "Create and store the golden path local settlement."),
+    ]:
+        command = subparsers.add_parser(name, help=help_text)
+        command.add_argument("--store", required=True, help="Path to the SQLite database.")
+
+    export_demo = subparsers.add_parser(
+        "export-demo-trajectory",
+        help="Create, store, and export the golden path trajectory.",
+    )
+    export_demo.add_argument("--store", required=True, help="Path to the SQLite database.")
+    export_demo.add_argument("--out", required=True, help="Output trajectory JSON path.")
+
+    golden = subparsers.add_parser(
+        "run-golden-path",
+        help="Run the full deterministic local golden path demo.",
+    )
+    golden.add_argument("--store", required=True, help="Path to the SQLite database.")
+    golden.add_argument("--out", required=True, help="Output trajectory JSON path.")
 
     return parser
 
@@ -131,6 +168,51 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     if args.command == "dataset-summary":
         print(canonical_json(dataset_summary(args.path)))
+        return 0
+
+    if args.command == "create-demo-contract":
+        contract = create_demo_contract(args.store)
+        print(f"created demo contract: {contract.id}")
+        return 0
+
+    if args.command == "register-demo-worker":
+        worker = register_demo_worker(args.store)
+        print(f"registered demo worker: {worker.id}")
+        return 0
+
+    if args.command == "register-demo-verifier":
+        verifier = register_demo_verifier(args.store)
+        print(f"registered demo verifier: {verifier.verifier_id}")
+        return 0
+
+    if args.command == "submit-demo-attempt":
+        attempt = submit_demo_attempt(args.store)
+        print(f"submitted demo attempt: {attempt.id}")
+        return 0
+
+    if args.command == "run-demo-verifier":
+        verifier_run = run_demo_verifier(args.store)
+        print(f"ran demo verifier: {verifier_run.id}")
+        return 0
+
+    if args.command == "issue-demo-receipt":
+        receipt = issue_demo_receipt(args.store)
+        print(f"issued demo receipt: {receipt.id}")
+        return 0
+
+    if args.command == "settle-demo":
+        settlement = settle_demo(args.store)
+        print(f"settled demo work: {settlement.id}")
+        return 0
+
+    if args.command == "export-demo-trajectory":
+        trajectory = export_demo_trajectory(args.store, args.out)
+        print(f"exported demo trajectory: {trajectory.id} -> {args.out}")
+        return 0
+
+    if args.command == "run-golden-path":
+        result = run_golden_path(args.store, args.out)
+        print(canonical_json(result))
         return 0
 
     parser.error(f"unknown command: {args.command}")
