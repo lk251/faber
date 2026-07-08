@@ -1,0 +1,28 @@
+{
+  "schema": "faber.skill_plugin_manifest.v1",
+  "id": "skill-plugin-manifest_missing_dependency",
+  "created_at": "2026-01-01T00:00:00Z",
+  "component_type": "skill",
+  "name": "missing-dependency-fixture",
+  "version": "1.0.0",
+  "description": "Fake skill fixture missing an expected dependency declaration.",
+  "supported_platforms": ["windows"],
+  "permissions": [
+    {
+      "schema": "faber.permission_declaration.v1",
+      "id": "permission_missing_dependency_read_repo",
+      "created_at": "2026-01-01T00:00:00Z",
+      "name": "read-repository",
+      "scope": "workspace",
+      "justification": "Read fixture files during verification.",
+      "required": true,
+      "risk_level": "low"
+    }
+  ],
+  "dependencies": [],
+  "verifier_ids": ["verifier.skill-plugin-manifest"],
+  "metadata": {
+    "expected_dependencies": ["python"],
+    "fixture": true
+  }
+}

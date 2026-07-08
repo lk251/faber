@@ -105,6 +105,8 @@ Deliverables:
 - scanner tests
 - docs
 
+Current manifest path: `docs/bounties/HERMES_SKILL_PLUGIN_SAFETY_MANIFESTS.md`.
+
 ## Idea 7: Real external Faber pilot task contract
 
 Goal: package one selected Hermes issue into a complete Faber `TaskContract` with budget, verifier policy, trace requirement, and acceptance criteria.
