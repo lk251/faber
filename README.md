@@ -33,7 +33,8 @@ Faber is not a bounty-only app. A bounty can be one adapter or market behavior, 
 the core is verified work and verified trajectories.
 
 Faber is not a payment processor. Payments and settlements are adapters around
-verification receipts, not the root system.
+verification receipts, not the root system. The local market ledger models
+provider-agnostic obligations and payouts without integrating a payment provider.
 
 GitHub is the first adapter, not the root abstraction. The protocol should remain
 useful for other task sources, verifier environments, model providers, and payment
