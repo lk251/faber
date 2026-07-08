@@ -5,7 +5,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from faber.digests import sha256_digest
+from faber.errors import ValidationError
 from faber.ids import new_id, utc_now
+from faber.validation import require_mapping, require_non_empty_string, require_string_list
 
 
 @dataclass(frozen=True)
@@ -22,11 +24,14 @@ class GitHubInstallation:
 
     def __post_init__(self) -> None:
         if self.installation_id <= 0:
-            raise ValueError("installation_id must be positive")
-        if not self.account_login:
-            raise ValueError("account_login is required")
-        if not self.selected_repository_full_names:
-            raise ValueError("selected_repository_full_names cannot be empty")
+            raise ValidationError("installation_id must be positive")
+        require_non_empty_string(self.account_login, "account_login")
+        require_string_list(
+            self.selected_repository_full_names,
+            "selected_repository_full_names",
+            allow_empty=False,
+        )
+        require_mapping(self.permissions, "permissions")
 
     def allows_repository(self, repository_full_name: str) -> bool:
         normalized = repository_full_name.casefold()

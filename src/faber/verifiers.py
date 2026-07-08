@@ -4,8 +4,17 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from faber import schemas
 from faber.digests import sha256_digest
 from faber.ids import new_id, utc_now
+from faber.validation import (
+    require_mapping,
+    require_non_empty_string,
+    require_optional_digest,
+    require_schema,
+    require_sequence,
+    require_string_list,
+)
 
 
 @dataclass(frozen=True)
@@ -23,7 +32,20 @@ class VerifierRun:
     metadata: dict[str, object] = field(default_factory=dict)
     id: str = field(default_factory=lambda: new_id("verifier-run"))
     created_at: str = field(default_factory=utc_now)
-    schema: str = "faber.verifier_run.v1"
+    schema: str = schemas.VERIFIER_RUN
+
+    def __post_init__(self) -> None:
+        require_schema(self.schema, schemas.VERIFIER_RUN)
+        require_non_empty_string(self.id, "id")
+        require_non_empty_string(self.created_at, "created_at")
+        require_non_empty_string(self.verifier_id, "verifier_id")
+        require_non_empty_string(self.name, "name")
+        require_non_empty_string(self.version, "version")
+        require_string_list(self.command, "command", allow_empty=False)
+        require_mapping(self.metrics, "metrics")
+        require_sequence(self.failure_reasons, "failure_reasons")
+        require_optional_digest(self.logs_digest, "logs_digest")
+        require_mapping(self.metadata, "metadata")
 
     def verifier_spec(self) -> dict[str, object]:
         return {

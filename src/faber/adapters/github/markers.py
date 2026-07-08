@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from faber.canonical_json import canonical_json
 from faber.contracts import TaskContract
 from faber.digests import sha256_digest
+from faber.errors import DigestMismatchError, ValidationError
 
 MARKER_BEGIN = "<!-- faber:task-contract"
 MARKER_END = "-->"
@@ -48,13 +49,13 @@ def render_contract_marker(contract: TaskContract) -> str:
 def parse_contract_marker(text: str) -> ContractMarker:
     match = _MARKER_PATTERN.search(text)
     if not match:
-        raise ValueError("Faber task contract marker not found")
+        raise ValidationError("Faber task contract marker not found")
     try:
         payload = json.loads(match.group(1))
     except json.JSONDecodeError as exc:
-        raise ValueError("malformed Faber task contract marker") from exc
+        raise ValidationError("malformed Faber task contract marker") from exc
     if not isinstance(payload, dict):
-        raise ValueError("Faber task contract marker must contain an object")
+        raise ValidationError("Faber task contract marker must contain an object")
     schema = payload.get("schema")
     contract_id = payload.get("contract_id")
     contract_digest = payload.get("contract_digest")
@@ -65,12 +66,12 @@ def parse_contract_marker(text: str) -> ContractMarker:
         or not isinstance(contract_digest, str)
         or not isinstance(contract, dict)
     ):
-        raise ValueError("Faber task contract marker is missing required fields")
+        raise ValidationError("Faber task contract marker is missing required fields")
     if contract.get("id") != contract_id:
-        raise ValueError("Faber task contract marker id mismatch")
+        raise DigestMismatchError("Faber task contract marker id mismatch")
     actual_digest = sha256_digest(contract)
     if not hmac_safe_equal(actual_digest, contract_digest):
-        raise ValueError("Faber task contract marker digest mismatch")
+        raise DigestMismatchError("Faber task contract marker digest mismatch")
     return ContractMarker(
         schema=schema,
         contract_id=contract_id,

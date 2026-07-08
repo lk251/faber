@@ -6,6 +6,7 @@ from faber.adapters.github.events import GitHubIssueRef, GitHubPullRequestRef
 from faber.adapters.github.installation import GitHubInstallation
 from faber.attempts import Attempt
 from faber.contracts import TaskContract
+from faber.errors import ScopeError, ValidationError
 
 
 def issue_contract(
@@ -36,9 +37,9 @@ def issue_to_task_contract(
     """Convert a GitHub issue reference into a verifier-first task contract."""
 
     if not installation.allows_repository(issue.repository_full_name):
-        raise ValueError("issue repository is outside the GitHub installation scope")
+        raise ScopeError("repository is outside the GitHub installation scope")
     if not verifier_ids:
-        raise ValueError("verifier_ids are required")
+        raise ValidationError("verifier_ids must contain at least one verifier id")
     return TaskContract(
         title=issue.title,
         description=issue.body,
@@ -70,13 +71,13 @@ def pull_request_to_attempt(
     """Convert a GitHub pull request reference into an attempt for a contract."""
 
     if not installation.allows_repository(pull_request.repository_full_name):
-        raise ValueError("pull request repository is outside the GitHub installation scope")
+        raise ScopeError("repository is outside the GitHub installation scope")
     if contract.repository != pull_request.repository_full_name:
-        raise ValueError("pull request repository does not match task contract repository")
+        raise ScopeError("repository does not match task contract repository")
     if not patch_digest:
-        raise ValueError("patch_digest is required")
+        raise ValidationError("patch_digest is required")
     if not worker_id:
-        raise ValueError("worker_id is required")
+        raise ValidationError("worker_id is required")
     return Attempt(
         task_contract_id=contract.id,
         worker_id=worker_id,

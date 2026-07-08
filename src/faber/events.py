@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from faber import schemas
 from faber.digests import sha256_digest
 from faber.ids import new_id, utc_now
+from faber.validation import require_mapping, require_non_empty_string, require_schema
 
 
 @dataclass(frozen=True)
@@ -18,7 +20,17 @@ class MarketEvent:
     payload: dict[str, object] = field(default_factory=dict)
     id: str = field(default_factory=lambda: new_id("market-event"))
     created_at: str = field(default_factory=utc_now)
-    schema: str = "faber.market_event.v1"
+    schema: str = schemas.MARKET_EVENT
+
+    def __post_init__(self) -> None:
+        require_schema(self.schema, schemas.MARKET_EVENT)
+        require_non_empty_string(self.id, "id")
+        require_non_empty_string(self.created_at, "created_at")
+        require_non_empty_string(self.event_type, "event_type")
+        require_non_empty_string(self.subject_id, "subject_id")
+        if self.actor_id is not None:
+            require_non_empty_string(self.actor_id, "actor_id")
+        require_mapping(self.payload, "payload")
 
     def to_dict(self) -> dict[str, object]:
         return {

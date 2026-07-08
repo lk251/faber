@@ -4,10 +4,18 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from faber import schemas
 from faber.attempts import Attempt
 from faber.contracts import TaskContract
 from faber.digests import sha256_digest
 from faber.ids import new_id, utc_now
+from faber.validation import (
+    require_digest,
+    require_mapping,
+    require_non_empty_string,
+    require_schema,
+    require_sequence,
+)
 from faber.verifiers import VerifierRun
 
 
@@ -29,7 +37,23 @@ class VerificationReceipt:
     result_digest: str
     id: str = field(default_factory=lambda: new_id("verification-receipt"))
     created_at: str = field(default_factory=utc_now)
-    schema: str = "faber.verification_receipt.v1"
+    schema: str = schemas.VERIFICATION_RECEIPT
+
+    def __post_init__(self) -> None:
+        require_schema(self.schema, schemas.VERIFICATION_RECEIPT)
+        require_non_empty_string(self.id, "id")
+        require_non_empty_string(self.created_at, "created_at")
+        require_non_empty_string(self.task_contract_id, "task_contract_id")
+        require_digest(self.task_contract_digest, "task_contract_digest")
+        require_non_empty_string(self.attempt_id, "attempt_id")
+        require_non_empty_string(self.worker_id, "worker_id")
+        require_non_empty_string(self.verifier_id, "verifier_id")
+        require_digest(self.verifier_digest, "verifier_digest")
+        require_non_empty_string(self.base_revision, "base_revision")
+        require_non_empty_string(self.candidate_revision, "candidate_revision")
+        require_mapping(self.metrics, "metrics")
+        require_sequence(self.failure_reasons, "failure_reasons")
+        require_digest(self.result_digest, "result_digest")
 
     @classmethod
     def from_verifier_run(

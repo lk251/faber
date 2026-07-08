@@ -4,9 +4,16 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from faber import schemas
 from faber.digests import sha256_digest
 from faber.ids import new_id, utc_now
 from faber.money import Money
+from faber.validation import (
+    require_mapping,
+    require_non_empty_string,
+    require_schema,
+    require_sequence,
+)
 
 
 @dataclass(frozen=True)
@@ -22,7 +29,17 @@ class RouterDecision:
     decision_factors: dict[str, object] = field(default_factory=dict)
     id: str = field(default_factory=lambda: new_id("router-decision"))
     created_at: str = field(default_factory=utc_now)
-    schema: str = "faber.router_decision.v1"
+    schema: str = schemas.ROUTER_DECISION
+
+    def __post_init__(self) -> None:
+        require_schema(self.schema, schemas.ROUTER_DECISION)
+        require_non_empty_string(self.id, "id")
+        require_non_empty_string(self.created_at, "created_at")
+        require_non_empty_string(self.task_contract_id, "task_contract_id")
+        require_non_empty_string(self.selected_worker_id, "selected_worker_id")
+        require_sequence(self.rejected_alternatives, "rejected_alternatives")
+        require_non_empty_string(self.policy_name, "policy_name")
+        require_mapping(self.decision_factors, "decision_factors")
 
     def to_dict(self) -> dict[str, object]:
         return {

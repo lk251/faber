@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from faber import schemas
 from faber.attempts import Attempt
 from faber.contracts import TaskContract
 from faber.digests import sha256_digest
@@ -12,6 +13,7 @@ from faber.money import Money
 from faber.receipts import VerificationReceipt
 from faber.routing import RouterDecision
 from faber.settlement import Settlement
+from faber.validation import require_mapping, require_non_empty_string, require_schema
 from faber.verifiers import VerifierRun
 from faber.workers import WorkerProfile
 
@@ -31,7 +33,21 @@ class Trajectory:
     worker_profile: WorkerProfile | None = None
     id: str = field(default_factory=lambda: new_id("trajectory"))
     created_at: str = field(default_factory=utc_now)
-    schema: str = "faber.trajectory.v1"
+    schema: str = schemas.TRAJECTORY
+
+    def __post_init__(self) -> None:
+        require_schema(self.schema, schemas.TRAJECTORY)
+        require_non_empty_string(self.id, "id")
+        require_non_empty_string(self.created_at, "created_at")
+        if self.attempt.task_contract_id != self.contract.id:
+            raise ValueError("attempt.task_contract_id must match contract.id")
+        if self.receipt.task_contract_id != self.contract.id:
+            raise ValueError("receipt.task_contract_id must match contract.id")
+        if self.receipt.attempt_id != self.attempt.id:
+            raise ValueError("receipt.attempt_id must match attempt.id")
+        require_mapping(self.cost_metadata, "cost_metadata")
+        require_mapping(self.latency_metadata, "latency_metadata")
+        require_mapping(self.review_metadata, "review_metadata")
 
     def outcome(self) -> str:
         if self.receipt.accepted:

@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from faber.digests import sha256_digest
+from faber.errors import ValidationError
 from faber.ids import new_id, utc_now
 
 
@@ -48,7 +49,7 @@ class GitHubRepositoryRef:
     ) -> GitHubRepositoryRef:
         parts = full_name.split("/", 1)
         if len(parts) != 2 or not parts[0] or not parts[1]:
-            raise ValueError("repository full name must be owner/name")
+            raise ValidationError("repository full_name must be owner/name")
         return cls(
             full_name=full_name,
             owner=parts[0],
@@ -60,7 +61,7 @@ class GitHubRepositoryRef:
     def from_payload(cls, payload: dict[str, object]) -> GitHubRepositoryRef:
         full_name = _nested_string(payload, "full_name")
         if not full_name:
-            raise ValueError("repository payload requires full_name")
+            raise ValidationError("repository.full_name is required")
         return cls.from_full_name(
             full_name,
             default_branch=_nested_string(payload, "default_branch"),
@@ -90,12 +91,12 @@ class GitHubIssueRef:
         repository = payload.get("repository")
         issue = payload.get("issue")
         if not isinstance(repository, dict) or not isinstance(issue, dict):
-            raise ValueError("issue payload requires repository and issue objects")
+            raise ValidationError("payload.repository and payload.issue are required")
         repository_full_name = _nested_string(repository, "full_name")
         number = issue.get("number")
         title = issue.get("title")
         if not repository_full_name or not isinstance(number, int) or not isinstance(title, str):
-            raise ValueError("issue payload is missing required fields")
+            raise ValidationError("issue payload is missing repository, number, or title")
         body = issue.get("body")
         user = issue.get("user")
         author_login = user.get("login") if isinstance(user, dict) else None
@@ -137,7 +138,7 @@ class GitHubPullRequestRef:
         repository = payload.get("repository")
         pull_request = payload.get("pull_request")
         if not isinstance(repository, dict) or not isinstance(pull_request, dict):
-            raise ValueError("pull request payload requires repository and pull_request objects")
+            raise ValidationError("payload.repository and payload.pull_request are required")
         repository_full_name = _nested_string(repository, "full_name")
         number = pull_request.get("number")
         title = pull_request.get("title")
@@ -150,7 +151,7 @@ class GitHubPullRequestRef:
             or not base_revision
             or not head_revision
         ):
-            raise ValueError("pull request payload is missing required fields")
+            raise ValidationError("pull request payload is missing required fields")
         body = pull_request.get("body")
         user = pull_request.get("user")
         author_login = user.get("login") if isinstance(user, dict) else None
@@ -216,7 +217,7 @@ def normalize_github_event(
     delivery_id: str | None = None,
 ) -> GitHubEvent:
     if not event_name:
-        raise ValueError("GitHub event name is required")
+        raise ValidationError("event_name must be a non-empty string")
     repository = payload.get("repository")
     repository_full_name = None
     if isinstance(repository, dict):

@@ -4,10 +4,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field, replace
 
+from faber import schemas
 from faber.digests import sha256_digest
+from faber.errors import SettlementError
 from faber.ids import new_id, utc_now
 from faber.money import Money
 from faber.receipts import VerificationReceipt
+from faber.validation import require_non_empty_string, require_schema
 
 SETTLEMENT_STATUSES = {"pending", "paid", "rejected"}
 
@@ -25,13 +28,18 @@ class Settlement:
     paid_at: str | None = None
     id: str = field(default_factory=lambda: new_id("settlement"))
     created_at: str = field(default_factory=utc_now)
-    schema: str = "faber.settlement.v1"
+    schema: str = schemas.SETTLEMENT
 
     def __post_init__(self) -> None:
+        require_schema(self.schema, schemas.SETTLEMENT)
+        require_non_empty_string(self.id, "id")
+        require_non_empty_string(self.created_at, "created_at")
+        require_non_empty_string(self.receipt_id, "receipt_id")
+        require_non_empty_string(self.worker_id, "worker_id")
         if self.status not in SETTLEMENT_STATUSES:
-            raise ValueError(f"invalid settlement status: {self.status}")
+            raise SettlementError(f"status must be one of {sorted(SETTLEMENT_STATUSES)}")
         if self.status == "paid" and not self.receipt_accepted:
-            raise ValueError("paid settlement requires an accepted receipt")
+            raise SettlementError("paid settlement requires an accepted receipt")
 
     @classmethod
     def from_receipt(cls, receipt: VerificationReceipt, amount: Money) -> Settlement:
@@ -51,9 +59,9 @@ class Settlement:
         paid_at: str | None = None,
     ) -> Settlement:
         if receipt.id != self.receipt_id:
-            raise ValueError("settlement receipt does not match")
+            raise SettlementError("receipt_id does not match settlement receipt_id")
         if not receipt.accepted:
-            raise ValueError("cannot mark rejected work as paid")
+            raise SettlementError("cannot mark rejected work as paid")
         if self.status == "paid":
             return self
         return replace(

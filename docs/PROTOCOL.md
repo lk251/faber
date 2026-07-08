@@ -23,3 +23,19 @@ payment providers, multiple model providers, and non-GitHub task sources.
 
 GitHub evidence can seed task contracts and attempts, but receipts should bind
 approved verifier outputs rather than trusting candidate-owned CI as authority.
+
+## Validation Philosophy
+
+Faber Protocol objects validate essential invariants at construction time. Required
+identifiers must be non-empty strings, schema names must match stable versioned
+constants, digest fields must use `sha256:<hex>`, and money must remain in integer
+minor units.
+
+Metadata stays extensible. Adapter-specific context, review notes, cost details,
+and future training annotations may use ordinary dictionaries as long as the core
+audit fields remain stable and explicit.
+
+Shared error types in `faber.errors` make failure boundaries inspectable:
+validation failures use `ValidationError`, scope failures use `ScopeError`, digest
+mismatches use `DigestMismatchError`, settlement invariant failures use
+`SettlementError`, and verifier/runner failures use `VerifierError`.
