@@ -5,6 +5,10 @@ completed 0003-0014 queue.
 
 ## Probabilistic Verification Scaling
 
+Reference project: [lk251/llm-as-a-verifier](https://github.com/lk251/llm-as-a-verifier).
+Use it as read-only reference for ideas, invariants, fixtures, and tests. Do not
+copy provider-specific runtime assumptions into Faber core.
+
 1. `0015-probabilistic-verifier-protocol.md`
 2. `0016-probabilistic-pivot-tournament.md`
 3. `0017-multi-attempt-selection-loop.md`

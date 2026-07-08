@@ -15,6 +15,11 @@ The paper "LLM-as-a-Verifier: A General-Purpose Verification Framework"
 probabilistic scores from scoring-token distributions, repeated evaluation,
 criteria decomposition, and budget-aware candidate ranking.
 
+The project `lk251/llm-as-a-verifier` is a useful read-only reference for
+implementing and testing these ideas. Faber should learn from its scoring,
+ranking, and progress-monitoring patterns without importing provider-specific
+runtime assumptions into the core protocol.
+
 ## Decision
 
 Faber will add a provider-agnostic probabilistic verification layer inspired by

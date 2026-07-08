@@ -96,3 +96,13 @@ lk251/agent-bounty-market
 Use it only as read-only reference for ideas, invariants, tests, and lessons. Do
 not refactor it in place. Do not copy hackathon demo, Stripe, NVIDIA, Hermes,
 Motoko-specific, or presentation-bundle assumptions into Faber's core.
+
+The probabilistic verification reference project is:
+
+```text
+lk251/llm-as-a-verifier
+```
+
+Use it as read-only reference for verifier scoring, candidate ranking, progress
+signals, and tests. Keep Faber's core provider-agnostic, fake-backend-first, and
+separate from any model API or runtime assumptions in the reference project.

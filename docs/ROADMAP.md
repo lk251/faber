@@ -26,7 +26,8 @@ not implemented in this pass.
 ## Probabilistic Verification Scaling
 
 This research queue is tracked in `codex/future/0015` through `0022` and is based
-on `docs/research/llm-as-a-verifier-2607-05391.md`.
+on `docs/research/llm-as-a-verifier-2607-05391.md`. The reference project is
+`lk251/llm-as-a-verifier`; use it for ideas and tests, not as a core dependency.
 
 1. Add provider-agnostic probabilistic verifier protocol objects and deterministic
    fake scoring backends.

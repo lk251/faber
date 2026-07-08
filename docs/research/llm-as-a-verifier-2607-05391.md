@@ -2,6 +2,7 @@
 
 Paper: "LLM-as-a-Verifier: A General-Purpose Verification Framework"  
 arXiv: [2607.05391v1](https://arxiv.org/abs/2607.05391)  
+Reference project: [lk251/llm-as-a-verifier](https://github.com/lk251/llm-as-a-verifier)  
 Date: 2026-07-06
 
 ## Summary
@@ -92,6 +93,15 @@ Other limitations for Faber:
 - Repeated evaluation and criteria decomposition increase verifier cost.
 - Calibration datasets are required before any verifier can be trusted for high
   value settlement or routing decisions.
+
+## Reference Project
+
+`lk251/llm-as-a-verifier` is a read-only reference for future Faber work on
+probabilistic verifier scoring, candidate ranking, progress estimation, and
+testing strategy. It can teach Faber useful invariants and fixture design, but it
+must not become a dependency of Faber core. Any provider-specific code, model API
+assumption, proxy/runtime design, or benchmark harness from the reference project
+belongs behind future adapters or fake deterministic test backends first.
 
 ## Adoption Strategy
 
