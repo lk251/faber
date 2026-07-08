@@ -21,6 +21,14 @@ attempt metadata, trace evidence, verifier outcome, review signal, cost,
 settlement, and final outcome. A normalized trajectory is stable, digestable, and
 suitable for audit and dataset export.
 
+RL-grade trajectory:
+A normalized trajectory with enough process evidence, environment evidence,
+solver metadata, verifier outcome, reward/cost/latency signal, and explicit
+training-use eligibility to support future reinforcement learning or
+orchestrator training. A raw trace alone is not RL-grade; it must be normalized,
+validated, redacted as needed, and bound to a verifier outcome and consent
+policy.
+
 Episode package:
 A higher-fidelity bundle that can be inspected or replayed. It may include the
 task contract, repository or environment snapshot, raw trace JSONL, normalized
@@ -48,6 +56,12 @@ It is not enough to learn how the work happened. A PR usually loses:
 Faber should accept PR-only submissions early, but treat them as low-evidence
 submissions. Richer traces should unlock stronger reputation, eligibility, and
 possibly better economics when a task benefits from them.
+
+For Faber-native paid work or work that is eligible for training export, task
+contracts should request RL-grade trajectories by default unless the task is
+explicitly marked PR-only or low-evidence. PR-only submissions can remain valid
+customer work when the task allows them, but they should not be exported as
+RL-grade training data by default.
 
 ## Evidence Ladder
 
@@ -224,13 +238,15 @@ Trace richness should be market-aligned:
 - premium tasks may require Level 2 or Level 4 evidence;
 - high-quality traces should improve worker reputation;
 - redacted traces should be allowed when task policy permits them;
+- training-use consent should be explicit before records enter training exports;
 - richer traces can speed dispute resolution;
 - richer traces can improve verifier calibration and reduce false rejects;
 - richer traces can improve attribution for harness, model, and environment
   quality.
 
-This should be opt-in at first. A global full-trace requirement would exclude
-useful solvers, proprietary systems, and ordinary open-source contributors.
+This should be task-policy driven. A global full-trace requirement would exclude
+useful solvers, proprietary systems, and ordinary open-source contributors, but
+Faber-native paid or training-eligible work should make the richer default clear.
 
 ## Platform Stance
 

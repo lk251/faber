@@ -14,7 +14,7 @@ from faber.digests import sha256_digest
 from faber.money import Money
 from faber.receipts import VerificationReceipt
 from faber.routing import RouterDecision
-from faber.traces import AttemptManifest, RedactionPolicy
+from faber.traces import AttemptManifest, RedactionPolicy, TrajectoryConsent
 from faber.trajectories import Trajectory
 from faber.verifiers import VerifierRun
 
@@ -78,6 +78,13 @@ def _attempt_manifest(contract) -> AttemptManifest:
         budget_metadata={"currency": "EUR", "budget_minor_units": 5000},
         cost_metadata={"currency": "EUR", "compute_minor_units": 1200},
         latency_metadata={"work_seconds": 300},
+        training_consent=TrajectoryConsent(
+            id="trajectory-consent_github_pr",
+            created_at="2026-01-01T00:00:00Z",
+            training_use_allowed=True,
+            allowed_uses=["supervised", "router"],
+            license_ref="test-fixture",
+        ),
         trust_level="self_attested",
     )
 
@@ -104,6 +111,9 @@ def test_github_pr_ref_becomes_attempt_with_ci_as_metadata_only() -> None:
     assert attempt.metadata["candidate_ci"]["authority"] == "signal_only"
     assert attempt.metadata["candidate_ci"]["check_summaries"][0]["conclusion"] == "success"
     assert attempt.metadata["faber_attempt_manifest"]["status"] == "missing"
+    assert attempt.metadata["trajectory_quality"]["quality_tier"] == "pr_only"
+    assert attempt.metadata["trajectory_quality"]["evidence_level"] == 0
+    assert attempt.metadata["trajectory_quality"]["training_eligible"] is False
 
 
 def test_valid_attempt_manifest_from_pr_file_map() -> None:
@@ -127,6 +137,9 @@ def test_valid_attempt_manifest_from_pr_file_map() -> None:
     assert evidence["manifest_digest"] == manifest.digest()
     assert evidence["manifest"]["attempt_id"] == manifest.attempt_id
     assert evidence["provenance"]["trust_level"] == "self_attested"
+    assert attempt.metadata["trajectory_quality"]["quality_tier"] == "manifest"
+    assert attempt.metadata["trajectory_quality"]["evidence_level"] == 1
+    assert attempt.metadata["trajectory_quality"]["training_eligible"] is True
 
 
 def test_missing_attempt_manifest_is_allowed() -> None:

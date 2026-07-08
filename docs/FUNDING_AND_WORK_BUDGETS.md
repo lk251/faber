@@ -37,6 +37,17 @@ The GitHub product loop should eventually support:
 
 A GitHub issue can become a task contract with a budget, verifier policy, trace requirement, and settlement rule.
 
+## Evidence and payout eligibility
+
+Work budgets may declare trajectory quality requirements. A task can accept
+PR-only work for settlement, require manifest or trace evidence for full payout,
+or reserve bonuses for RL-grade or replayable episode packages.
+
+Richer evidence affects payout eligibility and reputation, not the authority of
+settlement. Settlement still requires authoritative verification through the task
+contract's verifier policy, and no payment-provider integration is part of the
+core protocol.
+
 ## Existing funding surfaces to support later
 
 Faber should be able to ingest or reconcile support from existing repo funding mechanisms where permitted:

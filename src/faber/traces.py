@@ -246,6 +246,76 @@ class Attestation:
 
 
 @dataclass(frozen=True)
+class TrajectoryConsent:
+    """Consent and policy metadata for training use of trajectory evidence."""
+
+    training_use_allowed: bool
+    allowed_uses: list[str] = field(default_factory=list)
+    license_ref: str = "unspecified"
+    redaction_required: bool = True
+    notes: str = ""
+    id: str = field(default_factory=lambda: new_id("trajectory-consent"))
+    created_at: str = field(default_factory=utc_now)
+    schema: str = schemas.TRAJECTORY_CONSENT
+
+    def __post_init__(self) -> None:
+        require_schema(self.schema, schemas.TRAJECTORY_CONSENT)
+        require_non_empty_string(self.id, "id")
+        require_non_empty_string(self.created_at, "created_at")
+        if not isinstance(self.training_use_allowed, bool):
+            raise ValidationError("training_use_allowed must be a boolean")
+        require_string_list(self.allowed_uses, "allowed_uses")
+        require_non_empty_string(self.license_ref, "license_ref")
+        if not isinstance(self.redaction_required, bool):
+            raise ValidationError("redaction_required must be a boolean")
+        if not isinstance(self.notes, str):
+            raise ValidationError("notes must be a string")
+
+    def allows(self, use: str) -> bool:
+        require_non_empty_string(use, "use")
+        return self.training_use_allowed and (
+            "all" in self.allowed_uses or use in self.allowed_uses
+        )
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "schema": self.schema,
+            "id": self.id,
+            "created_at": self.created_at,
+            "training_use_allowed": self.training_use_allowed,
+            "allowed_uses": self.allowed_uses,
+            "license_ref": self.license_ref,
+            "redaction_required": self.redaction_required,
+            "notes": self.notes,
+        }
+
+    def digest(self) -> str:
+        return sha256_digest(self.to_dict())
+
+    @classmethod
+    def from_dict(cls, payload: dict[str, object]) -> TrajectoryConsent:
+        training_use_allowed = payload.get("training_use_allowed")
+        if not isinstance(training_use_allowed, bool):
+            raise ValidationError("training_use_allowed must be a boolean")
+        redaction_required = payload.get("redaction_required", True)
+        if not isinstance(redaction_required, bool):
+            raise ValidationError("redaction_required must be a boolean")
+        notes = payload.get("notes", "")
+        if not isinstance(notes, str):
+            raise ValidationError("notes must be a string")
+        return cls(
+            id=_required_string(payload, "id"),
+            created_at=_required_string(payload, "created_at"),
+            training_use_allowed=training_use_allowed,
+            allowed_uses=require_string_list(payload.get("allowed_uses", []), "allowed_uses"),
+            license_ref=_required_string(payload, "license_ref"),
+            redaction_required=redaction_required,
+            notes=notes,
+            schema=_schema_or_default(payload, "schema", schemas.TRAJECTORY_CONSENT),
+        )
+
+
+@dataclass(frozen=True)
 class TraceEvent:
     """A normalized event in a Faber trace JSONL stream."""
 
@@ -417,6 +487,7 @@ class AttemptManifest:
     budget_metadata: dict[str, object] = field(default_factory=dict)
     cost_metadata: dict[str, object] = field(default_factory=dict)
     latency_metadata: dict[str, object] = field(default_factory=dict)
+    training_consent: TrajectoryConsent | None = None
     trust_level: str = "self_attested"
     attestation: Attestation | None = None
     id: str = field(default_factory=lambda: new_id("attempt-manifest"))
@@ -446,6 +517,11 @@ class AttemptManifest:
             ("latency_metadata", self.latency_metadata),
         ]:
             require_mapping(value, field_name)
+        if self.training_consent is not None and not isinstance(
+            self.training_consent,
+            TrajectoryConsent,
+        ):
+            raise ValidationError("training_consent must be a TrajectoryConsent")
         require_optional_digest(self.tool_registry_digest, "tool_registry_digest")
         require_optional_digest(self.nix_flake_lock_digest, "nix_flake_lock_digest")
         require_trust_level(self.trust_level)
@@ -471,6 +547,9 @@ class AttemptManifest:
             "budget_metadata": self.budget_metadata,
             "cost_metadata": self.cost_metadata,
             "latency_metadata": self.latency_metadata,
+            "training_consent": self.training_consent.to_dict()
+            if self.training_consent
+            else None,
             "redaction_policy": self.redaction_policy.to_dict(),
             "trust_level": self.trust_level,
             "attestation": self.attestation.to_dict() if self.attestation else None,
@@ -491,6 +570,13 @@ class AttemptManifest:
             attestation = Attestation.from_dict(attestation_payload)
         else:
             raise ValidationError("attestation must be a mapping or null")
+        training_consent_payload = payload.get("training_consent")
+        if training_consent_payload is None:
+            training_consent = None
+        elif isinstance(training_consent_payload, dict):
+            training_consent = TrajectoryConsent.from_dict(training_consent_payload)
+        else:
+            raise ValidationError("training_consent must be a mapping or null")
         return cls(
             id=_required_string(payload, "id"),
             created_at=_required_string(payload, "created_at"),
@@ -511,6 +597,7 @@ class AttemptManifest:
             budget_metadata=_mapping_field(payload, "budget_metadata"),
             cost_metadata=_mapping_field(payload, "cost_metadata"),
             latency_metadata=_mapping_field(payload, "latency_metadata"),
+            training_consent=training_consent,
             trust_level=_required_string(payload, "trust_level"),
             attestation=attestation,
             schema=_schema_or_default(payload, "schema", schemas.ATTEMPT_MANIFEST),

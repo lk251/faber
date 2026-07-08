@@ -19,6 +19,41 @@ Reward, cost, latency, verifier outcome, review friction, and settlement metadat
 matter because Faber optimizes intelligence per euro rather than raw pass rate or
 raw cheapness.
 
+## Quality Tiers
+
+Faber separates trace capture from trajectory quality:
+
+- `pr_only`: final artifact and authoritative outcome only. Valid customer work
+  when the task allows it, but low-evidence and not RL-grade.
+- `manifest`: PR plus `AttemptManifest`. Useful for supervised/router training
+  and attempt quality prediction, but not RL-grade without process events.
+- `trace`: manifest plus ordered Faber Runner or harness-native trace evidence.
+  This can be RL-grade when reward, replayability, verifier outcome, and
+  training-use consent are present.
+- `episode`: replayable episode package with manifests, trace evidence,
+  artifacts, and replay instructions. This is the highest-quality tier.
+
+`TaskContract.trajectory_requirement` can declare a minimum quality tier, require
+RL-grade evidence, require training eligibility, or set a richer tier for full
+payout or bonus eligibility.
+
+## RL-Grade Validation
+
+An RL-grade trajectory requires:
+
+- process evidence with ordered context/action/tool/verifier/outcome events;
+- environment replayability evidence such as declared platform metadata,
+  lockfile/container evidence, or a replayable episode package;
+- solver metadata from `AttemptManifest`;
+- an authoritative verifier receipt and outcome;
+- explicit reward signal, plus cost and latency when available;
+- consent or equivalent training-use eligibility.
+
+Redacted traces can still be RL-grade when required event classes, digests,
+reward, outcome, and environment evidence remain. Private prompts,
+chain-of-thought, proprietary harness internals, and private model weights are
+not required.
+
 ## Review and Verifier Quality
 
 Human review signals should be captured without making human review the only
@@ -35,6 +70,11 @@ Trajectories can be exported as canonical JSONL with one trajectory record per
 line. Dataset manifests record source paths, record counts, schema versions,
 accepted/rejected counts, total cost, total reward, margin, the JSONL digest, and
 quality issues.
+
+Exports attach a `trajectory_quality` validation report. Training dataset export
+can filter for RL-grade and training-eligible records so PR-only and
+training-ineligible trajectories are excluded by default from RL-grade training
+sets.
 
 Stable split assignment uses deterministic hashing of the trajectory id into
 `train`, `validation`, and `test`, so records stay in the same split across runs.

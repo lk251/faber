@@ -150,6 +150,7 @@ def pull_request_to_attempt(
                 "check_summaries": check_summaries or [],
             },
             "faber_attempt_manifest": manifest_evidence.to_metadata(),
+            "trajectory_quality": _trajectory_quality_metadata(manifest_evidence),
         },
     )
 
@@ -225,3 +226,24 @@ def _manifest_link_errors(
     if manifest.worker_id != worker_id:
         errors.append("attempt manifest worker_id does not match adapter worker_id")
     return errors
+
+
+def _trajectory_quality_metadata(
+    evidence: PullRequestAttemptManifestEvidence,
+) -> dict[str, object]:
+    if evidence.status != "valid" or evidence.manifest is None:
+        return {
+            "quality_tier": "pr_only",
+            "evidence_level": 0,
+            "training_eligible": False,
+            "source": "github_pull_request",
+            "reason": "missing valid .faber/attempt.json and process evidence",
+        }
+    consent = evidence.manifest.training_consent
+    return {
+        "quality_tier": "manifest",
+        "evidence_level": evidence.manifest.evidence_level,
+        "training_eligible": bool(consent and consent.training_use_allowed),
+        "source": ATTEMPT_MANIFEST_PATH,
+        "reason": "valid attempt manifest without trace evidence",
+    }

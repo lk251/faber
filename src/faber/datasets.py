@@ -146,8 +146,23 @@ def export_trajectories_jsonl(
     source_paths: list[str] | None = None,
     redactor: Redactor | None = None,
     dataset_id: str | None = None,
+    require_rl_grade: bool = False,
+    require_training_eligible: bool = False,
+    minimum_quality_tier: str | None = None,
 ) -> DatasetManifest:
-    records = [trajectory_record(trajectory) for trajectory in trajectories]
+    from faber.trajectory_quality import annotate_trajectory_record, filter_training_records
+
+    records = [
+        annotate_trajectory_record(trajectory_record(trajectory))
+        for trajectory in trajectories
+    ]
+    if require_rl_grade or require_training_eligible or minimum_quality_tier is not None:
+        records = filter_training_records(
+            records,
+            require_rl_grade=require_rl_grade,
+            require_training_eligible=require_training_eligible,
+            minimum_quality_tier=minimum_quality_tier,
+        )
     if redactor is not None:
         records = [redactor(record) for record in records]
     lines = [canonical_json(record) for record in records]

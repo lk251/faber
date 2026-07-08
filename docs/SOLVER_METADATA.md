@@ -104,6 +104,7 @@ Fields should include:
 - Nix flake lock digest if available;
 - budget and cost metadata using integer minor units;
 - latency metadata;
+- training-use consent and allowed-use policy;
 - evidence level;
 - trace level when distinct from evidence level;
 - redaction policy;
@@ -111,6 +112,9 @@ Fields should include:
 
 The manifest is optional for early GitHub adoption. If present, it should validate
 strictly and produce clear warnings when evidence is malformed or untrusted.
+Manifest-backed attempts can support supervised/router training, but they are not
+RL-grade unless paired with process trace evidence, reward signal, replayability
+evidence, verifier outcome, and training eligibility.
 
 ## TraceManifest
 
@@ -130,6 +134,11 @@ Fields should include:
 - excluded event classes;
 - privacy notes;
 - provenance and trust level.
+
+For RL-grade validation, trace manifests should preserve enough event-class
+coverage to prove process evidence even when raw payloads are redacted. At a
+minimum, the normalized trajectory needs ordered context, action or tool, and
+verifier or outcome evidence.
 
 ## HarnessManifest
 

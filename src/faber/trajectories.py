@@ -34,6 +34,7 @@ class Trajectory:
     cost_metadata: dict[str, object]
     latency_metadata: dict[str, object]
     review_metadata: dict[str, object]
+    reward_metadata: dict[str, object] = field(default_factory=dict)
     settlement: Settlement | None = None
     worker_profile: WorkerProfile | None = None
     id: str = field(default_factory=lambda: new_id("trajectory"))
@@ -53,6 +54,7 @@ class Trajectory:
         require_mapping(self.cost_metadata, "cost_metadata")
         require_mapping(self.latency_metadata, "latency_metadata")
         require_mapping(self.review_metadata, "review_metadata")
+        require_mapping(self.reward_metadata, "reward_metadata")
 
     def outcome(self) -> str:
         if self.receipt.accepted:
@@ -76,7 +78,8 @@ class Trajectory:
                 ],
             },
             "reinforcement_learning": {
-                "reward": self.settlement.amount.to_dict() if self.settlement else None,
+                "reward": self.reward_metadata
+                or (self.settlement.amount.to_dict() if self.settlement else None),
                 "outcome": self.outcome(),
                 "cost_metadata": self.cost_metadata,
                 "latency_metadata": self.latency_metadata,
@@ -106,6 +109,7 @@ class Trajectory:
             "cost_metadata": self.cost_metadata,
             "latency_metadata": self.latency_metadata,
             "review_metadata": self.review_metadata,
+            "reward_metadata": self.reward_metadata,
             "outcome": self.outcome(),
             "learning_context": self.learning_context(),
         }
@@ -214,4 +218,5 @@ def build_demo_trajectory() -> Trajectory:
             "review_friction": "none",
             "notes": "Demo trajectory for local protocol export.",
         },
+        reward_metadata={"currency": "EUR", "reward_minor_units": 5000},
     )

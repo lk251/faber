@@ -47,6 +47,14 @@ Environment records should capture:
 - verifier command used
 - known platform limitations
 
+## RL-grade replayability
+
+RL-grade trajectories need enough environment evidence to make the episode
+auditable. That can come from declared platform metadata, dependency lock
+digests, containers, remote runner records, or replayable episode packages.
+Stronger replayability improves training value, but NixOS is not mandatory for
+every task or every valid trajectory.
+
 ## Policy
 
 - Faber core must not assume NixOS.

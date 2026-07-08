@@ -9,7 +9,7 @@ from faber.canonical_json import canonical_json
 from faber.digests import sha256_digest
 from faber.errors import ValidationError
 from faber.ids import utc_now
-from faber.traces import AttemptManifest, RedactionPolicy
+from faber.traces import AttemptManifest, RedactionPolicy, TrajectoryConsent
 from faber.validation import require_digest, require_non_empty_string
 
 DEFAULT_REDACTION_FIELD_PATHS = [
@@ -41,6 +41,9 @@ def generate_attempt_manifest(
     latency_seconds: int = 0,
     currency: str = "EUR",
     redaction_field_paths: list[str] | None = None,
+    training_use_allowed: bool = False,
+    training_allowed_uses: list[str] | None = None,
+    training_license_ref: str = "unspecified",
     created_at: str | None = None,
     manifest_id: str | None = None,
     redaction_policy_id: str | None = None,
@@ -66,6 +69,7 @@ def generate_attempt_manifest(
     require_non_negative_int(cost_minor_units, "cost_minor_units")
     require_non_negative_int(latency_seconds, "latency_seconds")
     require_non_empty_string(currency, "currency")
+    require_non_empty_string(training_license_ref, "training_license_ref")
 
     timestamp = created_at or utc_now()
     suffix = _stable_attempt_suffix(
@@ -82,6 +86,14 @@ def generate_attempt_manifest(
         name="Generated attempt manifest redaction",
         field_paths=field_paths,
         allow_raw_trace=False,
+    )
+    training_consent = TrajectoryConsent(
+        id=f"trajectory-consent_{suffix}",
+        created_at=timestamp,
+        training_use_allowed=training_use_allowed,
+        allowed_uses=training_allowed_uses or [],
+        license_ref=training_license_ref,
+        redaction_required=True,
     )
     model_metadata: dict[str, object] = {
         "disclosure": model_disclosure,
@@ -113,6 +125,7 @@ def generate_attempt_manifest(
         },
         cost_metadata={"currency": currency.upper(), "compute_minor_units": cost_minor_units},
         latency_metadata={"work_seconds": latency_seconds},
+        training_consent=training_consent,
         trust_level="self_attested",
     )
 

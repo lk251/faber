@@ -27,6 +27,7 @@ class TaskContract:
     task_source: str = "generic"
     repository: str | None = None
     environment: dict[str, object] = field(default_factory=dict)
+    trajectory_requirement: dict[str, object] = field(default_factory=dict)
     reward: Money | None = None
     id: str = field(default_factory=lambda: new_id("task-contract"))
     created_at: str = field(default_factory=utc_now)
@@ -44,6 +45,7 @@ class TaskContract:
         if self.repository is not None:
             require_non_empty_string(self.repository, "repository")
         require_mapping(self.environment, "environment")
+        require_mapping(self.trajectory_requirement, "trajectory_requirement")
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -57,6 +59,7 @@ class TaskContract:
             "task_source": self.task_source,
             "repository": self.repository,
             "environment": self.environment,
+            "trajectory_requirement": self.trajectory_requirement,
             "reward": self.reward.to_dict() if self.reward else None,
         }
 

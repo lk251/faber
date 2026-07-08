@@ -66,6 +66,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     export_dataset.add_argument("--store", required=True, help="Path to the SQLite database.")
     export_dataset.add_argument("--out", required=True, help="Output JSONL path.")
+    export_dataset.add_argument("--require-rl-grade", action="store_true")
+    export_dataset.add_argument("--require-training-eligible", action="store_true")
+    export_dataset.add_argument("--minimum-quality-tier")
 
     dataset = subparsers.add_parser("dataset-summary", help="Summarize trajectory JSONL.")
     dataset.add_argument("path", help="Path to trajectory JSONL.")
@@ -95,6 +98,9 @@ def build_parser() -> argparse.ArgumentParser:
     generate_manifest.add_argument("--latency-seconds", type=int, default=0)
     generate_manifest.add_argument("--currency", default="EUR")
     generate_manifest.add_argument("--redact", action="append", default=None)
+    generate_manifest.add_argument("--allow-training-use", action="store_true")
+    generate_manifest.add_argument("--training-use", action="append", default=None)
+    generate_manifest.add_argument("--training-license-ref", default="unspecified")
     generate_manifest.add_argument("--created-at")
 
     validate_manifest = subparsers.add_parser(
@@ -202,6 +208,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             trajectory_records,
             args.out,
             source_paths=[args.store],
+            require_rl_grade=args.require_rl_grade,
+            require_training_eligible=args.require_training_eligible,
+            minimum_quality_tier=args.minimum_quality_tier,
         )
         print(canonical_json(dataset_manifest.to_dict()))
         return 0
@@ -233,6 +242,9 @@ def main(argv: Sequence[str] | None = None) -> int:
                 latency_seconds=args.latency_seconds,
                 currency=args.currency,
                 redaction_field_paths=args.redact,
+                training_use_allowed=args.allow_training_use,
+                training_allowed_uses=args.training_use,
+                training_license_ref=args.training_license_ref,
                 created_at=args.created_at,
             )
             digest = write_attempt_manifest(attempt_manifest, args.out)
