@@ -10,6 +10,7 @@ from pathlib import Path
 
 import faber
 from faber.canonical_json import canonical_json
+from faber.datasets import dataset_summary, export_trajectories_jsonl
 from faber.store import export_trajectory, init_local_store, list_records, store_summary
 from faber.trajectories import build_demo_trajectory
 
@@ -40,6 +41,16 @@ def build_parser() -> argparse.ArgumentParser:
     export_stored.add_argument("trajectory_id", help="Trajectory id to export.")
     export_stored.add_argument("--store", required=True, help="Path to the SQLite database.")
     export_stored.add_argument("--out", required=True, help="Output JSON path.")
+
+    export_dataset = subparsers.add_parser(
+        "export-trajectories",
+        help="Export stored trajectories as JSONL.",
+    )
+    export_dataset.add_argument("--store", required=True, help="Path to the SQLite database.")
+    export_dataset.add_argument("--out", required=True, help="Output JSONL path.")
+
+    dataset = subparsers.add_parser("dataset-summary", help="Summarize trajectory JSONL.")
+    dataset.add_argument("path", help="Path to trajectory JSONL.")
 
     return parser
 
@@ -102,6 +113,24 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.command == "export-trajectory":
         out_path = export_trajectory(args.store, args.trajectory_id, args.out)
         print(f"exported trajectory: {out_path}")
+        return 0
+
+    if args.command == "export-trajectories":
+        trajectory_records: list[dict[str, object]] = []
+        for record in list_records(args.store, "trajectory"):
+            payload = record.get("payload")
+            if isinstance(payload, dict):
+                trajectory_records.append(payload)
+        manifest = export_trajectories_jsonl(
+            trajectory_records,
+            args.out,
+            source_paths=[args.store],
+        )
+        print(canonical_json(manifest.to_dict()))
+        return 0
+
+    if args.command == "dataset-summary":
+        print(canonical_json(dataset_summary(args.path)))
         return 0
 
     parser.error(f"unknown command: {args.command}")
