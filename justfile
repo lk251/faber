@@ -3,19 +3,29 @@ set windows-shell := ["powershell.exe", "-NoLogo", "-NoProfile", "-Command"]
 
 export PYTHONPATH := "src"
 
-format:
-    ruff format .
+fmt:
+    python -m ruff format .
+
+format: fmt
 
 format-check:
-    ruff format --check .
+    python -m ruff format --check .
 
 lint:
-    ruff check .
+    python -m ruff check .
 
 typecheck:
-    mypy src
+    python -m mypy src
 
 test:
-    pytest
+    python -m pytest
 
-check: format-check lint typecheck test
+doctor:
+    python -m faber.cli doctor
+
+smoke:
+    python -m faber.cli doctor
+    python -m faber.cli init-local-store --path .faber/smoke.sqlite3
+    python -m faber.cli emit-demo-trajectory --out .faber/smoke_trajectory.json
+
+check: format-check lint typecheck test smoke

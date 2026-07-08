@@ -41,14 +41,34 @@ providers.
 
 ## Development
 
-On HB2/Windows, use the local Python environment with `src` on `PYTHONPATH`:
+NixOS is the first-class development environment:
+
+```bash
+nix develop --command just check
+```
+
+Inside `nix develop`, the usual commands are:
+
+```bash
+just fmt
+just lint
+just typecheck
+just test
+just doctor
+```
+
+On systems without Nix, use the local Python environment with `src` on
+`PYTHONPATH` and run the closest equivalents:
 
 ```powershell
 $env:PYTHONPATH = "src"
 python -m pytest
+python -m ruff check .
+python -m mypy src
 ```
 
-The check target runs formatting checks, linting, type checking, and tests.
+See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) for the full local workflow and
+troubleshooting notes.
 
 Useful local commands:
 
