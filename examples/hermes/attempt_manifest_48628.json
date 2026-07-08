@@ -1,0 +1,57 @@
+{
+  "schema": "faber.attempt_manifest.v1",
+  "id": "attempt-manifest_hermes_48628_example",
+  "created_at": "2026-01-01T00:00:00Z",
+  "task_contract_id": "task-contract_hermes_nixos_lazy_deps_48628",
+  "task_contract_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+  "attempt_id": "attempt_hermes_48628_example",
+  "base_revision": "upstream-base-revision",
+  "candidate_revision": "candidate-pr-revision",
+  "worker_id": "worker_external_solver_example",
+  "evidence_level": 3,
+  "model_metadata": {
+    "disclosure": "private",
+    "family": "undisclosed"
+  },
+  "harness_metadata": {
+    "family": "generic-agent-harness",
+    "target_project": "NousResearch/hermes-agent",
+    "target_issue": 48628,
+    "version": "example"
+  },
+  "runner_metadata": {
+    "runner": "local",
+    "version": "example"
+  },
+  "environment_metadata": {
+    "digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "platform": "declared",
+    "external_services": []
+  },
+  "tool_registry_digest": null,
+  "nix_flake_lock_digest": null,
+  "budget_metadata": {},
+  "cost_metadata": {
+    "currency": "EUR",
+    "compute_minor_units": 0
+  },
+  "latency_metadata": {
+    "work_seconds": 300
+  },
+  "redaction_policy": {
+    "schema": "faber.redaction_policy.v1",
+    "id": "redaction-policy_hermes_48628_example",
+    "created_at": "2026-01-01T00:00:00Z",
+    "name": "Hermes example attempt redaction",
+    "field_paths": [
+      "context.private_prompt",
+      "credentials.api_key",
+      "secret"
+    ],
+    "replacement": "[redacted]",
+    "allow_raw_trace": false,
+    "notes": "Example fixture; raw private traces are not required."
+  },
+  "trust_level": "self_attested",
+  "attestation": null
+}

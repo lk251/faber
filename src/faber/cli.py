@@ -3,14 +3,21 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sqlite3
 import sys
 from collections.abc import Sequence
 from pathlib import Path
 
 import faber
+from faber.attempt_manifests import (
+    generate_attempt_manifest,
+    load_attempt_manifest,
+    write_attempt_manifest,
+)
 from faber.canonical_json import canonical_json
 from faber.datasets import dataset_summary, export_trajectories_jsonl
+from faber.errors import FaberError
 from faber.golden import (
     create_demo_contract,
     export_demo_trajectory,
@@ -62,6 +69,39 @@ def build_parser() -> argparse.ArgumentParser:
 
     dataset = subparsers.add_parser("dataset-summary", help="Summarize trajectory JSONL.")
     dataset.add_argument("path", help="Path to trajectory JSONL.")
+
+    generate_manifest = subparsers.add_parser(
+        "generate-attempt-manifest",
+        help="Generate a .faber/attempt.json manifest from local metadata.",
+    )
+    generate_manifest.add_argument("--out", default=".faber/attempt.json", help="Output JSON path.")
+    generate_manifest.add_argument("--task-contract-id", required=True)
+    generate_manifest.add_argument("--task-contract-digest", required=True)
+    generate_manifest.add_argument("--base-revision", required=True)
+    generate_manifest.add_argument("--candidate-revision", required=True)
+    generate_manifest.add_argument("--worker-id", required=True)
+    generate_manifest.add_argument("--environment-digest", required=True)
+    generate_manifest.add_argument("--attempt-id")
+    generate_manifest.add_argument("--evidence-level", type=int, default=1)
+    generate_manifest.add_argument("--model-disclosure", default="private")
+    generate_manifest.add_argument("--model-family", default="undisclosed")
+    generate_manifest.add_argument("--model-ref")
+    generate_manifest.add_argument("--harness-family", default="generic")
+    generate_manifest.add_argument("--harness-version")
+    generate_manifest.add_argument("--runner-name", default="manual")
+    generate_manifest.add_argument("--runner-version", default="1")
+    generate_manifest.add_argument("--platform", default="declared")
+    generate_manifest.add_argument("--cost-minor-units", type=int, default=0)
+    generate_manifest.add_argument("--latency-seconds", type=int, default=0)
+    generate_manifest.add_argument("--currency", default="EUR")
+    generate_manifest.add_argument("--redact", action="append", default=None)
+    generate_manifest.add_argument("--created-at")
+
+    validate_manifest = subparsers.add_parser(
+        "validate-attempt-manifest",
+        help="Validate a .faber/attempt.json manifest.",
+    )
+    validate_manifest.add_argument("path", help="Path to an attempt manifest JSON file.")
 
     for name, help_text in [
         ("create-demo-contract", "Create and store the golden path demo contract."),
@@ -158,16 +198,74 @@ def main(argv: Sequence[str] | None = None) -> int:
             payload = record.get("payload")
             if isinstance(payload, dict):
                 trajectory_records.append(payload)
-        manifest = export_trajectories_jsonl(
+        dataset_manifest = export_trajectories_jsonl(
             trajectory_records,
             args.out,
             source_paths=[args.store],
         )
-        print(canonical_json(manifest.to_dict()))
+        print(canonical_json(dataset_manifest.to_dict()))
         return 0
 
     if args.command == "dataset-summary":
         print(canonical_json(dataset_summary(args.path)))
+        return 0
+
+    if args.command == "generate-attempt-manifest":
+        try:
+            attempt_manifest = generate_attempt_manifest(
+                task_contract_id=args.task_contract_id,
+                task_contract_digest=args.task_contract_digest,
+                base_revision=args.base_revision,
+                candidate_revision=args.candidate_revision,
+                worker_id=args.worker_id,
+                environment_digest=args.environment_digest,
+                attempt_id=args.attempt_id,
+                evidence_level=args.evidence_level,
+                model_disclosure=args.model_disclosure,
+                model_family=args.model_family,
+                model_ref=args.model_ref,
+                harness_family=args.harness_family,
+                harness_version=args.harness_version,
+                runner_name=args.runner_name,
+                runner_version=args.runner_version,
+                platform=args.platform,
+                cost_minor_units=args.cost_minor_units,
+                latency_seconds=args.latency_seconds,
+                currency=args.currency,
+                redaction_field_paths=args.redact,
+                created_at=args.created_at,
+            )
+            digest = write_attempt_manifest(attempt_manifest, args.out)
+        except FaberError as exc:
+            print(f"failed to generate attempt manifest: {exc}", file=sys.stderr)
+            return 1
+        print(
+            canonical_json(
+                {
+                    "path": args.out,
+                    "attempt_id": attempt_manifest.attempt_id,
+                    "digest": digest,
+                }
+            )
+        )
+        return 0
+
+    if args.command == "validate-attempt-manifest":
+        try:
+            attempt_manifest = load_attempt_manifest(args.path)
+        except (FaberError, json.JSONDecodeError, OSError) as exc:
+            print(f"invalid attempt manifest: {exc}", file=sys.stderr)
+            return 1
+        print(
+            canonical_json(
+                {
+                    "status": "valid",
+                    "path": args.path,
+                    "attempt_id": attempt_manifest.attempt_id,
+                    "digest": attempt_manifest.digest(),
+                }
+            )
+        )
         return 0
 
     if args.command == "create-demo-contract":
