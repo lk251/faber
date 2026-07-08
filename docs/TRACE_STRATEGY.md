@@ -10,32 +10,34 @@ packages for high-trust tasks.
 
 Raw trace:
 An ordered record emitted by a solver, runner, harness, tool, or verifier during
-work. Raw traces may contain tool calls, commands, observations, context
-references, verifier runs, errors, interventions, timing, costs, and redaction
-markers. Raw traces are not automatically safe to store or train on.
+work. Raw traces may contain observed commands, tool calls, file and context
+reads, patch checkpoints, tests, verifier feedback, errors, interventions,
+timestamps, costs, latency, and redaction markers. Raw traces are not
+automatically safe to store or train on.
 
 Normalized trajectory:
 A Faber Protocol record that summarizes task context, routing, worker identity,
-attempt metadata, verifier outcome, review signal, cost, latency, reward, margin,
-and final outcome. A normalized trajectory is stable, digestable, and suitable for
-audit and dataset export.
+attempt metadata, trace evidence, verifier outcome, review signal, cost,
+settlement, and final outcome. A normalized trajectory is stable, digestable, and
+suitable for audit and dataset export.
 
 Episode package:
-A higher-fidelity bundle that can be inspected or replayed. It may include raw
-trace JSONL, normalized Faber trajectory records, manifests, environment digests,
-tool registry digests, verifier receipts, redaction reports, intervention logs,
-and reproduction instructions.
+A higher-fidelity bundle that can be inspected or replayed. It may include the
+task contract, repository or environment snapshot, raw trace JSONL, normalized
+Faber trajectory records, solver manifests, environment digests, tool registry
+digests, verifier reports, verifier receipts, redaction policy, redaction reports,
+intervention logs, reproduction instructions, and stable digests.
 
 ## Why PR-Only Is Useful But Insufficient
 
-A PR-only submission can tell Faber what changed, who submitted it, what base and
-candidate revisions were involved, and whether authoritative verification
-accepted the result. That is enough for basic marketplace verification and weak
+A GitHub PR gives a final diff, commit history, CI signal, review comments, and
+review outcome. That is useful for basic marketplace verification and weak
 supervised labels.
 
 It is not enough to learn how the work happened. A PR usually loses:
 
 - model, harness, runner, environment, and tool metadata;
+- files and context inspected during the attempt;
 - cost and latency attribution;
 - failed intermediate attempts;
 - intervention and recovery evidence;
@@ -43,9 +45,9 @@ It is not enough to learn how the work happened. A PR usually loses:
 - context pressure and maintenance burden;
 - enough process data for reinforcement learning or harness imitation.
 
-Faber should not require full traces on day one because adoption friction matters.
-Instead, it should reward richer, provenance-tagged evidence when a task benefits
-from it.
+Faber should accept PR-only submissions early, but treat them as low-evidence
+submissions. Richer traces should unlock stronger reputation, eligibility, and
+possibly better economics when a task benefits from them.
 
 ## Evidence Ladder
 
@@ -53,10 +55,12 @@ from it.
 
 Captures:
 
-- repository;
+- repository and issue;
 - pull request number or candidate revision;
+- diff, commit history, and patch digest;
 - base revision;
-- patch digest;
+- CI or check signal as non-authoritative evidence;
+- review comments and review outcome;
 - worker id if known;
 - authoritative verifier receipt if available;
 - final outcome.
@@ -97,13 +101,14 @@ Supports:
 - supervised router learning: worker, harness, platform, and cost features;
 - attempt quality prediction: metadata-to-outcome examples;
 - harness/orchestration learning: coarse metadata only;
-- reinforcement learning: still weak, unless progress fields are included later;
+- reinforcement learning: still weak unless progress fields are included later;
 - verifier calibration: cost and environment stratification.
 
 ### Level 2: Faber Runner Trace
 
 Captures Level 1 plus Faber Runner events:
 
+- Faber-normalized event JSONL from a controlled local run;
 - command and tool execution summaries;
 - stdout/stderr digests, not necessarily raw logs;
 - verifier run events;
@@ -136,6 +141,10 @@ Captures Level 2 plus normalized events from a solver harness:
 - entropy and maintenance evidence;
 - outcome and recovery markers.
 
+A Level 3 adapter may convert native Codex, Hermes, OpenHands, SWE-agent, or
+other harness logs into Faber `TraceEvent` records. These adapters should start as
+fake fixtures and schemas, not core dependencies on those harnesses.
+
 Supports:
 
 - marketplace verification: strong, subject to attestation and redaction;
@@ -153,8 +162,9 @@ Captures Level 3 plus reproduction material:
 - raw or redacted trace JSONL;
 - manifests;
 - environment locks and digests;
-- verifier receipts;
+- verifier specs and reports;
 - setup and replay commands;
+- artifacts;
 - intervention and redaction reports;
 - reproduction limitations.
 
@@ -167,37 +177,66 @@ Supports:
 - reinforcement learning: best source for dense rewards and offline analysis;
 - verifier calibration: strongest calibration and failure-attribution evidence.
 
-## Privacy And Redaction
+## Learning Uses
+
+- Supervised router learning can use task features, worker metadata, attempt
+  outcome, cost, latency, and review friction.
+- Attempt quality prediction can use task, diff, CI signal, manifest metadata,
+  verifier output, and review outcome.
+- Harness/orchestration learning needs trace events: context selection,
+  command/tool use, patch checkpoints, verifier feedback, retries, and
+  interventions.
+- Reinforcement learning needs episode-like state/action/observation/reward
+  records. Faber can start with high-level rewards before token-level or
+  step-level policies.
+- Verifier calibration needs agreement between advisory scores, hard verifiers,
+  human review, costs, and downstream outcomes.
+
+## Privacy And Disclosure
 
 Trace evidence can contain secrets, private prompts, customer data, repository
-context, tool outputs, credentials, and solver IP. Faber should support:
+context, tool outputs, credentials, and solver IP. Faber must not require solvers
+to reveal private prompts, finetune weights, proprietary harness internals, or
+chain-of-thought.
 
-- disclosure levels instead of requiring exact model or prompt details;
+Faber should support:
+
+- exact, coarse, and private disclosure levels;
 - explicit redaction policies;
 - hashes and digests for private artifacts;
 - raw-log exclusion with digest retention;
 - private chain-of-thought exclusion;
 - customer-data minimization;
-- consent and licensing metadata for training use.
+- consent and licensing metadata for training use;
+- provenance tags such as `self_attested`, `runner_attested`,
+  `platform_observed`, `repo_owner_verified`, and `provider_attested`.
 
 Richer traces should be accepted only when they fit the task's privacy policy.
 Redacted traces can still be valuable if they preserve structure, timing, tool
 types, verifier evidence, and outcome labels.
 
-## Solver Incentives
+## Incentives
 
-Faber can encourage richer traces through:
+Trace richness should be market-aligned:
 
-- eligibility for premium tasks;
-- trace-quality reputation;
-- higher router preference when trace value is relevant;
-- optional trace bonuses in task contracts;
-- faster dispute resolution;
-- better verifier calibration and fewer false rejects;
-- clearer attribution for harness, model, and environment quality.
+- tasks may declare a minimum evidence level;
+- richer traces may qualify for higher rewards or bonuses;
+- premium tasks may require Level 2 or Level 4 evidence;
+- high-quality traces should improve worker reputation;
+- redacted traces should be allowed when task policy permits them;
+- richer traces can speed dispute resolution;
+- richer traces can improve verifier calibration and reduce false rejects;
+- richer traces can improve attribution for harness, model, and environment
+  quality.
 
 This should be opt-in at first. A global full-trace requirement would exclude
 useful solvers, proprietary systems, and ordinary open-source contributors.
+
+## Platform Stance
+
+Do not require full traces on day one. Faber should be easy to adopt with PR-only
+submissions, while making the highest-quality training data economically and
+reputationally valuable.
 
 ## Adoption Strategy
 
