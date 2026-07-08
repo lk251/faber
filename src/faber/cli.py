@@ -10,7 +10,7 @@ from pathlib import Path
 
 import faber
 from faber.canonical_json import canonical_json
-from faber.store import init_local_store
+from faber.store import export_trajectory, init_local_store, list_records, store_summary
 from faber.trajectories import build_demo_trajectory
 
 
@@ -25,6 +25,21 @@ def build_parser() -> argparse.ArgumentParser:
 
     emit_demo = subparsers.add_parser("emit-demo-trajectory", help="Write a demo trajectory JSON.")
     emit_demo.add_argument("--out", required=True, help="Path to write the trajectory JSON.")
+
+    summary = subparsers.add_parser("store-summary", help="Print a local store summary.")
+    summary.add_argument("--path", required=True, help="Path to the SQLite database.")
+
+    list_contracts = subparsers.add_parser("list-contracts", help="List stored task contracts.")
+    list_contracts.add_argument("--path", required=True, help="Path to the SQLite database.")
+
+    show_trajectory = subparsers.add_parser("show-trajectory", help="Print a stored trajectory.")
+    show_trajectory.add_argument("trajectory_id", help="Trajectory id to print.")
+    show_trajectory.add_argument("--path", required=True, help="Path to the SQLite database.")
+
+    export_stored = subparsers.add_parser("export-trajectory", help="Export one stored trajectory.")
+    export_stored.add_argument("trajectory_id", help="Trajectory id to export.")
+    export_stored.add_argument("--store", required=True, help="Path to the SQLite database.")
+    export_stored.add_argument("--out", required=True, help="Output JSON path.")
 
     return parser
 
@@ -65,6 +80,28 @@ def main(argv: Sequence[str] | None = None) -> int:
         trajectory = build_demo_trajectory()
         out_path.write_text(canonical_json(trajectory.to_dict()) + "\n", encoding="utf-8")
         print(f"wrote demo trajectory: {out_path}")
+        return 0
+
+    if args.command == "store-summary":
+        print(canonical_json(store_summary(args.path)))
+        return 0
+
+    if args.command == "list-contracts":
+        print(canonical_json(list_records(args.path, "task_contract")))
+        return 0
+
+    if args.command == "show-trajectory":
+        records = list_records(args.path, "trajectory")
+        for record in records:
+            if record["id"] == args.trajectory_id:
+                print(canonical_json(record["payload"]))
+                return 0
+        print(f"trajectory not found: {args.trajectory_id}", file=sys.stderr)
+        return 1
+
+    if args.command == "export-trajectory":
+        out_path = export_trajectory(args.store, args.trajectory_id, args.out)
+        print(f"exported trajectory: {out_path}")
         return 0
 
     parser.error(f"unknown command: {args.command}")
