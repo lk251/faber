@@ -21,3 +21,18 @@ copy provider-specific runtime assumptions into Faber core.
 Keep these issues provider-agnostic. Do not add real model APIs, payment
 providers, or settlement authority from advisory scores unless a later issue
 explicitly changes that boundary.
+
+## Trace Acquisition, Solver Metadata, And Harness Bounties
+
+1. `0023-trace-protocol-and-evidence-ladder.md`
+2. `0024-attempt-manifest-in-pr.md`
+3. `0025-worker-and-harness-metadata-registry.md`
+4. `0026-trace-incentives-and-market-policy.md`
+5. `0027-nixos-agent-harness-bounty-pilot.md`
+6. `0028-harness-trace-adapters.md`
+7. `0029-supervised-and-rl-data-requirements.md`
+
+Keep this track provider-agnostic and privacy-aware. PR-only submissions must
+remain valid where task policy allows them. Richer traces should be rewarded and
+provenance-tagged, not globally required. Do not assume Hermes or any other
+harness has a specific NixOS support status without investigation.

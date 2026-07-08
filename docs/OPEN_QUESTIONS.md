@@ -39,3 +39,18 @@ major implementation slice.
 - How do we store reasoning traces without leaking private customer data?
 - What uncertainty threshold should force human review instead of advisory
   auto-selection?
+
+## Trace Acquisition, Solver Metadata, And Harness Bounties
+
+- What is the minimum trace level for paid work?
+- What trace level is required for training data Faber can use?
+- How should Faber price richer traces?
+- How do we prevent fake solver metadata?
+- Which metadata should be self-attested versus runner-attested?
+- Can Faber accept closed proprietary solver traces under redaction?
+- Should premium tasks require replayable episode packages?
+- Which agent harness should be the first NixOS bounty target?
+- Is Hermes actually a good first target?
+- What license and consent terms are required for using traces in training?
+- How much process data is useful without requiring private chain-of-thought?
+- Which trace fields should be mandatory for verifier calibration?

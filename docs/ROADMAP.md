@@ -44,3 +44,26 @@ on `docs/research/llm-as-a-verifier-2607-05391.md`. The reference project is
    payment unless explicitly approved.
 8. Keep all initial work provider-agnostic, fake-backend-first, and independent
    from real model APIs.
+
+## Trace Acquisition, Solver Metadata, And Harness Bounties
+
+This track is defined in `docs/TRACE_STRATEGY.md`,
+`docs/SOLVER_METADATA.md`, `docs/ADR-0003-traces-and-solver-metadata.md`, and
+`codex/future/0023` through `0029`.
+
+1. Define Faber's trace protocol and evidence ladder from PR-only fallback to
+   replayable episode packages.
+2. Support optional `.faber/attempt.json` manifests in pull requests.
+3. Extend worker metadata to describe model, harness, environment, platform, cost,
+   and trust level.
+4. Add trace-quality incentives so richer, attested traces improve eligibility,
+   reputation, and possibly economics.
+5. Design a NixOS-first agent harness bounty pilot after investigating candidate
+   harnesses. Hermes is only a candidate until evidence supports that choice.
+6. Add harness-native trace adapter stubs that map fake native events into Faber
+   trace events without depending on real harness packages.
+7. Document data requirements for supervised learning, attempt quality
+   prediction, harness/orchestration learning, verifier calibration, progress
+   scoring, reinforcement learning, and value-per-euro evaluation.
+8. Preserve privacy: do not require private chain-of-thought, proprietary prompts,
+   finetune weights, or provider secrets.
