@@ -53,6 +53,9 @@ Deliverables:
 - tests
 - docs for external harness communities
 
+Current stub: `docs/HARNESS_TRACE_ADAPTERS.md` and the fake fixture adapter under
+`src/faber/adapters/hermes/`.
+
 ## Idea 3: NixOS agent harness benchmark
 
 Goal: create a small offline benchmark fixture that Hermes, Codex, OpenHands, or other harnesses can run under a Nix dev environment.

@@ -1,0 +1,98 @@
+{
+  "schema": "faber.fake_hermes_trace_fixture.v1",
+  "attempt_id": "attempt_hermes_fake_48628",
+  "run_id": "hermes-run_fake_48628",
+  "session_id": "hermes-session_fake_48628",
+  "started_at": "2026-01-01T00:00:00Z",
+  "source": {
+    "fixture": true,
+    "repository": "NousResearch/hermes-agent",
+    "issue_number": 48628
+  },
+  "events": [
+    {
+      "sequence": 10,
+      "kind": "session.started",
+      "observed_at": "2026-01-01T00:00:01Z",
+      "payload": {
+        "goal": "Reproduce a managed-install lazy dependency startup issue.",
+        "context": {
+          "private_prompt": "solver-only planning text",
+          "public_summary": "Offline fake fixture for adapter tests."
+        }
+      }
+    },
+    {
+      "sequence": 11,
+      "kind": "context.read",
+      "observed_at": "2026-01-01T00:00:02Z",
+      "payload": {
+        "path": "pyproject.toml",
+        "digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+      }
+    },
+    {
+      "sequence": 12,
+      "kind": "agent.action",
+      "observed_at": "2026-01-01T00:00:03Z",
+      "payload": {
+        "action": "edit",
+        "target": "lazy_deps.py",
+        "reason": "Add a guard before invoking a missing pip executable."
+      }
+    },
+    {
+      "sequence": 13,
+      "kind": "tool.call",
+      "observed_at": "2026-01-01T00:00:04Z",
+      "payload": {
+        "tool": "pytest",
+        "args": ["tests/test_lazy_deps.py"],
+        "credentials": {
+          "api_key": "fixture-secret"
+        }
+      }
+    },
+    {
+      "sequence": 14,
+      "kind": "verification.result",
+      "observed_at": "2026-01-01T00:00:05Z",
+      "payload": {
+        "verifier_id": "verifier.hermes.lazy-deps.managed-install",
+        "passed": false,
+        "result": {
+          "raw_output": "contains local temp path and sensitive fixture details"
+        }
+      }
+    },
+    {
+      "sequence": 15,
+      "kind": "failure.observed",
+      "observed_at": "2026-01-01T00:00:06Z",
+      "payload": {
+        "category": "environment_assumption",
+        "message": "pip executable is unavailable in the managed install."
+      }
+    },
+    {
+      "sequence": 16,
+      "kind": "intervention.applied",
+      "observed_at": "2026-01-01T00:00:07Z",
+      "payload": {
+        "intervention": "narrow_verifier",
+        "by": "maintainer",
+        "note": "Constrain acceptance to offline startup behavior."
+      }
+    },
+    {
+      "sequence": 17,
+      "kind": "outcome.reported",
+      "observed_at": "2026-01-01T00:00:08Z",
+      "payload": {
+        "status": "candidate_ready",
+        "accepted": true,
+        "next_step": "Attach attempt manifest and redacted trace JSONL."
+      }
+    }
+  ]
+}
