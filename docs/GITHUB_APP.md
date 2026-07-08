@@ -61,6 +61,19 @@ Out of scope for the skeleton: real GitHub API calls, private key/JWT generation
 app registration automation, webhook web server, database persistence, background
 workers, payments, model providers, marketplace matching, and UI.
 
+## Fake End-to-End Example
+
+1. Normalize an `issues.opened` payload into a `GitHubEvent`.
+2. Convert the issue evidence into a `TaskContract` for an allowed installation.
+3. Render a Faber task contract marker into a human-readable issue comment.
+4. Convert a pull request payload into an `Attempt` bound to that contract.
+5. Preserve candidate-owned check-run evidence as attempt metadata only.
+6. Run an approved Faber verifier and issue a `VerificationReceipt`.
+7. Publish the accepted or rejected receipt through the fake client as a PR comment
+   or check-like record.
+8. Export the resulting trajectory as canonical JSONL for audit and future router
+   training.
+
 The GitHub App is the first integration, not the whole product. Its job is to adapt
 GitHub evidence into Faber Protocol objects without making GitHub the root
 abstraction.

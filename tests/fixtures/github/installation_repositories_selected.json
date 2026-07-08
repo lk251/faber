@@ -1,0 +1,15 @@
+{
+  "action": "added",
+  "installation": {
+    "id": 12345,
+    "account": {
+      "login": "lk251"
+    }
+  },
+  "repositories_added": [
+    {
+      "full_name": "lk251/faber"
+    }
+  ],
+  "repositories_removed": []
+}

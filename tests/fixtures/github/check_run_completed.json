@@ -1,0 +1,12 @@
+{
+  "action": "completed",
+  "repository": {
+    "full_name": "lk251/faber",
+    "default_branch": "master"
+  },
+  "check_run": {
+    "name": "candidate-ci",
+    "conclusion": "success",
+    "head_sha": "candidate-sha-0002"
+  }
+}

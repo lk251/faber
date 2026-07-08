@@ -1,0 +1,22 @@
+{
+  "action": "opened",
+  "repository": {
+    "full_name": "lk251/faber",
+    "default_branch": "master"
+  },
+  "pull_request": {
+    "number": 77,
+    "title": "Implement deterministic dataset export",
+    "body": "Implements JSONL export, manifests, split assignment, and summary tests.",
+    "html_url": "https://github.com/lk251/faber/pull/77",
+    "base": {
+      "sha": "base-sha-0001"
+    },
+    "head": {
+      "sha": "candidate-sha-0002"
+    },
+    "user": {
+      "login": "worker-agent"
+    }
+  }
+}

@@ -20,6 +20,7 @@ def receipt_publication_payload(receipt: VerificationReceipt) -> dict[str, objec
         "candidate_revision": receipt.candidate_revision,
         "verifier_id": receipt.verifier_id,
         "result_digest": receipt.result_digest,
+        "failure_reasons": receipt.failure_reasons,
     }
 
 
@@ -29,6 +30,7 @@ def render_receipt_publication_body(receipt: VerificationReceipt) -> str:
     return "\n".join(
         [
             f"Faber verification result: {result}",
+            _publication_summary(receipt),
             f"Receipt: {payload['receipt_id']}",
             f"Receipt digest: {payload['receipt_digest']}",
             f"Task contract: {payload['task_contract_id']}",
@@ -37,7 +39,29 @@ def render_receipt_publication_body(receipt: VerificationReceipt) -> str:
             f"Candidate revision: {payload['candidate_revision']}",
             f"Verifier: {payload['verifier_id']}",
             f"Result digest: {payload['result_digest']}",
+            _next_action(receipt),
         ]
+    )
+
+
+def _publication_summary(receipt: VerificationReceipt) -> str:
+    if receipt.accepted:
+        return "Summary: approved verifier evidence accepted this candidate revision."
+    reasons = (
+        "; ".join(receipt.failure_reasons) if receipt.failure_reasons else "unspecified failure"
+    )
+    return f"Summary: approved verifier evidence rejected this candidate revision ({reasons})."
+
+
+def _next_action(receipt: VerificationReceipt) -> str:
+    if receipt.accepted:
+        return (
+            "Next action: maintainer may review the receipt and proceed with "
+            "merge/settlement policy."
+        )
+    return (
+        "Next action: inspect verifier failure reasons, update the candidate revision, "
+        "and rerun Faber verification."
     )
 
 

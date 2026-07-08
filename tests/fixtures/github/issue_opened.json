@@ -1,0 +1,20 @@
+{
+  "action": "opened",
+  "repository": {
+    "full_name": "lk251/faber",
+    "default_branch": "master"
+  },
+  "issue": {
+    "number": 42,
+    "title": "Add deterministic dataset export",
+    "body": "Please export verified trajectories as stable JSONL with a manifest.",
+    "html_url": "https://github.com/lk251/faber/issues/42",
+    "labels": [
+      {"name": "faber"},
+      {"name": "dataset"}
+    ],
+    "user": {
+      "login": "maintainer"
+    }
+  }
+}
