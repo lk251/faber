@@ -20,6 +20,8 @@ A first Faber external task should:
 
 Goal: make a Hermes Agent Nix/NixOS setup path more reproducible, verifiable, and documented.
 
+Concrete pilot plan: `docs/bounties/HERMES_NIXOS_PILOT_PLAN.md`.
+
 Potential targets:
 
 - Python 3.13 Nix packaging update
