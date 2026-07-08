@@ -63,6 +63,11 @@ Funding should not only buy expensive frontier attempts. It should help discover
 
 Funded work should start as provider-agnostic protocol and local ledger behavior. Real provider integrations need explicit adapters, clear terms, and review.
 
+Before funding or agent execution, external work should pass the lightweight
+risk review in `docs/RISK_REVIEW.md`, especially when credentials, private data,
+external writes, regulated domains, security-sensitive repositories, or payment
+provider assumptions are involved.
+
 ## Customer delight
 
 A maintainer should be able to see how much budget exists, what task it funds, which verifier policy protects acceptance, which worker got paid, what evidence justified payout, and what happened to unused funds.
