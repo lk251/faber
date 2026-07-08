@@ -42,15 +42,22 @@ major implementation slice.
 
 ## Trace Acquisition, Solver Metadata, And Harness Bounties
 
-- What is the minimum trace level for paid work?
-- What trace level is required for training data Faber can use?
+- What evidence level should paid work require by default?
+- What trace level can Faber use for training data, and under what consent
+  terms?
 - How should Faber price richer traces?
 - How do we prevent fake solver metadata?
+- When should NixOS be required for replayability, and when should it remain an
+  optional evidence source?
 - Which metadata should be self-attested versus runner-attested?
 - Can Faber accept closed proprietary solver traces under redaction?
 - Should premium tasks require replayable episode packages?
 - Which agent harness should be the first NixOS bounty target?
 - Is Hermes actually a good first target?
+- If Hermes remains the first target, should #48628 stay first after re-checking
+  upstream state, or should another ranked issue replace it?
+- How should existing repository funding mechanisms fund task budgets?
 - What license and consent terms are required for using traces in training?
 - How much process data is useful without requiring private chain-of-thought?
 - Which trace fields should be mandatory for verifier calibration?
+- When can advisory verification influence payment, if ever?

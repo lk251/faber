@@ -36,3 +36,25 @@ Keep this track provider-agnostic and privacy-aware. PR-only submissions must
 remain valid where task policy allows them. Richer traces should be rewarded and
 provenance-tagged, not globally required. Do not assume Hermes or any other
 harness has a specific NixOS support status without investigation.
+
+## Trace, Funding, And External Pilot Queue
+
+The 0030-0045 queue expands the trace track into concrete protocol objects,
+adapters, fixtures, funded-work records, and external pilot planning.
+
+1. `0030-trace-protocol-and-evidence-ladder.md`
+2. `0031-attempt-manifest-in-pr.md`
+3. `0032-worker-harness-model-metadata-registry.md`
+4. `0033-cross-platform-reproducibility-evidence.md`
+5. `0034-work-budgets-and-funded-issues.md`
+6. `0035-github-funding-source-adapters.md`
+7. `0036-hermes-issue-survey-and-candidate-ranking.md`
+8. `0037-hermes-nixos-tier-one-packaging-pilot.md`
+9. `0038-hermes-trace-adapter.md`
+10. `0039-nixos-agent-harness-benchmark.md`
+11. `0040-faber-attempt-manifest-generator-for-hermes-prs.md`
+12. `0041-hermes-best-of-n-selection-pilot.md`
+13. `0042-hermes-skills-and-plugin-safety-manifests.md`
+14. `0043-real-external-faber-pilot-task-contract.md`
+15. `0044-risk-review-for-funded-agent-work.md`
+16. `0045-roadmap-update-traces-funding-hermes.md`

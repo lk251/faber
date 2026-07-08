@@ -45,25 +45,42 @@ on `docs/research/llm-as-a-verifier-2607-05391.md`. The reference project is
 8. Keep all initial work provider-agnostic, fake-backend-first, and independent
    from real model APIs.
 
-## Trace Acquisition, Solver Metadata, And Harness Bounties
+## Trace, Metadata, Funding, And External Pilots
 
 This track is defined in `docs/TRACE_STRATEGY.md`,
-`docs/SOLVER_METADATA.md`, `docs/ADR-0003-traces-and-solver-metadata.md`, and
-`codex/future/0023` through `0029`.
+`docs/SOLVER_METADATA.md`, `docs/REPRODUCIBILITY_AND_PLATFORMS.md`,
+`docs/FUNDING_AND_WORK_BUDGETS.md`, `docs/RISK_REVIEW.md`,
+`docs/ADR-0003-traces-metadata-reproducibility-and-funding.md`, and the
+0030-0045 queue.
 
-1. Define Faber's trace protocol and evidence ladder from PR-only fallback to
-   replayable episode packages.
-2. Support optional `.faber/attempt.json` manifests in pull requests.
-3. Extend worker metadata to describe model, harness, environment, platform, cost,
-   and trust level.
-4. Add trace-quality incentives so richer, attested traces improve eligibility,
-   reputation, and possibly economics.
-5. Design a NixOS-first agent harness bounty pilot after investigating candidate
-   harnesses. Hermes is only a candidate until evidence supports that choice.
-6. Add harness-native trace adapter stubs that map fake native events into Faber
-   trace events without depending on real harness packages.
-7. Document data requirements for supervised learning, attempt quality
-   prediction, harness/orchestration learning, verifier calibration, progress
-   scoring, reinforcement learning, and value-per-euro evaluation.
-8. Preserve privacy: do not require private chain-of-thought, proprietary prompts,
-   finetune weights, or provider secrets.
+1. Keep the trace protocol and evidence ladder central: PR-only fallback,
+   `.faber/attempt.json`, Faber Runner traces, harness-native adapters, and
+   replayable episode packages should coexist under explicit task policy.
+2. Use solver metadata and provenance for routing and learning, with exact,
+   coarse, and private disclosure modes plus explicit trust levels.
+3. Treat cross-platform reproducibility honestly. NixOS can be preferred for
+   high-replayability tasks, while Windows, macOS, other Linux, containers, and
+   remote runners remain valid when recorded with environment evidence.
+4. Model funded GitHub issues through provider-agnostic work budgets,
+   allocations, reservations, refund policies, and receipt-gated settlement.
+5. Keep funding source adapters deterministic first. Existing repository funding
+   surfaces should reconcile into `FundingEvent`, `FundingSource`, and
+   `WorkBudget` records without turning core into a payment processor.
+6. Continue harness-native trace adapters from fake fixtures before adopting real
+   harness internals. The Hermes-like adapter remains an adapter, not a core
+   dependency.
+7. Use the offline agent harness benchmark to test local verifiers, attempt
+   manifests, trace examples, and dataset export without model providers or
+   external services.
+8. Use best-of-N selection records to preserve rejected attempts as training
+   data while accepted authoritative receipts dominate advisory ranking.
+9. Use skill/plugin safety manifests to declare platform support, permissions,
+   dependencies, and verifier checks before relying on third-party extensions.
+10. Treat Hermes Agent as the current external pilot candidate set, with #48628
+    the default first task unless upstream status changes before launch.
+11. Run risk review before funded external work. Credentials, private data,
+    external writes, regulated domains, security-sensitive repositories, and
+    payment-provider assumptions require explicit review metadata.
+12. Preserve privacy: do not require private chain-of-thought, proprietary
+    prompts, finetune weights, provider secrets, or raw traces when redacted
+    structured evidence is sufficient.
