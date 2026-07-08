@@ -13,7 +13,12 @@ from faber.money import Money
 from faber.receipts import VerificationReceipt
 from faber.routing import RouterDecision
 from faber.settlement import Settlement
-from faber.validation import require_mapping, require_non_empty_string, require_schema
+from faber.validation import (
+    ValidationError,
+    require_mapping,
+    require_non_empty_string,
+    require_schema,
+)
 from faber.verifiers import VerifierRun
 from faber.workers import WorkerProfile
 
@@ -40,11 +45,11 @@ class Trajectory:
         require_non_empty_string(self.id, "id")
         require_non_empty_string(self.created_at, "created_at")
         if self.attempt.task_contract_id != self.contract.id:
-            raise ValueError("attempt.task_contract_id must match contract.id")
+            raise ValidationError("trajectory attempt must belong to trajectory contract")
         if self.receipt.task_contract_id != self.contract.id:
-            raise ValueError("receipt.task_contract_id must match contract.id")
+            raise ValidationError("trajectory receipt must belong to trajectory contract")
         if self.receipt.attempt_id != self.attempt.id:
-            raise ValueError("receipt.attempt_id must match attempt.id")
+            raise ValidationError("trajectory receipt must bind the trajectory attempt")
         require_mapping(self.cost_metadata, "cost_metadata")
         require_mapping(self.latency_metadata, "latency_metadata")
         require_mapping(self.review_metadata, "review_metadata")

@@ -24,6 +24,9 @@ Faber Runner is the self-hosted execution/verifier component. It runs verifier
 policy approved by a platform or repository owner and emits authoritative evidence
 that can be bound into receipts.
 
+Faber Verifiers is the verifier layer. It treats verifier specs, verifier runs,
+verifier digests, and verifier quality as explicit product and protocol objects.
+
 Faber Orchestration trains routers and orchestrated models from verified
 trajectories. The scarce asset is the trajectory stream: task context, routing
 decision, worker identity, attempt metadata, verifier outcome, review signal, cost,

@@ -2,14 +2,14 @@
 
 Faber Protocol is the open schema layer for verified work and trajectory export.
 
-Initial objects:
+Initial root objects:
 
 - `TaskContract`
 - `Attempt`
 - `VerifierRun`
 - `VerificationReceipt`
 - `Trajectory`
-- `SettlementEvent`
+- `Settlement`
 - `WorkerProfile`
 - `RouterDecision`
 - `MarketEvent`

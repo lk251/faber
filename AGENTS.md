@@ -22,6 +22,15 @@ Democratization here does not mean "always cheapest." It means discovering, meas
 - Market data should be exportable for later supervised learning, reinforcement learning, preference learning, and router/orchestrator training.
 - The open protocol should be useful even if the hosted Faber service does not exist.
 
+## Terminology
+
+- Faber for GitHub is the GitHub adapter and future GitHub App.
+- Faber Market is the buyer/seller marketplace.
+- Faber Protocol is the open schema layer.
+- Faber Runner is the self-hosted execution/verifier component.
+- Faber Verifiers is the verifier layer or verifier marketplace.
+- Faber Orchestration is the training and routing system built from verified trajectories.
+
 ## Do not import old hackathon assumptions
 
 The old repository `lk251/agent-bounty-market` may be used as read-only reference for ideas, invariants, and tests.

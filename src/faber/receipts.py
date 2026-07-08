@@ -10,6 +10,7 @@ from faber.contracts import TaskContract
 from faber.digests import sha256_digest
 from faber.ids import new_id, utc_now
 from faber.validation import (
+    ValidationError,
     require_digest,
     require_mapping,
     require_non_empty_string,
@@ -63,7 +64,9 @@ class VerificationReceipt:
         verifier_run: VerifierRun,
     ) -> VerificationReceipt:
         if attempt.task_contract_id != contract.id:
-            raise ValueError("attempt does not belong to task contract")
+            raise ValidationError(
+                "attempt.task_contract_id must match the task contract used for receipt creation"
+            )
         return cls(
             task_contract_id=contract.id,
             task_contract_digest=contract.digest(),
