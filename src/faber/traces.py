@@ -151,6 +151,28 @@ class RedactionPolicy:
     def digest(self) -> str:
         return sha256_digest(self.to_dict())
 
+    @classmethod
+    def from_dict(cls, payload: dict[str, object]) -> RedactionPolicy:
+        replacement = payload.get("replacement", "[redacted]")
+        if not isinstance(replacement, str):
+            raise ValidationError("replacement must be a string")
+        allow_raw_trace = payload.get("allow_raw_trace", False)
+        if not isinstance(allow_raw_trace, bool):
+            raise ValidationError("allow_raw_trace must be a boolean")
+        notes = payload.get("notes", "")
+        if not isinstance(notes, str):
+            raise ValidationError("notes must be a string")
+        return cls(
+            id=_required_string(payload, "id"),
+            created_at=_required_string(payload, "created_at"),
+            name=_required_string(payload, "name"),
+            field_paths=require_string_list(payload.get("field_paths"), "field_paths"),
+            replacement=replacement,
+            allow_raw_trace=allow_raw_trace,
+            notes=notes,
+            schema=_schema_or_default(payload, "schema", schemas.REDACTION_POLICY),
+        )
+
 
 @dataclass(frozen=True)
 class Attestation:
@@ -203,6 +225,24 @@ class Attestation:
 
     def digest(self) -> str:
         return sha256_digest(self.to_dict())
+
+    @classmethod
+    def from_dict(cls, payload: dict[str, object]) -> Attestation:
+        limitations = payload.get("limitations", [])
+        return cls(
+            id=_required_string(payload, "id"),
+            created_at=_required_string(payload, "created_at"),
+            subject_id=_required_string(payload, "subject_id"),
+            subject_digest=_optional_string(payload.get("subject_digest")),
+            issuer=_required_string(payload, "issuer"),
+            trust_level=_required_string(payload, "trust_level"),
+            signature=_optional_string(payload.get("signature")),
+            issued_at=_required_string(payload, "issued_at"),
+            expires_at=_optional_string(payload.get("expires_at")),
+            verification_method=_required_string(payload, "verification_method"),
+            limitations=require_string_list(limitations, "limitations"),
+            schema=_schema_or_default(payload, "schema", schemas.ATTESTATION),
+        )
 
 
 @dataclass(frozen=True)
@@ -439,6 +479,43 @@ class AttemptManifest:
     def digest(self) -> str:
         return sha256_digest(self.to_dict())
 
+    @classmethod
+    def from_dict(cls, payload: dict[str, object]) -> AttemptManifest:
+        redaction_policy_payload = payload.get("redaction_policy")
+        if not isinstance(redaction_policy_payload, dict):
+            raise ValidationError("redaction_policy must be a mapping")
+        attestation_payload = payload.get("attestation")
+        if attestation_payload is None:
+            attestation = None
+        elif isinstance(attestation_payload, dict):
+            attestation = Attestation.from_dict(attestation_payload)
+        else:
+            raise ValidationError("attestation must be a mapping or null")
+        return cls(
+            id=_required_string(payload, "id"),
+            created_at=_required_string(payload, "created_at"),
+            task_contract_id=_required_string(payload, "task_contract_id"),
+            task_contract_digest=_required_string(payload, "task_contract_digest"),
+            attempt_id=_required_string(payload, "attempt_id"),
+            base_revision=_required_string(payload, "base_revision"),
+            candidate_revision=_required_string(payload, "candidate_revision"),
+            worker_id=_required_string(payload, "worker_id"),
+            evidence_level=_evidence_level_number(payload.get("evidence_level")),
+            redaction_policy=RedactionPolicy.from_dict(redaction_policy_payload),
+            model_metadata=_mapping_field(payload, "model_metadata"),
+            harness_metadata=_mapping_field(payload, "harness_metadata"),
+            runner_metadata=_mapping_field(payload, "runner_metadata"),
+            environment_metadata=_mapping_field(payload, "environment_metadata"),
+            tool_registry_digest=_optional_string(payload.get("tool_registry_digest")),
+            nix_flake_lock_digest=_optional_string(payload.get("nix_flake_lock_digest")),
+            budget_metadata=_mapping_field(payload, "budget_metadata"),
+            cost_metadata=_mapping_field(payload, "cost_metadata"),
+            latency_metadata=_mapping_field(payload, "latency_metadata"),
+            trust_level=_required_string(payload, "trust_level"),
+            attestation=attestation,
+            schema=_schema_or_default(payload, "schema", schemas.ATTEMPT_MANIFEST),
+        )
+
 
 @dataclass(frozen=True)
 class EpisodePackage:
@@ -596,3 +673,20 @@ def _optional_string(value: object) -> str | None:
 
 def _required_string(payload: dict[str, object], field: str) -> str:
     return require_non_empty_string(payload.get(field), field)
+
+
+def _schema_or_default(payload: dict[str, object], field: str, default: str) -> str:
+    return require_non_empty_string(payload.get(field, default), field)
+
+
+def _mapping_field(payload: dict[str, object], field: str) -> dict[str, object]:
+    value = payload.get(field, {})
+    return dict(require_mapping(value, field))
+
+
+def _evidence_level_number(value: object) -> int:
+    if isinstance(value, dict):
+        value = value.get("level")
+    if not isinstance(value, int) or isinstance(value, bool):
+        raise ValidationError("evidence_level must be an integer between 0 and 4")
+    return require_evidence_level(value)
