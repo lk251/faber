@@ -64,6 +64,64 @@ class FundingSource:
 
 
 @dataclass(frozen=True)
+class FundingEvent:
+    """Provider-tagged funding signal reconciled by an adapter."""
+
+    provider: str
+    external_event_id: str
+    source_type: str
+    target_kind: str
+    target_ref: str
+    amount: Money
+    occurred_at: str
+    payload: dict[str, object] = field(default_factory=dict)
+    id: str = field(default_factory=lambda: new_id("funding-event"))
+    created_at: str = field(default_factory=utc_now)
+    schema: str = schemas.FUNDING_EVENT
+
+    def __post_init__(self) -> None:
+        require_schema(self.schema, schemas.FUNDING_EVENT)
+        require_non_empty_string(self.id, "id")
+        require_non_empty_string(self.created_at, "created_at")
+        require_non_empty_string(self.provider, "provider")
+        require_non_empty_string(self.external_event_id, "external_event_id")
+        require_non_empty_string(self.source_type, "source_type")
+        require_non_empty_string(self.target_kind, "target_kind")
+        require_non_empty_string(self.target_ref, "target_ref")
+        _require_money(self.amount, "amount")
+        require_non_empty_string(self.occurred_at, "occurred_at")
+        require_mapping(self.payload, "payload")
+
+    @property
+    def idempotency_key(self) -> str:
+        return f"{self.provider}:{self.external_event_id}"
+
+    def stable_payload(self) -> dict[str, object]:
+        return {
+            "schema": self.schema,
+            "provider": self.provider,
+            "external_event_id": self.external_event_id,
+            "idempotency_key": self.idempotency_key,
+            "source_type": self.source_type,
+            "target_kind": self.target_kind,
+            "target_ref": self.target_ref,
+            "amount": self.amount.to_dict(),
+            "occurred_at": self.occurred_at,
+            "payload": self.payload,
+        }
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "id": self.id,
+            "created_at": self.created_at,
+            **self.stable_payload(),
+        }
+
+    def digest(self) -> str:
+        return sha256_digest(self.stable_payload())
+
+
+@dataclass(frozen=True)
 class RefundPolicy:
     """Explicit unused/rejected/expired fund policy states."""
 
@@ -394,6 +452,25 @@ class BudgetReservationBook:
         return [self._reservations_by_key[key] for key in sorted(self._reservations_by_key)]
 
 
+class FundingEventLedger:
+    """Idempotent in-memory reconciler for adapter-emitted funding events."""
+
+    def __init__(self) -> None:
+        self._events_by_key: dict[str, FundingEvent] = {}
+
+    def record(self, event: FundingEvent) -> FundingEvent:
+        existing = self._events_by_key.get(event.idempotency_key)
+        if existing is not None:
+            if existing.digest() != event.digest():
+                raise ValidationError("funding event idempotency key reused with different payload")
+            return existing
+        self._events_by_key[event.idempotency_key] = event
+        return event
+
+    def events(self) -> list[FundingEvent]:
+        return [self._events_by_key[key] for key in sorted(self._events_by_key)]
+
+
 def issue_work_budget(
     *,
     repository: str,
@@ -417,6 +494,73 @@ def issue_work_budget(
         purpose_allocations=purpose_allocations or {"solver_payout": amount},
         refund_policy=refund_policy or RefundPolicy(),
         metadata={"repository": repository, "issue_number": issue_number},
+    )
+
+
+def work_budget_from_funding_event(
+    event: FundingEvent,
+    *,
+    verifier_policy: dict[str, object],
+    target_kind: str | None = None,
+    target_ref: str | None = None,
+    purpose_allocations: dict[str, Money] | None = None,
+    refund_policy: RefundPolicy | None = None,
+) -> tuple[FundingSource, WorkBudget]:
+    budget_target_kind = target_kind or event.target_kind
+    budget_target_ref = target_ref or event.target_ref
+    source = FundingSource(
+        id=_stable_id("funding-source", event.idempotency_key),
+        source_type=event.source_type,
+        display_name=f"{event.provider} funding event",
+        currency=event.amount.currency,
+        provider_ref=event.idempotency_key,
+        metadata={
+            "provider": event.provider,
+            "external_event_id": event.external_event_id,
+            "funding_event_digest": event.digest(),
+        },
+    )
+    budget = WorkBudget(
+        id=_stable_id(
+            "work-budget",
+            f"{event.idempotency_key}:{budget_target_kind}:{budget_target_ref}",
+        ),
+        funding_source_id=source.id,
+        amount=event.amount,
+        target_kind=budget_target_kind,
+        target_ref=budget_target_ref,
+        verifier_policy=verifier_policy,
+        purpose_allocations=purpose_allocations or {"solver_payout": event.amount},
+        refund_policy=refund_policy or RefundPolicy(),
+        metadata={
+            "provider": event.provider,
+            "external_event_id": event.external_event_id,
+            "source_target_kind": event.target_kind,
+            "source_target_ref": event.target_ref,
+        },
+    )
+    return source, budget
+
+
+def issue_budget_from_repository_funding_event(
+    event: FundingEvent,
+    *,
+    issue_number: int,
+    verifier_policy: dict[str, object],
+    purpose_allocations: dict[str, Money] | None = None,
+    refund_policy: RefundPolicy | None = None,
+) -> tuple[FundingSource, WorkBudget]:
+    if event.target_kind != "github.repository":
+        raise ValidationError("repository funding allocation requires github.repository event")
+    if issue_number <= 0:
+        raise ValidationError("issue_number must be positive")
+    return work_budget_from_funding_event(
+        event,
+        verifier_policy=verifier_policy,
+        target_kind="github.issue",
+        target_ref=f"{event.target_ref}#{issue_number}",
+        purpose_allocations=purpose_allocations,
+        refund_policy=refund_policy,
     )
 
 
@@ -543,3 +687,8 @@ def _require_same_currency(left: Money, right: Money, field: str) -> None:
     _require_money(right, field)
     if left.currency != right.currency:
         raise ValidationError(f"{field} currency mismatch")
+
+
+def _stable_id(prefix: str, value: str) -> str:
+    digest = sha256_digest(value).removeprefix("sha256:")[:16]
+    return f"{prefix}_{digest}"

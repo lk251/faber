@@ -18,6 +18,11 @@ The product idea:
 
 Payment providers remain adapters. The Faber core should model budgets, reservations, obligations, and settlement events without hardcoding any provider.
 
+Funding-source adapters should emit provider-tagged `FundingEvent` records.
+Those records can be reconciled idempotently into `FundingSource` and
+`WorkBudget` objects. Adapter records are audit evidence, not custody,
+compliance, or payment-processing claims.
+
 ## GitHub issue funding
 
 The GitHub product loop should eventually support:
