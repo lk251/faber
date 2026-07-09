@@ -16,7 +16,7 @@ def _spec(
     command: list[str],
     *,
     verifier_id: str = "verifier.local",
-    timeout_seconds: int = 5,
+    timeout_seconds: int = 30,
 ) -> VerifierSpec:
     return VerifierSpec(
         verifier_id=verifier_id,

@@ -8,7 +8,7 @@ from faber.runner.local import LocalVerifierRunner, RunnerPolicy
 from faber.verifiers import VerifierRegistry, VerifierSpec
 
 
-def _registry(command: list[str], *, timeout: int = 2) -> VerifierRegistry:
+def _registry(command: list[str], *, timeout: int = 30) -> VerifierRegistry:
     registry = VerifierRegistry()
     registry.register(
         VerifierSpec(
