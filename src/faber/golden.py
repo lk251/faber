@@ -81,7 +81,7 @@ def demo_verifier_spec() -> VerifierSpec:
             "-c",
             'print(\'{"metrics":{"golden_path_checks":1}}\')',
         ],
-        allowed_timeout_seconds=5,
+        allowed_timeout_seconds=30,
     )
 
 
@@ -139,7 +139,7 @@ def run_demo_verifier(
     cwd = Path(working_directory or Path.cwd()).resolve()
     runner = LocalVerifierRunner(
         registry,
-        policy=RunnerPolicy(allowed_working_directory_root=str(cwd), timeout_seconds=5),
+        policy=RunnerPolicy(allowed_working_directory_root=str(cwd), timeout_seconds=30),
     )
     verifier_run = runner.run(spec.verifier_id, working_directory=cwd).verifier_run
     verifier_run = VerifierRun(
