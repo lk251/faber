@@ -9,6 +9,7 @@ from pathlib import Path
 
 from faber import schemas
 from faber.canonical_json import canonical_json
+from faber.data_rights import ConsentGrant
 from faber.digests import sha256_digest
 from faber.ids import new_id, utc_now
 from faber.validation import (
@@ -254,6 +255,7 @@ class TrajectoryConsent:
     license_ref: str = "unspecified"
     redaction_required: bool = True
     notes: str = ""
+    grants: list[ConsentGrant] = field(default_factory=list)
     id: str = field(default_factory=lambda: new_id("trajectory-consent"))
     created_at: str = field(default_factory=utc_now)
     schema: str = schemas.TRAJECTORY_CONSENT
@@ -270,6 +272,8 @@ class TrajectoryConsent:
             raise ValidationError("redaction_required must be a boolean")
         if not isinstance(self.notes, str):
             raise ValidationError("notes must be a string")
+        if any(not isinstance(grant, ConsentGrant) for grant in self.grants):
+            raise ValidationError("grants must contain ConsentGrant records")
 
     def allows(self, use: str) -> bool:
         require_non_empty_string(use, "use")
@@ -287,6 +291,7 @@ class TrajectoryConsent:
             "license_ref": self.license_ref,
             "redaction_required": self.redaction_required,
             "notes": self.notes,
+            "grants": [grant.to_dict() for grant in self.grants],
         }
 
     def digest(self) -> str:
@@ -303,6 +308,11 @@ class TrajectoryConsent:
         notes = payload.get("notes", "")
         if not isinstance(notes, str):
             raise ValidationError("notes must be a string")
+        grants_payload = payload.get("grants", [])
+        if not isinstance(grants_payload, list) or any(
+            not isinstance(grant, dict) for grant in grants_payload
+        ):
+            raise ValidationError("grants must be a list of mappings")
         return cls(
             id=_required_string(payload, "id"),
             created_at=_required_string(payload, "created_at"),
@@ -311,6 +321,7 @@ class TrajectoryConsent:
             license_ref=_required_string(payload, "license_ref"),
             redaction_required=redaction_required,
             notes=notes,
+            grants=[ConsentGrant.from_dict(grant) for grant in grants_payload],
             schema=_schema_or_default(payload, "schema", schemas.TRAJECTORY_CONSENT),
         )
 

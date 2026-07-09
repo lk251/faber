@@ -86,3 +86,10 @@ digest.
 Redaction hooks are explicit field-path replacements. They should be used before
 sharing datasets outside the trust boundary when task descriptions, review notes,
 or repository metadata contain sensitive information.
+
+Training and publication rights are evaluated separately from trajectory
+quality. Repository defaults and stricter task-level `TrainingUsePolicy` records
+must agree with solver/operator and repository-owner/customer consent grants.
+Private records remain excluded from public datasets even when they are
+RL-grade. Audit-only retention may preserve authoritative receipts without
+granting model-training rights. See `docs/DATA_RIGHTS.md`.

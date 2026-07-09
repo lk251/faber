@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from faber.canonical_json import canonical_json
+from faber.data_rights import DatasetExportPolicy, record_export_allowed
 from faber.digests import sha256_digest
 from faber.ids import new_id, utc_now
 from faber.trajectories import Trajectory
@@ -149,6 +150,7 @@ def export_trajectories_jsonl(
     require_rl_grade: bool = False,
     require_training_eligible: bool = False,
     minimum_quality_tier: str | None = None,
+    export_policy: DatasetExportPolicy | None = None,
 ) -> DatasetManifest:
     from faber.trajectory_quality import annotate_trajectory_record, filter_training_records
 
@@ -163,6 +165,10 @@ def export_trajectories_jsonl(
             require_training_eligible=require_training_eligible,
             minimum_quality_tier=minimum_quality_tier,
         )
+    if export_policy is not None:
+        records = [
+            record for record in records if record_export_allowed(record, export_policy)
+        ]
     if redactor is not None:
         records = [redactor(record) for record in records]
     lines = [canonical_json(record) for record in records]
