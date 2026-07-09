@@ -40,7 +40,10 @@ from faber.trajectories import build_demo_trajectory
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="python -m faber.cli")
+    parser = argparse.ArgumentParser(
+        prog="python -m faber.cli",
+        description="Local/self-hosted Faber CLI; this build has no hosted commands.",
+    )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     subparsers.add_parser("doctor", help="Check that the core package can load.")

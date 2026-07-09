@@ -36,3 +36,5 @@ flowchart LR
 
 This is a development path, not hosted Faber. It uses the local SQLite store and
 the local runner policy documented in `src/faber/runner/README.md`.
+Local account, API, telemetry, and future hosted-service boundaries are documented
+in [`LOCAL_AND_HOSTED_MODES.md`](LOCAL_AND_HOSTED_MODES.md).
