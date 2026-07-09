@@ -40,6 +40,11 @@ from faber.digests import sha256_digest
 from faber.errors import SettlementError, ValidationError
 from faber.money import Money
 from faber.receipts import VerificationReceipt
+from faber.risk import (
+    TaskRiskReview,
+    require_task_risk_readiness,
+    review_task_risk,
+)
 from faber.sources import ArtifactReference
 from faber.traces import (
     AttemptManifest,
@@ -101,6 +106,7 @@ class FakeGitHubDeliveryLedger:
 class FakeGitHubFundedProductLoopResult:
     contract: TaskContract
     budget: WorkBudget
+    risk_review: TaskRiskReview
     issue_text: str
     pr_file_map: dict[str, str]
     artifact_references: list[ArtifactReference]
@@ -137,6 +143,12 @@ def run_fake_github_funded_product_loop(
     issue = _issue()
     contract = _contract(issue, installation)
     funding_source, budget = _budget(contract)
+    risk_review = review_task_risk(
+        contract,
+        review_id="task-risk-review_fake_github_65",
+        created_at=CREATED_AT,
+    )
+    require_task_risk_readiness(risk_review, funding=True, execution=True)
     issue_text = _issue_text(contract, budget, funding_source)
 
     delivery_ledger = FakeGitHubDeliveryLedger()
@@ -312,6 +324,7 @@ def run_fake_github_funded_product_loop(
     return FakeGitHubFundedProductLoopResult(
         contract=contract,
         budget=budget,
+        risk_review=risk_review,
         issue_text=issue_text,
         pr_file_map=pr_file_map,
         artifact_references=artifacts,
@@ -393,6 +406,17 @@ def _contract(issue: GitHubIssueRef, installation: GitHubInstallation) -> TaskCo
             "repository_snapshot": "fake-base-sha",
             "external_services": [],
             "fake_data": True,
+            "risk": {
+                "external_action": {
+                    "external_writes": False,
+                    "external_services": [],
+                    "action_kinds": [],
+                },
+                "credential": {"required": False, "credential_types": []},
+                "private_data": {"required": False, "data_classes": []},
+                "regulated_domain": {"required": False, "domains": []},
+                "security_sensitive": {"required": False, "areas": []},
+            },
         },
         trajectory_requirement=requirement.to_dict(),
         reward=Money("EUR", 4000),
