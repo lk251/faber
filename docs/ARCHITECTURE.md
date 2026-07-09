@@ -8,6 +8,11 @@ The root abstractions are independent from any one task source, payment provider
 model provider, or hosted product. GitHub, payments, and model calls enter through
 adapters.
 
+Generic task-source and submission boundaries are documented in
+`docs/TASK_AND_SUBMISSION_ADAPTERS.md`. Local JSON and filesystem adapters prove
+that the task, attempt, trajectory, verifier, and settlement lifecycle does not
+depend on GitHub.
+
 ## Trust Boundary
 
 Candidate-owned CI can provide useful signal, but it is not authoritative by
