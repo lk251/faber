@@ -37,6 +37,13 @@ The GitHub product loop should eventually support:
 
 A GitHub issue can become a task contract with a budget, verifier policy, trace requirement, and settlement rule.
 
+The fake GitHub adapter can render a `faber:funded-issue` marker that binds the
+task contract id/digest, work budget id/digest, opaque funding-source reference,
+allocation policy, verifier-spend allocation, and trace-quality bonus policy.
+Identical duplicate markers are idempotent; conflicting or digest-mismatched
+markers are rejected. A marker is public protocol evidence only. It never grants
+settlement authority, which still comes from the accepted authoritative receipt.
+
 ## Evidence and payout eligibility
 
 Work budgets may declare trajectory quality requirements. A task can accept
