@@ -18,6 +18,19 @@ The product idea:
 
 Payment providers remain adapters. The Faber core should model budgets, reservations, obligations, and settlement events without hardcoding any provider.
 
+`WorkBudgetLedger` provides exact local accounting. Every registration,
+reservation, release, and settlement requires an idempotency key and appends a
+budget event. When a local store path is supplied those events are persisted as
+canonical protocol records. Duplicate operations return the original result;
+reuse of a key with different content is rejected.
+
+Settlement splits worker payout, verifier cost, platform margin, and optional
+trace-quality bonus in integer minor units. Splits must sum exactly to the
+reservation. A bonus requires both an allocation policy and trajectory-quality
+evidence. Rejected or expired attempts release reservations according to the
+explicit refund policy. Reconciliation reports explain opening, active reserved,
+settled, released, available, and per-split balances.
+
 Funding-source adapters should emit provider-tagged `FundingEvent` records.
 Those records can be reconciled idempotently into `FundingSource` and
 `WorkBudget` objects. Adapter records are audit evidence, not custody,
