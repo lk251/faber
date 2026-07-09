@@ -27,6 +27,7 @@ class VerificationPolicy:
     hard_verifier_ids: list[str]
     human_review: str = "none"
     advisory_ranking: bool = False
+    human_can_override_hard_failure: bool = False
     budget_constraints: dict[str, object] = field(default_factory=dict)
     schema: str = schemas.VERIFICATION_POLICY
 
@@ -43,6 +44,8 @@ class VerificationPolicy:
             )
         if not isinstance(self.advisory_ranking, bool):
             raise ValidationError("advisory_ranking must be a boolean")
+        if not isinstance(self.human_can_override_hard_failure, bool):
+            raise ValidationError("human_can_override_hard_failure must be a boolean")
         require_mapping(self.budget_constraints, "budget_constraints")
 
     def to_dict(self) -> dict[str, object]:
@@ -51,6 +54,7 @@ class VerificationPolicy:
             "hard_verifier_ids": self.hard_verifier_ids,
             "human_review": self.human_review,
             "advisory_ranking": self.advisory_ranking,
+            "human_can_override_hard_failure": self.human_can_override_hard_failure,
             "budget_constraints": self.budget_constraints,
         }
 
@@ -64,6 +68,11 @@ class VerificationPolicy:
             ),
             human_review=_string_default(payload, "human_review", "none"),
             advisory_ranking=_bool_default(payload, "advisory_ranking", False),
+            human_can_override_hard_failure=_bool_default(
+                payload,
+                "human_can_override_hard_failure",
+                False,
+            ),
             budget_constraints=dict(
                 require_mapping(
                     payload.get("budget_constraints", {}),
