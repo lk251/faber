@@ -13,7 +13,9 @@ from faber.digests import sha256_digest
 from faber.errors import ProtocolVersionError, ValidationError
 from faber.validation import require_non_empty_string
 
-SCHEMA_PATTERN = re.compile(r"^faber\.(?P<family>[a-z0-9_]+)\.v(?P<version>[1-9][0-9]*)$")
+SCHEMA_PATTERN = re.compile(
+    r"^faber\.(?P<family>[a-z0-9_.]+)\.v(?P<version>[1-9][0-9]*)$"
+)
 
 
 class CompatibilityPolicy(StrEnum):
