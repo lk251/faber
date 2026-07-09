@@ -23,6 +23,7 @@ from faber.attempt_manifests import (
 from faber.canonical_json import canonical_json
 from faber.datasets import dataset_summary, export_trajectories_jsonl
 from faber.errors import FaberError
+from faber.funded_demo import write_funded_trajectory_demo
 from faber.golden import (
     create_demo_contract,
     export_demo_trajectory,
@@ -163,6 +164,21 @@ def build_parser() -> argparse.ArgumentParser:
     )
     golden.add_argument("--store", required=True, help="Path to the SQLite database.")
     golden.add_argument("--out", required=True, help="Output trajectory JSON path.")
+
+    funded = subparsers.add_parser(
+        "demo-funded-trajectory",
+        help="Run the fake funded RL-grade task walkthrough.",
+    )
+    funded.add_argument(
+        "--out-dir",
+        default=".faber/funded-demo",
+        help="Directory for the complete walkthrough artifacts.",
+    )
+    funded.add_argument(
+        "--json",
+        action="store_true",
+        help="Print the machine-readable run summary instead of human output.",
+    )
 
     return parser
 
@@ -370,6 +386,19 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.command == "run-golden-path":
         golden_result = run_golden_path(args.store, args.out)
         print(canonical_json(golden_result))
+        return 0
+
+    if args.command == "demo-funded-trajectory":
+        try:
+            funded_demo = write_funded_trajectory_demo(args.out_dir)
+        except (FaberError, OSError) as exc:
+            print(f"funded trajectory demo failed: {exc}", file=sys.stderr)
+            return 1
+        if args.json:
+            print(canonical_json(funded_demo.summary))
+        else:
+            for line in funded_demo.human_lines():
+                print(line)
         return 0
 
     parser.error(f"unknown command: {args.command}")

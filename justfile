@@ -31,4 +31,7 @@ smoke:
 demo:
     python -m faber.cli run-golden-path --store .faber/golden.sqlite3 --out .faber/golden_trajectory.json
 
+demo-funded-trajectory:
+    python -m faber.cli demo-funded-trajectory --out-dir .faber/funded-demo
+
 check: format-check lint typecheck test smoke
