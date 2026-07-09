@@ -11,6 +11,8 @@ from faber.digests import sha256_digest
 from faber.errors import ValidationError
 from faber.ids import new_id, utc_now
 from faber.validation import (
+    require_digest,
+    require_mapping,
     require_non_empty_string,
     require_schema,
     require_string_list,
@@ -31,6 +33,23 @@ CONSENT_PARTIES = {"solver_operator", "repo_owner_customer"}
 VISIBILITY_LEVELS = {"public", "restricted", "private"}
 VISIBILITY_RANK = {"public": 0, "restricted": 1, "private": 2}
 RETENTION_CLASSES = {"audit_only", "limited", "standard", "indefinite"}
+WITHDRAWAL_SCOPES = {
+    "training",
+    "rl",
+    "supervised",
+    "router",
+    "research",
+    "evaluation",
+    "public_dataset",
+}
+PRIVATE_TRACE_FIELDS = (
+    "attempt_manifest",
+    "trace_manifest",
+    "episode_package",
+    "trace_events",
+    "raw_trace",
+    "private_trace",
+)
 CONSENT_PROVENANCE = {
     "self_attested",
     "runner_attested",
@@ -44,6 +63,13 @@ class VisibilityLevel:
     PUBLIC = "public"
     RESTRICTED = "restricted"
     PRIVATE = "private"
+
+
+class RetentionClass:
+    AUDIT_ONLY = "audit_only"
+    LIMITED = "limited"
+    STANDARD = "standard"
+    INDEFINITE = "indefinite"
 
 
 def require_training_uses(values: object, field_name: str) -> list[str]:
@@ -361,6 +387,152 @@ class DeletionRequest:
 
 
 @dataclass(frozen=True)
+class DatasetWithdrawal:
+    """Explicit withdrawal from future dataset uses, independent of audit retention."""
+
+    trajectory_id: str
+    requested_by: str
+    reason: str
+    effective_at: str
+    scopes: list[str] = field(default_factory=lambda: ["training"])
+    status: str = "active"
+    id: str = field(default_factory=lambda: new_id("dataset-withdrawal"))
+    schema: str = schemas.DATASET_WITHDRAWAL
+
+    def __post_init__(self) -> None:
+        require_schema(self.schema, schemas.DATASET_WITHDRAWAL)
+        require_non_empty_string(self.id, "id")
+        require_non_empty_string(self.trajectory_id, "trajectory_id")
+        require_non_empty_string(self.requested_by, "requested_by")
+        require_non_empty_string(self.reason, "reason")
+        require_non_empty_string(self.effective_at, "effective_at")
+        scopes = require_string_list(self.scopes, "scopes", allow_empty=False)
+        unknown = sorted(set(scopes) - WITHDRAWAL_SCOPES)
+        if unknown:
+            raise ValidationError(f"scopes contains unsupported withdrawals: {unknown}")
+        if self.status not in {"active", "revoked"}:
+            raise ValidationError("status must be active or revoked")
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "schema": self.schema,
+            "id": self.id,
+            "trajectory_id": self.trajectory_id,
+            "requested_by": self.requested_by,
+            "reason": self.reason,
+            "effective_at": self.effective_at,
+            "scopes": self.scopes,
+            "status": self.status,
+        }
+
+    def digest(self) -> str:
+        return sha256_digest(self.to_dict())
+
+
+@dataclass(frozen=True)
+class TombstoneRecord:
+    """Minimal proof that content was removed while audit references remain."""
+
+    trajectory_id: str
+    original_record_digest: str
+    retained_record_digest: str
+    deletion_request_digest: str
+    removed_fields: list[str]
+    preserved_audit_references: dict[str, str]
+    id: str
+    created_at: str
+    schema: str = schemas.TOMBSTONE_RECORD
+
+    def __post_init__(self) -> None:
+        require_schema(self.schema, schemas.TOMBSTONE_RECORD)
+        require_non_empty_string(self.id, "id")
+        require_non_empty_string(self.created_at, "created_at")
+        require_non_empty_string(self.trajectory_id, "trajectory_id")
+        require_digest(self.original_record_digest, "original_record_digest")
+        require_digest(self.retained_record_digest, "retained_record_digest")
+        require_digest(self.deletion_request_digest, "deletion_request_digest")
+        require_string_list(self.removed_fields, "removed_fields")
+        require_mapping(self.preserved_audit_references, "preserved_audit_references")
+        for key, value in self.preserved_audit_references.items():
+            require_non_empty_string(key, "preserved_audit_references key")
+            require_non_empty_string(value, f"preserved_audit_references.{key}")
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "schema": self.schema,
+            "id": self.id,
+            "created_at": self.created_at,
+            "trajectory_id": self.trajectory_id,
+            "original_record_digest": self.original_record_digest,
+            "retained_record_digest": self.retained_record_digest,
+            "deletion_request_digest": self.deletion_request_digest,
+            "removed_fields": self.removed_fields,
+            "preserved_audit_references": self.preserved_audit_references,
+        }
+
+    def digest(self) -> str:
+        return sha256_digest(self.to_dict())
+
+
+@dataclass(frozen=True)
+class DeletionReport:
+    """Digest-preserving completion record for one deletion request."""
+
+    trajectory_id: str
+    deletion_request_id: str
+    deletion_request_digest: str
+    retention_policy_digest: str
+    original_record_digest: str
+    retained_record_digest: str
+    removed_field_digests: dict[str, str]
+    preserved_audit_references: dict[str, str]
+    tombstone_digest: str
+    id: str
+    completed_at: str
+    status: str = "completed"
+    schema: str = schemas.DELETION_REPORT
+
+    def __post_init__(self) -> None:
+        require_schema(self.schema, schemas.DELETION_REPORT)
+        require_non_empty_string(self.id, "id")
+        require_non_empty_string(self.completed_at, "completed_at")
+        require_non_empty_string(self.trajectory_id, "trajectory_id")
+        require_non_empty_string(self.deletion_request_id, "deletion_request_id")
+        for field_name, value in [
+            ("deletion_request_digest", self.deletion_request_digest),
+            ("retention_policy_digest", self.retention_policy_digest),
+            ("original_record_digest", self.original_record_digest),
+            ("retained_record_digest", self.retained_record_digest),
+            ("tombstone_digest", self.tombstone_digest),
+        ]:
+            require_digest(value, field_name)
+        _require_digest_mapping(self.removed_field_digests, "removed_field_digests")
+        require_mapping(self.preserved_audit_references, "preserved_audit_references")
+        if self.status != "completed":
+            raise ValidationError("deletion report status must be completed")
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "schema": self.schema,
+            "id": self.id,
+            "completed_at": self.completed_at,
+            "status": self.status,
+            "trajectory_id": self.trajectory_id,
+            "deletion_request_id": self.deletion_request_id,
+            "deletion_request_digest": self.deletion_request_digest,
+            "retention_policy_digest": self.retention_policy_digest,
+            "original_record_digest": self.original_record_digest,
+            "retained_record_digest": self.retained_record_digest,
+            "removed_field_digests": self.removed_field_digests,
+            "preserved_audit_references": self.preserved_audit_references,
+            "tombstone_digest": self.tombstone_digest,
+        }
+
+    def digest(self) -> str:
+        return sha256_digest(self.to_dict())
+
+
+@dataclass(frozen=True)
 class DatasetExportPolicy:
     purpose: str
     public: bool = False
@@ -433,6 +605,8 @@ def record_export_allowed(
 ) -> bool:
     """Return whether rights, consent, and visibility permit one export."""
 
+    if export_policy.purpose != "audit" and record_withdrawn_for(record, export_policy.purpose):
+        return False
     policy = _policy_from_record(record)
     if export_policy.purpose == "audit":
         return policy.audit_retention_allowed and isinstance(record.get("receipt"), Mapping)
@@ -467,22 +641,126 @@ def audit_retained_record(
 ) -> dict[str, object]:
     """Remove private learning payloads while preserving minimal audit evidence."""
 
+    retained, _report, _tombstone = apply_deletion_request(
+        record,
+        request=request,
+        policy=policy,
+        completed_at=request.requested_at,
+    )
+    return retained
+
+
+def apply_dataset_withdrawal(
+    record: Mapping[str, object],
+    withdrawal: DatasetWithdrawal,
+) -> dict[str, object]:
+    """Attach an inspectable withdrawal without deleting audit evidence."""
+
+    if str(record.get("id")) != withdrawal.trajectory_id:
+        raise ValidationError("dataset withdrawal trajectory_id does not match record id")
+    updated = copy.deepcopy(dict(record))
+    updated["dataset_withdrawal"] = withdrawal.to_dict()
+    updated["training_withdrawn"] = withdrawal.status == "active" and (
+        "training" in withdrawal.scopes
+    )
+    return updated
+
+
+def record_withdrawn_for(record: Mapping[str, object], purpose: str = "training") -> bool:
+    """Return whether an active withdrawal covers the requested dataset purpose."""
+
+    if record.get("training_withdrawn") is True and purpose != "audit":
+        return True
+    withdrawal = record.get("dataset_withdrawal")
+    if isinstance(withdrawal, Mapping) and withdrawal.get("status") == "active":
+        if withdrawal.get("trajectory_id") != record.get("id"):
+            return False
+        scopes = withdrawal.get("scopes", [])
+        if isinstance(scopes, list) and (
+            "training" in scopes or purpose in scopes
+        ):
+            return True
+    deletion = record.get("deletion")
+    if isinstance(deletion, Mapping):
+        scopes = deletion.get("scopes", [])
+        if isinstance(scopes, list) and "training" in scopes and purpose != "audit":
+            return True
+    return False
+
+
+def apply_deletion_request(
+    record: Mapping[str, object],
+    *,
+    request: DeletionRequest,
+    policy: RetentionPolicy,
+    completed_at: str | None = None,
+) -> tuple[dict[str, object], DeletionReport, TombstoneRecord]:
+    """Apply scoped deletion and return retained content plus audit records."""
+
     if str(record.get("id")) != request.trajectory_id:
         raise ValidationError("deletion request trajectory_id does not match record id")
-    retained = copy.deepcopy(dict(record))
+    if not policy.accept_deletion_requests:
+        raise ValidationError("retention policy does not accept deletion requests")
+    completion_time = completed_at or utc_now()
+    require_non_empty_string(completion_time, "completed_at")
+    original = copy.deepcopy(dict(record))
+    original_digest = sha256_digest(original)
+    retained = copy.deepcopy(original)
+    removed_field_digests: dict[str, str] = {}
     if "private_trace" in request.scopes:
-        retained["attempt_manifest"] = None
-        retained["trace_manifest"] = None
-        retained["episode_package"] = None
+        for field_name in PRIVATE_TRACE_FIELDS:
+            if field_name in retained and retained[field_name] is not None:
+                removed_field_digests[field_name] = sha256_digest(retained[field_name])
+                retained[field_name] = None
+    preserved_references = _audit_references(original)
+    if not policy.preserve_audit_receipts and retained.get("receipt") is not None:
+        removed_field_digests["receipt"] = sha256_digest(retained["receipt"])
+        retained["receipt"] = None
     if "training" in request.scopes:
+        withdrawal = DatasetWithdrawal(
+            id=f"dataset-withdrawal_{request.id}",
+            trajectory_id=request.trajectory_id,
+            requested_by=request.requested_by,
+            reason="Training withdrawal requested with private-content deletion.",
+            effective_at=completion_time,
+            scopes=["training"],
+        )
+        retained["dataset_withdrawal"] = withdrawal.to_dict()
         retained["training_withdrawn"] = True
     retained["deletion"] = {
         "request_digest": request.digest(),
         "retention_policy_digest": policy.digest(),
         "scopes": request.scopes,
+        "original_record_digest": original_digest,
+        "removed_field_digests": dict(sorted(removed_field_digests.items())),
         "audit_receipt_preserved": isinstance(retained.get("receipt"), Mapping),
     }
-    return retained
+    retained_digest = sha256_digest(retained)
+    stable_suffix = request.digest().split(":", 1)[1][:24]
+    tombstone = TombstoneRecord(
+        id=f"tombstone-record_{stable_suffix}",
+        created_at=completion_time,
+        trajectory_id=request.trajectory_id,
+        original_record_digest=original_digest,
+        retained_record_digest=retained_digest,
+        deletion_request_digest=request.digest(),
+        removed_fields=sorted(removed_field_digests),
+        preserved_audit_references=preserved_references,
+    )
+    report = DeletionReport(
+        id=f"deletion-report_{stable_suffix}",
+        completed_at=completion_time,
+        trajectory_id=request.trajectory_id,
+        deletion_request_id=request.id,
+        deletion_request_digest=request.digest(),
+        retention_policy_digest=policy.digest(),
+        original_record_digest=original_digest,
+        retained_record_digest=retained_digest,
+        removed_field_digests=dict(sorted(removed_field_digests.items())),
+        preserved_audit_references=preserved_references,
+        tombstone_digest=tombstone.digest(),
+    )
+    return retained, report, tombstone
 
 
 def _policy_from_record(record: Mapping[str, object]) -> TrainingUsePolicy:
@@ -567,3 +845,23 @@ def _required_bool(
     if not isinstance(value, bool):
         raise ValidationError(f"{field_name} must be a boolean")
     return value
+
+
+def _audit_references(record: Mapping[str, object]) -> dict[str, str]:
+    references: dict[str, str] = {}
+    for field_name in ["contract", "attempt", "receipt", "settlement"]:
+        payload = record.get(field_name)
+        if not isinstance(payload, Mapping):
+            continue
+        record_id = payload.get("id")
+        if isinstance(record_id, str) and record_id:
+            references[f"{field_name}_id"] = record_id
+        references[f"{field_name}_digest"] = sha256_digest(dict(payload))
+    return references
+
+
+def _require_digest_mapping(value: Mapping[str, str], field_name: str) -> None:
+    require_mapping(value, field_name)
+    for key, digest in value.items():
+        require_non_empty_string(key, f"{field_name} key")
+        require_digest(digest, f"{field_name}.{key}")

@@ -23,7 +23,10 @@ Redactor = Callable[[TrajectoryRecord], TrajectoryRecord]
 class DatasetManifest:
     dataset_id: str
     source_paths: list[str]
+    input_record_count: int
     record_count: int
+    excluded_record_count: int
+    withdrawn_excluded_count: int
     schema_versions: list[str]
     accepted_count: int
     rejected_count: int
@@ -41,7 +44,10 @@ class DatasetManifest:
             "dataset_id": self.dataset_id,
             "created_at": self.created_at,
             "source_paths": self.source_paths,
+            "input_record_count": self.input_record_count,
             "record_count": self.record_count,
+            "excluded_record_count": self.excluded_record_count,
+            "withdrawn_excluded_count": self.withdrawn_excluded_count,
             "schema_versions": self.schema_versions,
             "accepted_count": self.accepted_count,
             "rejected_count": self.rejected_count,
@@ -152,13 +158,26 @@ def export_trajectories_jsonl(
     require_training_eligible: bool = False,
     minimum_quality_tier: str | None = None,
     export_policy: DatasetExportPolicy | None = None,
+    exclude_withdrawn: bool = True,
 ) -> DatasetManifest:
+    from faber.data_rights import record_withdrawn_for
     from faber.trajectory_quality import annotate_trajectory_record, filter_training_records
 
     records = [
         annotate_trajectory_record(trajectory_record(trajectory))
         for trajectory in trajectories
     ]
+    input_record_count = len(records)
+    withdrawal_purpose = export_policy.purpose if export_policy is not None else "training"
+    withdrawn_excluded_count = 0
+    if exclude_withdrawn and withdrawal_purpose != "audit":
+        active_records: list[TrajectoryRecord] = []
+        for record in records:
+            if record_withdrawn_for(record, withdrawal_purpose):
+                withdrawn_excluded_count += 1
+            else:
+                active_records.append(record)
+        records = active_records
     if require_rl_grade or require_training_eligible or minimum_quality_tier is not None:
         records = filter_training_records(
             records,
@@ -188,7 +207,10 @@ def export_trajectories_jsonl(
     return DatasetManifest(
         dataset_id=dataset_id or new_id("dataset"),
         source_paths=source_paths or [],
+        input_record_count=input_record_count,
         record_count=summary["record_count"],
+        excluded_record_count=input_record_count - summary["record_count"],
+        withdrawn_excluded_count=withdrawn_excluded_count,
         schema_versions=sorted(
             {schema for record in records if isinstance(schema := record.get("schema"), str)}
         ),
