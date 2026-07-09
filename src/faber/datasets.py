@@ -12,6 +12,7 @@ from faber.canonical_json import canonical_json
 from faber.data_rights import DatasetExportPolicy, record_export_allowed
 from faber.digests import sha256_digest
 from faber.ids import new_id, utc_now
+from faber.redaction import record_trace_export_allowed
 from faber.trajectories import Trajectory
 
 TrajectoryRecord = dict[str, object]
@@ -167,7 +168,10 @@ def export_trajectories_jsonl(
         )
     if export_policy is not None:
         records = [
-            record for record in records if record_export_allowed(record, export_policy)
+            record
+            for record in records
+            if record_export_allowed(record, export_policy)
+            and record_trace_export_allowed(record, export_policy)
         ]
     if redactor is not None:
         records = [redactor(record) for record in records]

@@ -229,6 +229,12 @@ Richer traces should be accepted only when they fit the task's privacy policy.
 Redacted traces can still be valuable if they preserve structure, timing, tool
 types, verifier evidence, and outcome labels.
 
+Redaction policies support both field replacement and complete exclusion of
+sensitive event types. Local secret-pattern detection and digestible redaction
+reports provide a pre-export safety check without retaining matched secret
+values. Private trace envelopes remain outside public exports; see
+`docs/TRACE_PRIVACY.md`.
+
 ## Incentives
 
 Trace richness should be market-aligned:

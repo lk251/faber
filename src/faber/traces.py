@@ -117,6 +117,8 @@ class RedactionPolicy:
     replacement: str = "[redacted]"
     allow_raw_trace: bool = False
     notes: str = ""
+    excluded_event_types: list[str] = field(default_factory=list)
+    detect_secrets: bool = True
     id: str = field(default_factory=lambda: new_id("redaction-policy"))
     created_at: str = field(default_factory=utc_now)
     schema: str = schemas.REDACTION_POLICY
@@ -130,6 +132,9 @@ class RedactionPolicy:
         require_non_empty_string(self.replacement, "replacement")
         if not isinstance(self.allow_raw_trace, bool):
             raise ValidationError("allow_raw_trace must be a boolean")
+        require_string_list(self.excluded_event_types, "excluded_event_types")
+        if not isinstance(self.detect_secrets, bool):
+            raise ValidationError("detect_secrets must be a boolean")
 
     def apply(self, payload: dict[str, object]) -> dict[str, object]:
         redacted = copy.deepcopy(payload)
@@ -147,6 +152,8 @@ class RedactionPolicy:
             "replacement": self.replacement,
             "allow_raw_trace": self.allow_raw_trace,
             "notes": self.notes,
+            "excluded_event_types": self.excluded_event_types,
+            "detect_secrets": self.detect_secrets,
         }
 
     def digest(self) -> str:
@@ -163,6 +170,9 @@ class RedactionPolicy:
         notes = payload.get("notes", "")
         if not isinstance(notes, str):
             raise ValidationError("notes must be a string")
+        detect_secrets = payload.get("detect_secrets", True)
+        if not isinstance(detect_secrets, bool):
+            raise ValidationError("detect_secrets must be a boolean")
         return cls(
             id=_required_string(payload, "id"),
             created_at=_required_string(payload, "created_at"),
@@ -171,6 +181,11 @@ class RedactionPolicy:
             replacement=replacement,
             allow_raw_trace=allow_raw_trace,
             notes=notes,
+            excluded_event_types=require_string_list(
+                payload.get("excluded_event_types", []),
+                "excluded_event_types",
+            ),
+            detect_secrets=detect_secrets,
             schema=_schema_or_default(payload, "schema", schemas.REDACTION_POLICY),
         )
 
@@ -677,6 +692,8 @@ def write_trace_jsonl(
     records = [
         (event.redacted(redaction_policy) if redaction_policy else event).to_dict()
         for event in events
+        if redaction_policy is None
+        or event.event_type not in redaction_policy.excluded_event_types
     ]
     text = "\n".join(canonical_json(record) for record in records)
     if records:
