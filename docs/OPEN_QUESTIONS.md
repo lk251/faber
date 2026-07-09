@@ -1,63 +1,57 @@
-# Open Questions
+# Open questions
 
-These require human product, legal, security, or market judgment before the next
-major implementation slice.
+These questions require product, maintainer, security, legal, or research judgment.
+They are intentionally narrower than the completed 0047-0074 implementation queue.
 
-- What kinds of work should Faber Market support first: code changes, review,
-  documentation, data labeling, operations tasks, or another narrower wedge?
-- What is the minimum verifier standard for work to be considered payable?
-- Which settlement flows require legal review before any real payment adapter is
-  connected?
-- How public should trajectories be by default, and what data must always be
-  redacted before training or export?
-- Who is allowed to approve verifier specs for a repository or buyer, and how is
-  verifier approval revoked?
-- What reputation signals should count against a worker: rejected attempts,
-  timeouts, policy violations, stale claims, disputed outcomes, or manual review?
-- How much human review is needed before trajectories train routing or
-  orchestration models?
-- What runner isolation guarantees are required before executing untrusted worker
-  code outside local development?
-- Should retained operating credit exist in early Faber Market flows, or should
-  all accepted work settle externally until the economics are clearer?
-- What governance model is needed for Faber Verifiers if third parties publish
-  verifier specs?
+## External pilot
 
-## Probabilistic Verification Scaling
+- Will the Hermes Agent reporter or maintainer welcome a focused fix for issue
+  #61631, and which upstream tests should be authoritative?
+- Which harness can provide useful process evidence without collecting private
+  prompts or hidden reasoning?
+- Should the first pilot request training consent, or remain audit-only to minimize
+  coordination and rights complexity?
+- What review-friction and maintainer-satisfaction evidence should determine whether
+  the pilot is repeated?
 
-- Which verifier models expose logprobs or enough scoring-token distribution data
-  for calibrated fine-grained scoring?
-- What open verifier backends are best for self-hosted Faber Runner mode?
-- When, if ever, can an LLM verifier become authoritative for a task class?
-- How should Faber price verifier compute when repeated evaluation and criteria
-  decomposition increase cost?
-- How should Faber compare cheap-many-attempts-plus-verifier strategies against
-  expensive-single-frontier-attempt strategies?
-- How should human review be combined with probabilistic verifier scores?
-- What calibration datasets should Faber build first?
-- How do we prevent verifier gaming by workers or task authors?
-- How do we store reasoning traces without leaking private customer data?
-- What uncertainty threshold should force human review instead of advisory
-  auto-selection?
+## Verification and execution
 
-## Trace Acquisition, Solver Metadata, And Harness Bounties
+- What isolation guarantees are required before Faber executes untrusted candidate
+  code or allows network access?
+- Who approves, versions, and revokes authoritative verifier specs for a repository?
+- What calibration threshold and uncertainty policy allow a probabilistic verifier
+  to influence routing, and when must it force human review?
+- How should verifier compute be priced when repeated scoring improves confidence?
 
-- What evidence level should paid work require by default?
-- What trace level can Faber use for training data, and under what consent
-  terms?
-- How should Faber price richer traces?
-- How do we prevent fake solver metadata?
-- When should NixOS be required for replayability, and when should it remain an
-  optional evidence source?
-- Which metadata should be self-attested versus runner-attested?
-- Can Faber accept closed proprietary solver traces under redaction?
-- Should premium tasks require replayable episode packages?
-- Which agent harness should be the first NixOS bounty target?
-- Is Hermes actually a good first target?
-- If Hermes remains the first target, should #48628 stay first after re-checking
-  upstream state, or should another ranked issue replace it?
-- How should existing repository funding mechanisms fund task budgets?
-- What license and consent terms are required for using traces in training?
-- How much process data is useful without requiring private chain-of-thought?
-- Which trace fields should be mandatory for verifier calibration?
-- When can advisory verification influence payment, if ever?
+## Market and money
+
+- Which jurisdiction and operating model should receive legal review first?
+- Who is the buyer, worker, verifier operator, and settlement counterparty in the
+  first paid pilot?
+- Which identity, dispute, cancellation, tax, fraud, refund, and support policies
+  are required before funds are committed?
+- Should richer trace evidence affect base payout, a separate bonus, or only future
+  routing access?
+
+## Data and training
+
+- What minimum number and diversity of tasks, failures, platforms, workers, and
+  verifiers makes the first training experiment informative?
+- Which consent and license terms allow supervised, router, preference, evaluation,
+  or RL use without tying work acceptance to training permission?
+- How will withdrawal and deletion propagate to snapshots, derived datasets,
+  backups, and already-trained models?
+- What leakage, benchmark-contamination, and deduplication policy is required before
+  publishing evaluation results?
+- Which learned output should come first: attempt-quality prediction, worker routing,
+  verifier routing, or orchestration policy?
+
+## GitHub and hosted product
+
+- Which deployment target should hold GitHub App credentials and durable delivery
+  state?
+- What is the smallest read-only GitHub installation scope that tests real event
+  ingestion without publication risk?
+- Which protocol records must a hosted customer always be able to export?
+- What telemetry, if any, provides operational value in hosted mode, and what
+  explicit consent and retention policy would govern it?

@@ -1,86 +1,135 @@
 # Roadmap
 
-These are likely next issues after the 0003-0014 queue. They are intentionally
-not implemented in this pass.
+Faber now has a coherent local foundation for verifier-first paid work and
+RL-grade trajectory collection. The next strategic question is whether that
+foundation survives a respectful external workflow, not whether another schema can
+be added.
 
-1. Add durable verifier-run recovery so completed verifier runs replay by
-   idempotency key and incomplete runs retry cleanly.
-2. Persist the market ledger to the local store with append-only entries,
-   account snapshots, and reconciliation checks.
-3. Define an explicit task lifecycle state machine from contract creation through
-   attempt, verification, settlement, and trajectory export.
-4. Add verifier spec manifests with stable digests, compatibility checks, and
-   repository-owner approval metadata.
-5. Introduce a runner backend interface so local process execution can be swapped
-   for stronger isolation without changing protocol records.
-6. Add a durable Faber for GitHub publication journal with replay and dry-run CLI
-   commands.
-7. Add worker profile import/export so Faber Market can move worker capability
-   and reputation data between local stores.
-8. Build router evaluation datasets that compare selected workers, rejected
-   alternatives, cost, latency, and verified outcomes.
-9. Add trajectory privacy policies for redaction, retention, and training splits.
-10. Define payment adapter contracts around accepted receipts while keeping
-    integer-money settlement and local fake settlement first.
+## Current state
 
-## Probabilistic Verification Scaling
+**Protocol and evidence**
 
-This research queue is tracked in `codex/future/0015` through `0022` and is based
-on `docs/research/llm-as-a-verifier-2607-05391.md`. The reference project is
-`lk251/llm-as-a-verifier`; use it for ideas and tests, not as a core dependency.
+- Canonical task, attempt, verifier, receipt, trajectory, settlement, worker,
+  routing, market, consent, retention, risk, and budget records.
+- Explicit PR-only, manifest, trace, and replayable episode quality tiers.
+- RL-grade validation across process, environment, solver, verifier, reward, cost,
+  latency, consent, and training eligibility evidence.
+- Schema registry, strict compatibility checks, canonical snapshots, stable
+  digests, cross-platform fixtures, and withdrawal-aware dataset manifests.
 
-1. Add provider-agnostic probabilistic verifier protocol objects and deterministic
-   fake scoring backends.
-2. Implement a budget-aware Probabilistic Pivot Tournament for multi-attempt
-   candidate ranking.
-3. Add a local multi-attempt selection loop that combines authoritative hard
-   verifier results, advisory probabilistic scores, and cost metadata.
-4. Add trajectory progress scoring primitives for long-running agent monitoring.
-5. Add dense reward export fields for supervised learning, preference learning,
-   and reinforcement learning experiments.
-6. Add verifier-quality and intelligence-per-euro metrics so Faber can compare
-   verifier strategies, not only workers.
-7. Harden authority boundaries so advisory LLM/probabilistic scores cannot settle
-   payment unless explicitly approved.
-8. Keep all initial work provider-agnostic, fake-backend-first, and independent
-   from real model APIs.
+**Verification and learning**
 
-## Trace, Metadata, Funding, And External Pilots
+- Platform-owned hard verifiers, human review receipts, verifier calibration,
+  deterministic probabilistic scoring, cost-aware tournaments, and authority
+  boundaries that keep advisory scores from settling work.
+- Router datasets, worker scorecards, negative/rejected trajectory support, and
+  RL-grade training export filters.
 
-This track is defined in `docs/TRACE_STRATEGY.md`,
-`docs/SOLVER_METADATA.md`, `docs/REPRODUCIBILITY_AND_PLATFORMS.md`,
-`docs/FUNDING_AND_WORK_BUDGETS.md`, `docs/RISK_REVIEW.md`,
-`docs/ADR-0003-traces-metadata-reproducibility-and-funding.md`, and the
-0030-0045 queue.
+**Market and product path**
 
-1. Keep the trace protocol and evidence ladder central: PR-only fallback,
-   `.faber/attempt.json`, Faber Runner traces, harness-native adapters, and
-   replayable episode packages should coexist under explicit task policy.
-2. Use solver metadata and provenance for routing and learning, with exact,
-   coarse, and private disclosure modes plus explicit trust levels.
-3. Treat cross-platform reproducibility honestly. NixOS can be preferred for
-   high-replayability tasks, while Windows, macOS, other Linux, containers, and
-   remote runners remain valid when recorded with environment evidence.
-4. Model funded GitHub issues through provider-agnostic work budgets,
-   allocations, reservations, refund policies, and receipt-gated settlement.
-5. Keep funding source adapters deterministic first. Existing repository funding
-   surfaces should reconcile into `FundingEvent`, `FundingSource`, and
-   `WorkBudget` records without turning core into a payment processor.
-6. Continue harness-native trace adapters from fake fixtures before adopting real
-   harness internals. The Hermes-like adapter remains an adapter, not a core
-   dependency.
-7. Use the offline agent harness benchmark to test local verifiers, attempt
-   manifests, trace examples, and dataset export without model providers or
-   external services.
-8. Use best-of-N selection records to preserve rejected attempts as training
-   data while accepted authoritative receipts dominate advisory ranking.
-9. Use skill/plugin safety manifests to declare platform support, permissions,
-   dependencies, and verifier checks before relying on third-party extensions.
-10. Treat Hermes Agent as the current external pilot candidate set, with #48628
-    the default first task unless upstream status changes before launch.
-11. Run risk review before funded external work. Credentials, private data,
-    external writes, regulated domains, security-sensitive repositories, and
-    payment-provider assumptions require explicit review metadata.
-12. Preserve privacy: do not require private chain-of-thought, proprietary
-    prompts, finetune weights, provider secrets, or raw traces when redacted
-    structured evidence is sufficient.
+- Work budgets, exact local reservations, reconciliation, receipt-gated
+  settlement, competition policies, task templates, and risk gates.
+- Generic task/submission adapters, fake GitHub funded markers, a complete local
+  funded product loop, and an inspectable CLI walkthrough.
+- Account-free local mode, no telemetry, no provider SDK dependency, a 2,000-record
+  local performance smoke, and explicit hosted-product boundaries.
+
+**Rights and privacy**
+
+- Consent grants, licenses, visibility, redaction, secret detection, private trace
+  envelopes, retention classes, dataset withdrawal, tombstones, and digest-bound
+  deletion reports.
+
+## Next milestone: no-money external pilot
+
+Run one human-approved external pilot against
+[NousResearch/hermes-agent issue #61631](https://github.com/NousResearch/hermes-agent/issues/61631):
+preserve a composed scheduler report when turn-budget exhaustion occurs.
+
+This is the strongest next milestone because it is narrow, locally verifiable,
+credential-free, private-data-free, and useful upstream without Faber. It tests the
+remaining uncertain parts: issue freshness, maintainer coordination, patch review,
+real harness evidence, verifier fit, redaction, and review friction.
+
+Pilot constraints:
+
+1. Re-check that issue #61631 remains open and unclaimed.
+2. Ask the reporter or maintainer whether a focused contribution is welcome.
+3. Run the existing task risk review before solver execution or budget reservation.
+4. Use a fork and local fixture tests; do not use production providers, accounts,
+   credentials, private data, or real schedules.
+5. Produce `.faber/attempt.json`, a redacted trace, verifier run, authoritative
+   receipt, trajectory quality report, and optional training export only with
+   explicit consent.
+6. Keep the first pilot unpaid. A placeholder work budget may measure economics but
+   must not imply committed funds, custody, or guaranteed payout.
+7. Open an upstream PR only after human approval; keep Faber artifacts supplemental
+   unless maintainers request them.
+
+Exit criteria are defined as Milestone 2 in [`MILESTONES.md`](MILESTONES.md).
+
+## Next five implementation items
+
+1. **External pilot runbook and evidence bundle.** Add a single command/checklist
+   that instantiates the #61631 contract, records risk approval, ingests a real
+   redacted harness trace, runs approved verifier specs, and packages maintainer
+   review artifacts without publishing anything.
+2. **Durable GitHub delivery and publication journal.** Persist webhook delivery
+   IDs, normalized events, publication intents, retries, dry runs, and replay state
+   before any real GitHub App write permission.
+3. **Runner backend and isolation contract.** Separate local subprocess execution
+   from stronger sandbox backends; add signed/runner-attested environment evidence,
+   resource limits, and explicit network policy.
+4. **Verifier approval and revocation registry.** Bind verifier specs to repository
+   owner approval, version compatibility, calibration status, revocation, and
+   receipt authority at a point in time.
+5. **Pilot dataset review gate.** Add deduplication, train/evaluation leakage checks,
+   consent/license review, withdrawal propagation, verifier-quality thresholds, and
+   a human approval report before any model-training experiment.
+
+## Blockers before real money or external autonomous work
+
+- Human approval of the task, verifier policy, risk review, publication action, and
+  responsible operator.
+- Current upstream issue state and a maintainer-friendly contribution path.
+- Stronger runner isolation for untrusted code and external actions.
+- Durable event/publication recovery, fraud/abuse controls, identity policy,
+  disputes, cancellation, and support operations.
+- Legal review of marketplace, worker classification, tax, payment, refund,
+  privacy, sanctions, and jurisdiction obligations.
+- A reviewed funding/custody/payment adapter; budget markers and local settlement
+  are not money movement.
+
+## Blockers before training on collected trajectories
+
+- Explicit solver/operator and repository/customer consent plus a reviewed data
+  license for the intended use.
+- Secret scanning, redaction review, private-trace controls, and tested deletion or
+  withdrawal propagation across derived datasets and backups.
+- Dataset deduplication, split stability, benchmark contamination controls, and
+  train/evaluation leakage review.
+- Sufficient task, worker, platform, failure, and verifier diversity to avoid
+  overfitting one pilot or harness.
+- Calibrated verifier quality, interpretable reward/cost/latency labels, and human
+  review of accepted and rejected examples.
+- A documented experiment objective and stop criteria. Private chain-of-thought,
+  proprietary prompts, and model weights are not required.
+
+## Blockers before a real GitHub App installation
+
+- App registration, least-privilege permission review, installation scoping, and a
+  threat model for webhook and publication paths.
+- Secure webhook verification, delivery replay protection, durable idempotency,
+  retries, rate-limit handling, and dead-letter/manual recovery.
+- Secret storage and rotation for app credentials on the chosen deployment target.
+- Read-only dry runs against a test repository before comments, checks, labels, or
+  other write permissions.
+- Clear repository opt-in, maintainer-facing copy, retention/deletion behavior,
+  privacy terms, support ownership, and uninstall/data-export behavior.
+
+## Decision rule
+
+Complete the no-money external pilot before a real payment adapter, hosted market,
+or model-training run. If #61631 closes or becomes active, re-rank the current open
+Hermes issues and choose another narrow, locally verifiable, low-risk task rather
+than forcing the stale target.

@@ -85,6 +85,13 @@ python -m faber.cli init-local-store --path .faber/faber.sqlite3
 python -m faber.cli emit-demo-trajectory --out .faber/demo_trajectory.json
 ```
 
+## Project Direction
+
+- [Roadmap](docs/ROADMAP.md)
+- [Milestones](docs/MILESTONES.md)
+- [Open questions](docs/OPEN_QUESTIONS.md)
+- [Glossary](docs/GLOSSARY.md)
+
 ## Reference Only
 
 The previous hackathon prototype is:
