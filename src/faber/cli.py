@@ -10,6 +10,11 @@ from collections.abc import Sequence
 from pathlib import Path
 
 import faber
+from faber.artifact_validation import (
+    validate_attempt_file,
+    validate_trace_file,
+    validate_trajectory_file,
+)
 from faber.attempt_manifests import (
     generate_attempt_manifest,
     load_attempt_manifest,
@@ -108,6 +113,30 @@ def build_parser() -> argparse.ArgumentParser:
         help="Validate a .faber/attempt.json manifest.",
     )
     validate_manifest.add_argument("path", help="Path to an attempt manifest JSON file.")
+
+    validate_attempt = subparsers.add_parser(
+        "validate-attempt",
+        help="Validate an attempt manifest and print a structured report.",
+    )
+    validate_attempt.add_argument("path", help="Path to an attempt manifest JSON file.")
+
+    validate_trace = subparsers.add_parser(
+        "validate-trace",
+        help="Validate ordered trace JSONL and print a structured report.",
+    )
+    validate_trace.add_argument("path", help="Path to a trace JSONL file.")
+
+    validate_trajectory = subparsers.add_parser(
+        "validate-trajectory",
+        help="Validate a normalized trajectory and its task requirement.",
+    )
+    validate_trajectory.add_argument("path", help="Path to a trajectory JSON file.")
+
+    trajectory_quality = subparsers.add_parser(
+        "trajectory-quality",
+        help="Report audit, learning, consent, redaction, and RL-grade quality.",
+    )
+    trajectory_quality.add_argument("path", help="Path to a trajectory JSON file.")
 
     for name, help_text in [
         ("create-demo-contract", "Create and store the golden path demo contract."),
@@ -280,6 +309,24 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
         return 0
 
+    if args.command == "validate-attempt":
+        validation_result = validate_attempt_file(args.path)
+        print(canonical_json(validation_result.to_dict()))
+        return validation_result.exit_code
+
+    if args.command == "validate-trace":
+        validation_result = validate_trace_file(args.path)
+        print(canonical_json(validation_result.to_dict()))
+        return validation_result.exit_code
+
+    if args.command in {"validate-trajectory", "trajectory-quality"}:
+        validation_result = validate_trajectory_file(
+            args.path,
+            quality_only=args.command == "trajectory-quality",
+        )
+        print(canonical_json(validation_result.to_dict()))
+        return validation_result.exit_code
+
     if args.command == "create-demo-contract":
         contract = create_demo_contract(args.store)
         print(f"created demo contract: {contract.id}")
@@ -321,8 +368,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 0
 
     if args.command == "run-golden-path":
-        result = run_golden_path(args.store, args.out)
-        print(canonical_json(result))
+        golden_result = run_golden_path(args.store, args.out)
+        print(canonical_json(golden_result))
         return 0
 
     parser.error(f"unknown command: {args.command}")

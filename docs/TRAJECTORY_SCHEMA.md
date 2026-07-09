@@ -93,3 +93,7 @@ must agree with solver/operator and repository-owner/customer consent grants.
 Private records remain excluded from public datasets even when they are
 RL-grade. Audit-only retention may preserve authoritative receipts without
 granting model-training rights. See `docs/DATA_RIGHTS.md`.
+
+Use the local validation commands documented in
+`docs/TRAJECTORY_VALIDATION.md` to inspect manifests, trace JSONL, normalized
+trajectories, and RL-grade quality before submission or export.
