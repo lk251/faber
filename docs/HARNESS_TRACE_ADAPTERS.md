@@ -1,5 +1,9 @@
 # Harness trace adapters
 
+The provider-free streaming and post-hoc SDK contract is documented in
+`docs/TRACE_INGESTION.md`. Existing harness-specific adapters should normalize
+to the same `TraceEvent` JSONL schema and conformance expectations.
+
 Harness-native trace adapters convert external solver or runner logs into Faber
 `TraceEvent` JSONL without making the external harness a core dependency.
 
