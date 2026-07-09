@@ -202,6 +202,12 @@ def doctor_lines(cwd: Path | None = None) -> list[str]:
     ]
 
 
+def _print_cli_error(failure: str, *, why: str, next_step: str) -> None:
+    print(f"Failed: {failure}", file=sys.stderr)
+    print(f"Why it matters: {why}", file=sys.stderr)
+    print(f"Next step: {next_step}", file=sys.stderr)
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -238,7 +244,11 @@ def main(argv: Sequence[str] | None = None) -> int:
             if record["id"] == args.trajectory_id:
                 print(canonical_json(record["payload"]))
                 return 0
-        print(f"trajectory not found: {args.trajectory_id}", file=sys.stderr)
+        _print_cli_error(
+            f"trajectory `{args.trajectory_id}` was not found in {args.path}",
+            why="Faber cannot inspect or export a record that is absent from the local store.",
+            next_step=f"Run `list-contracts --path {args.path}` or verify the trajectory ID.",
+        )
         return 1
 
     if args.command == "export-trajectory":
@@ -297,7 +307,11 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
             digest = write_attempt_manifest(attempt_manifest, args.out)
         except FaberError as exc:
-            print(f"failed to generate attempt manifest: {exc}", file=sys.stderr)
+            _print_cli_error(
+                f"attempt manifest generation failed: {exc}",
+                why="An invalid or unbound manifest cannot serve as attempt evidence.",
+                next_step="Correct the named field and rerun `generate-attempt-manifest`.",
+            )
             return 1
         print(
             canonical_json(
@@ -314,7 +328,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         try:
             attempt_manifest = load_attempt_manifest(args.path)
         except (FaberError, json.JSONDecodeError, OSError) as exc:
-            print(f"invalid attempt manifest: {exc}", file=sys.stderr)
+            _print_cli_error(
+                f"attempt manifest validation failed: {exc}",
+                why="Faber cannot bind malformed evidence to an attempt or trajectory.",
+                next_step=f"Correct the named field in {args.path} and rerun this command.",
+            )
             return 1
         print(
             canonical_json(
@@ -395,7 +413,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         try:
             funded_demo = write_funded_trajectory_demo(args.out_dir)
         except (FaberError, OSError) as exc:
-            print(f"funded trajectory demo failed: {exc}", file=sys.stderr)
+            _print_cli_error(
+                f"funded trajectory walkthrough failed: {exc}",
+                why="The walkthrough did not produce a fully validated local artifact set.",
+                next_step="Inspect the reported field, keep the output directory, and rerun.",
+            )
             return 1
         if args.json:
             print(canonical_json(funded_demo.summary))

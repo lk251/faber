@@ -23,6 +23,7 @@ class ArtifactValidationResult:
     path: str
     status: str
     summary: str
+    next_step: str
     details: dict[str, object] = field(default_factory=dict)
     warnings: list[dict[str, object]] = field(default_factory=list)
     errors: list[dict[str, object]] = field(default_factory=list)
@@ -41,6 +42,7 @@ class ArtifactValidationResult:
             "path": self.path,
             "status": self.status,
             "summary": self.summary,
+            "next_step": self.next_step,
             "details": self.details,
             "warnings": self.warnings,
             "errors": self.errors,
@@ -58,6 +60,10 @@ def validate_attempt_file(path: str | Path) -> ArtifactValidationResult:
         path=str(artifact_path),
         status="valid",
         summary="Attempt manifest is valid.",
+        next_step=(
+            "Attach the manifest to the attempt, then validate the trace or final "
+            "trajectory for the task's required evidence tier."
+        ),
         details={
             "attempt_id": manifest.attempt_id,
             "evidence_level": manifest.evidence_level,
@@ -84,6 +90,10 @@ def validate_trace_file(path: str | Path) -> ArtifactValidationResult:
             path=str(artifact_path),
             status="invalid",
             summary="Trace is invalid: at least one event is required.",
+            next_step=(
+                "Capture at least one ordered TraceEvent, then rerun `validate-trace` "
+                f"for {artifact_path}."
+            ),
             errors=[
                 {
                     "field": "events",
@@ -117,6 +127,10 @@ def validate_trace_file(path: str | Path) -> ArtifactValidationResult:
             path=str(artifact_path),
             status="invalid",
             summary="Trace is invalid; fix the reported event fields.",
+            next_step=(
+                "Correct the named attempt_id or sequence fields, then rerun "
+                f"`validate-trace {artifact_path}`."
+            ),
             details={"event_count": len(events)},
             errors=errors,
         )
@@ -126,6 +140,10 @@ def validate_trace_file(path: str | Path) -> ArtifactValidationResult:
         path=str(artifact_path),
         status="valid",
         summary="Trace is valid and ordered.",
+        next_step=(
+            "Bind this trace digest into a TraceManifest and validate the normalized "
+            "trajectory."
+        ),
         details={
             "attempt_id": events[0].attempt_id,
             "event_count": len(events),
@@ -152,6 +170,10 @@ def validate_trajectory_file(
             path=str(artifact_path),
             status="invalid",
             summary="Trajectory is invalid: the root value must be an object.",
+            next_step=(
+                "Write one normalized trajectory JSON object, then rerun "
+                f"`validate-trajectory {artifact_path}`."
+            ),
             errors=[
                 {
                     "field": "$",
@@ -206,6 +228,10 @@ def validate_trajectory_file(
             path=str(artifact_path),
             status="invalid",
             summary="Trajectory is invalid for its task requirement.",
+            next_step=(
+                "Add or correct the blocker fields listed below, then rerun "
+                f"`validate-trajectory {artifact_path}`."
+            ),
             details=details,
             errors=report.issues,
         )
@@ -220,6 +246,10 @@ def validate_trajectory_file(
             path=str(artifact_path),
             status="warning",
             summary=summary,
+            next_step=(
+                "Use the missing_fields list to add process, environment, reward, or "
+                "consent evidence before RL-grade training export."
+            ),
             details=details,
             warnings=report.issues,
         )
@@ -234,6 +264,10 @@ def validate_trajectory_file(
             "Trajectory is valid and RL-grade with warnings."
             if warnings
             else "Trajectory is valid and RL-grade."
+        ),
+        next_step=(
+            "Review any warnings, then export with RL-grade and training-eligibility "
+            "filters when this record is intended for training."
         ),
         details=details,
         warnings=warnings,
@@ -259,6 +293,10 @@ def _invalid_result(
         path=str(path),
         status="invalid",
         summary=f"{artifact_type.replace('_', ' ').title()} is invalid.",
+        next_step=(
+            f"Correct `{field_name}` ({expected}), then rerun the matching "
+            f"`validate-{artifact_type.replace('_manifest', '').replace('_', '-')}` command."
+        ),
         errors=[
             {
                 "field": field_name,

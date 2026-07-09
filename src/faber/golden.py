@@ -272,4 +272,9 @@ def run_golden_path(store_path: str | Path, out_path: str | Path) -> dict[str, s
         "settlement_id": settlement.id,
         "trajectory_id": trajectory.id,
         "trajectory_path": str(out_path),
+        "trajectory_digest": trajectory.digest(),
+        "next_step": (
+            f"Run `python -m faber.cli validate-trajectory {out_path}` to inspect "
+            "the exported evidence."
+        ),
     }

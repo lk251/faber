@@ -31,6 +31,10 @@ def render_receipt_publication_body(receipt: VerificationReceipt) -> str:
         [
             f"Faber verification result: {result}",
             _publication_summary(receipt),
+            (
+                "Authority: task-authorized verifier receipt. "
+                "Candidate CI remains signal only."
+            ),
             f"Receipt: {payload['receipt_id']}",
             f"Receipt digest: {payload['receipt_digest']}",
             f"Task contract: {payload['task_contract_id']}",
@@ -46,18 +50,21 @@ def render_receipt_publication_body(receipt: VerificationReceipt) -> str:
 
 def _publication_summary(receipt: VerificationReceipt) -> str:
     if receipt.accepted:
-        return "Summary: approved verifier evidence accepted this candidate revision."
+        return "Summary: the task-authorized verifier accepted this candidate revision."
     reasons = (
         "; ".join(receipt.failure_reasons) if receipt.failure_reasons else "unspecified failure"
     )
-    return f"Summary: approved verifier evidence rejected this candidate revision ({reasons})."
+    return (
+        "Summary: the task-authorized verifier rejected this candidate revision. "
+        f"Failure reasons: {reasons}."
+    )
 
 
 def _next_action(receipt: VerificationReceipt) -> str:
     if receipt.accepted:
         return (
-            "Next action: maintainer may review the receipt and proceed with "
-            "merge/settlement policy."
+            "Next action: maintainer may review the bound IDs and digests, then apply "
+            "merge policy and receipt-gated settlement policy separately."
         )
     return (
         "Next action: inspect verifier failure reasons, update the candidate revision, "
