@@ -39,3 +39,9 @@ Shared error types in `faber.errors` make failure boundaries inspectable:
 validation failures use `ValidationError`, scope failures use `ScopeError`, digest
 mismatches use `DigestMismatchError`, settlement invariant failures use
 `SettlementError`, and verifier/runner failures use `VerifierError`.
+
+## Product Boundary
+
+Protocol portability, self-hosted components, hosted services, paid verification,
+data visibility, and premium training outputs are separated in
+[`PRODUCT_BOUNDARIES.md`](PRODUCT_BOUNDARIES.md).
