@@ -12,14 +12,19 @@ from faber.runner.local import LocalVerifierRunner
 from faber.verifiers import VerifierRegistry, VerifierSpec
 
 
-def _spec(command: list[str], *, verifier_id: str = "verifier.local") -> VerifierSpec:
+def _spec(
+    command: list[str],
+    *,
+    verifier_id: str = "verifier.local",
+    timeout_seconds: int = 5,
+) -> VerifierSpec:
     return VerifierSpec(
         verifier_id=verifier_id,
         name="Local verifier",
         version="1",
         description="Runs a deterministic local check.",
         command_template=command,
-        allowed_timeout_seconds=1,
+        allowed_timeout_seconds=timeout_seconds,
     )
 
 
@@ -85,7 +90,10 @@ def test_local_verifier_failure_records_exit_code(tmp_path: Path) -> None:
 
 def test_local_verifier_timeout_records_failure(tmp_path: Path) -> None:
     registry = VerifierRegistry()
-    spec = _spec([sys.executable, "-c", "import time; time.sleep(2)"])
+    spec = _spec(
+        [sys.executable, "-c", "import time; time.sleep(2)"],
+        timeout_seconds=1,
+    )
     registry.register(spec)
 
     result = LocalVerifierRunner(registry).run(spec.verifier_id, working_directory=tmp_path)
