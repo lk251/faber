@@ -32,7 +32,7 @@ class VerifierSpec:
     expected_output_convention: str = "exit-code"
     id: str = field(default_factory=lambda: new_id("verifier-spec"))
     created_at: str = field(default_factory=utc_now)
-    schema: str = "faber.verifier_spec.v1"
+    schema: str = schemas.VERIFIER_SPEC
 
     def __post_init__(self) -> None:
         require_non_empty_string(self.id, "id")

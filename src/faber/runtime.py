@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import StrEnum
 
+from faber import schemas
 from faber.digests import sha256_digest
 from faber.errors import ValidationError
 from faber.validation import require_non_empty_string, require_string_list
@@ -29,7 +30,7 @@ class RuntimeBoundary:
     state_location: str
     available_components: list[str]
     limitations: list[str]
-    schema: str = "faber.runtime_boundary.v1"
+    schema: str = schemas.RUNTIME_BOUNDARY
 
     def __post_init__(self) -> None:
         if not isinstance(self.mode, RuntimeMode):

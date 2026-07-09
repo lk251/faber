@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from faber import schemas
 from faber.digests import sha256_digest
 from faber.errors import SettlementError, ValidationError
 from faber.ids import new_id, utc_now
@@ -20,7 +21,7 @@ class LedgerAccount:
     allow_negative: bool = False
     metadata: dict[str, object] = field(default_factory=dict)
     created_at: str = field(default_factory=utc_now)
-    schema: str = "faber.ledger_account.v1"
+    schema: str = schemas.LEDGER_ACCOUNT
 
     def __post_init__(self) -> None:
         require_non_empty_string(self.account_id, "account_id")
@@ -53,7 +54,7 @@ class LedgerEntry:
     related_receipt_id: str | None = None
     id: str = field(default_factory=lambda: new_id("ledger-entry"))
     created_at: str = field(default_factory=utc_now)
-    schema: str = "faber.ledger_entry.v1"
+    schema: str = schemas.LEDGER_ENTRY
 
     def __post_init__(self) -> None:
         require_non_empty_string(self.id, "id")

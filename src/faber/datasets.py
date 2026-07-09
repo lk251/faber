@@ -8,11 +8,13 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from faber import schemas
 from faber.canonical_json import canonical_json
 from faber.data_rights import DatasetExportPolicy, record_export_allowed
 from faber.digests import sha256_digest
 from faber.ids import new_id, utc_now
 from faber.redaction import record_trace_export_allowed
+from faber.schema_registry import schema_versions_in_records
 from faber.trajectories import Trajectory
 
 TrajectoryRecord = dict[str, object]
@@ -36,7 +38,7 @@ class DatasetManifest:
     jsonl_digest: str
     quality_issues: list[dict[str, object]] = field(default_factory=list)
     created_at: str = field(default_factory=utc_now)
-    schema: str = "faber.dataset_manifest.v1"
+    schema: str = schemas.DATASET_MANIFEST
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -211,9 +213,7 @@ def export_trajectories_jsonl(
         record_count=summary["record_count"],
         excluded_record_count=input_record_count - summary["record_count"],
         withdrawn_excluded_count=withdrawn_excluded_count,
-        schema_versions=sorted(
-            {schema for record in records if isinstance(schema := record.get("schema"), str)}
-        ),
+        schema_versions=schema_versions_in_records(records),
         accepted_count=summary["accepted_count"],
         rejected_count=summary["rejected_count"],
         total_cost_minor_units=summary["total_cost_minor_units"],

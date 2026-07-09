@@ -45,3 +45,7 @@ mismatches use `DigestMismatchError`, settlement invariant failures use
 Protocol portability, self-hosted components, hosted services, paid verification,
 data visibility, and premium training outputs are separated in
 [`PRODUCT_BOUNDARIES.md`](PRODUCT_BOUNDARIES.md).
+
+Schema IDs, strict unknown-version handling, no-op current upgrades, deprecation
+warnings, and dataset schema inventories are defined in
+[`SCHEMA_VERSIONING.md`](SCHEMA_VERSIONING.md).

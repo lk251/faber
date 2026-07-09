@@ -9,6 +9,7 @@ import time
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from faber import schemas
 from faber.digests import sha256_digest
 from faber.errors import VerifierError
 from faber.verifiers import VerifierRegistry, VerifierRun, VerifierSpec
@@ -61,7 +62,7 @@ class RunnerPolicy:
     timeout_seconds: int = 30
     max_capture_bytes: int = 64_000
     allow_shell: bool = False
-    schema: str = "faber.runner_policy.v1"
+    schema: str = schemas.RUNNER_POLICY
 
     def __post_init__(self) -> None:
         if self.timeout_seconds <= 0:

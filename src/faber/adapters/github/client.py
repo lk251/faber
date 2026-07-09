@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from faber import schemas
 from faber.digests import sha256_digest
 from faber.ids import new_id, utc_now
 
@@ -20,7 +21,7 @@ class GitHubPublication:
     target_number: int | None = None
     id: str = field(default_factory=lambda: new_id("github-publication"))
     created_at: str = field(default_factory=utc_now)
-    schema: str = "faber.github_publication.v1"
+    schema: str = schemas.GITHUB_PUBLICATION
 
     def stable_payload(self) -> dict[str, object]:
         return {

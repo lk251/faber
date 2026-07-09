@@ -6,6 +6,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
+from faber import schemas
 from faber.canonical_json import canonical_json
 from faber.digests import sha256_digest
 from faber.trajectory_quality import trajectory_record, validate_trajectory_quality
@@ -26,7 +27,7 @@ class RouterDatasetManifest:
     negative_count: int
     excluded_for_consent_count: int
     jsonl_digest: str
-    schema: str = "faber.router_dataset_manifest.v1"
+    schema: str = schemas.ROUTER_DATASET_MANIFEST
 
     def to_dict(self) -> dict[str, object]:
         return {

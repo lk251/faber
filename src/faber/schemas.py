@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+PROTOCOL_VERSION = 1
+
 TASK_CONTRACT = "faber.task_contract.v1"
 ATTEMPT = "faber.attempt.v1"
 VERIFIER_RUN = "faber.verifier_run.v1"
@@ -81,3 +83,14 @@ TOURNAMENT_POLICY = "faber.tournament_policy.v1"
 CANDIDATE_COMPARISON = "faber.candidate_comparison.v1"
 TOURNAMENT_RESULT = "faber.tournament_result.v1"
 WORKER_SCORECARD = "faber.worker_scorecard.v1"
+VERIFIER_SPEC = "faber.verifier_spec.v1"
+DATASET_MANIFEST = "faber.dataset_manifest.v1"
+ROUTER_DATASET_MANIFEST = "faber.router_dataset_manifest.v1"
+RUNTIME_BOUNDARY = "faber.runtime_boundary.v1"
+NIX_VERIFIER_PACK = "faber.nix_verifier_pack.v1"
+RUNNER_POLICY = "faber.runner_policy.v1"
+LEDGER_ACCOUNT = "faber.ledger_account.v1"
+LEDGER_ENTRY = "faber.ledger_entry.v1"
+GITHUB_PUBLICATION = "faber.github_publication.v1"
+GITHUB_INSTALLATION = "faber.github_installation.v1"
+GITHUB_EVENT = "faber.github_event.v1"

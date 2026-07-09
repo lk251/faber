@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from faber import schemas
 from faber.digests import sha256_digest
 from faber.errors import ValidationError
 from faber.ids import new_id, utc_now
@@ -192,7 +193,7 @@ class GitHubEvent:
     raw_payload_digest: str
     id: str = field(default_factory=lambda: new_id("github-event"))
     created_at: str = field(default_factory=utc_now)
-    schema: str = "faber.github_event.v1"
+    schema: str = schemas.GITHUB_EVENT
 
     def to_dict(self) -> dict[str, object]:
         return {

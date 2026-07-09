@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from faber import schemas
 from faber.digests import sha256_digest
 from faber.errors import ValidationError
 from faber.ids import new_id, utc_now
@@ -20,7 +21,7 @@ class GitHubInstallation:
     permissions: dict[str, object]
     id: str = field(default_factory=lambda: new_id("github-installation"))
     created_at: str = field(default_factory=utc_now)
-    schema: str = "faber.github_installation.v1"
+    schema: str = schemas.GITHUB_INSTALLATION
 
     def __post_init__(self) -> None:
         if self.installation_id <= 0:

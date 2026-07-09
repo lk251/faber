@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from faber import schemas
 from faber.contracts import TaskContract
 from faber.digests import sha256_digest
 from faber.errors import ValidationError
@@ -63,7 +64,7 @@ class NixVerifierPack:
     id: str = PACK_ID
     version: str = PACK_VERSION
     created_at: str = CREATED_AT
-    schema: str = "faber.nix_verifier_pack.v1"
+    schema: str = schemas.NIX_VERIFIER_PACK
 
     def __post_init__(self) -> None:
         require_non_empty_string(self.id, "id")
