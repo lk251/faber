@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
@@ -107,41 +108,24 @@ def _connect(path: str | Path) -> sqlite3.Connection:
 def save_record(path: str | Path, record_type: str, record: ProtocolRecord) -> SavedRecord:
     if not record_type:
         raise ValidationError("record_type must be a non-empty string")
-    payload = canonical_json(record.to_dict())
-    digest = record.digest()
     with _connect(path) as connection:
-        existing = connection.execute(
-            "select digest from records where record_type = ? and id = ?",
-            (record_type, record.id),
-        ).fetchone()
-        if existing is not None:
-            if existing["digest"] != digest:
-                raise ValidationError(
-                    f"{record_type} record {record.id} already exists with a different digest"
-                )
-            return SavedRecord(record_type, record.id, digest, inserted=False)
-        duplicate_digest = connection.execute(
-            "select id from records where record_type = ? and digest = ?",
-            (record_type, digest),
-        ).fetchone()
-        if duplicate_digest is not None:
-            return SavedRecord(record_type, duplicate_digest["id"], digest, inserted=False)
-        connection.execute(
-            """
-            insert into records (record_type, id, digest, created_at, payload)
-            values (?, ?, ?, ?, ?)
-            """,
-            (record_type, record.id, digest, record.created_at, payload),
-        )
-        if record_type == "trajectory":
-            connection.execute(
-                """
-                insert or ignore into trajectories (id, digest, created_at, payload)
-                values (?, ?, ?, ?)
-                """,
-                (record.id, digest, record.created_at, payload),
-            )
-        return SavedRecord(record_type, record.id, digest, inserted=True)
+        return _save_record_connection(connection, record_type, record)
+
+
+def save_records_batch(
+    path: str | Path,
+    record_type: str,
+    records: Iterable[ProtocolRecord],
+) -> list[SavedRecord]:
+    """Save a batch in one local transaction while preserving idempotency rules."""
+
+    if not record_type:
+        raise ValidationError("record_type must be a non-empty string")
+    with _connect(path) as connection:
+        return [
+            _save_record_connection(connection, record_type, record)
+            for record in records
+        ]
 
 
 def load_record(path: str | Path, record_type: str, record_id: str) -> dict[str, object] | None:
@@ -180,37 +164,18 @@ def list_records(path: str | Path, record_type: str) -> list[dict[str, object]]:
 
 
 def save_lifecycle_event(path: str | Path, event: MarketEvent) -> int:
-    payload = canonical_json(event.to_dict())
-    digest = event.digest()
     with _connect(path) as connection:
-        existing = connection.execute(
-            "select sequence, digest from lifecycle_events where event_id = ?",
-            (event.id,),
-        ).fetchone()
-        if existing is not None:
-            if existing["digest"] != digest:
-                raise ValidationError(
-                    f"lifecycle event {event.id} already exists with a different digest"
-                )
-            return int(existing["sequence"])
-        cursor = connection.execute(
-            """
-            insert into lifecycle_events
-              (event_id, event_type, subject_id, created_at, digest, payload)
-            values (?, ?, ?, ?, ?, ?)
-            """,
-            (event.id, event.event_type, event.subject_id, event.created_at, digest, payload),
-        )
-        connection.execute(
-            """
-            insert or ignore into market_events (id, event_type, created_at, payload)
-            values (?, ?, ?, ?)
-            """,
-            (event.id, event.event_type, event.created_at, payload),
-        )
-        if cursor.lastrowid is None:
-            raise ValidationError("failed to append lifecycle event")
-        return int(cursor.lastrowid)
+        return _save_lifecycle_event_connection(connection, event)
+
+
+def save_lifecycle_events_batch(
+    path: str | Path,
+    events: Iterable[MarketEvent],
+) -> list[int]:
+    """Append many lifecycle events in one local transaction."""
+
+    with _connect(path) as connection:
+        return [_save_lifecycle_event_connection(connection, event) for event in events]
 
 
 def list_lifecycle_events(path: str | Path) -> list[dict[str, object]]:
@@ -299,3 +264,80 @@ def save_market_event(path: str | Path, record: MarketEvent) -> int:
 
 def write_trajectory(path: str | Path, trajectory: Trajectory) -> None:
     save_trajectory(path, trajectory)
+
+
+def _save_record_connection(
+    connection: sqlite3.Connection,
+    record_type: str,
+    record: ProtocolRecord,
+) -> SavedRecord:
+    payload = canonical_json(record.to_dict())
+    digest = record.digest()
+    existing = connection.execute(
+        "select digest from records where record_type = ? and id = ?",
+        (record_type, record.id),
+    ).fetchone()
+    if existing is not None:
+        if existing["digest"] != digest:
+            raise ValidationError(
+                f"{record_type} record {record.id} already exists with a different digest"
+            )
+        return SavedRecord(record_type, record.id, digest, inserted=False)
+    duplicate_digest = connection.execute(
+        "select id from records where record_type = ? and digest = ?",
+        (record_type, digest),
+    ).fetchone()
+    if duplicate_digest is not None:
+        return SavedRecord(record_type, duplicate_digest["id"], digest, inserted=False)
+    connection.execute(
+        """
+        insert into records (record_type, id, digest, created_at, payload)
+        values (?, ?, ?, ?, ?)
+        """,
+        (record_type, record.id, digest, record.created_at, payload),
+    )
+    if record_type == "trajectory":
+        connection.execute(
+            """
+            insert or ignore into trajectories (id, digest, created_at, payload)
+            values (?, ?, ?, ?)
+            """,
+            (record.id, digest, record.created_at, payload),
+        )
+    return SavedRecord(record_type, record.id, digest, inserted=True)
+
+
+def _save_lifecycle_event_connection(
+    connection: sqlite3.Connection,
+    event: MarketEvent,
+) -> int:
+    payload = canonical_json(event.to_dict())
+    digest = event.digest()
+    existing = connection.execute(
+        "select sequence, digest from lifecycle_events where event_id = ?",
+        (event.id,),
+    ).fetchone()
+    if existing is not None:
+        if existing["digest"] != digest:
+            raise ValidationError(
+                f"lifecycle event {event.id} already exists with a different digest"
+            )
+        return int(existing["sequence"])
+    cursor = connection.execute(
+        """
+        insert into lifecycle_events
+          (event_id, event_type, subject_id, created_at, digest, payload)
+        values (?, ?, ?, ?, ?, ?)
+        """,
+        (event.id, event.event_type, event.subject_id, event.created_at, digest, payload),
+    )
+    connection.execute(
+        """
+        insert or ignore into market_events (id, event_type, created_at, payload)
+        values (?, ?, ?, ?)
+        """,
+        (event.id, event.event_type, event.created_at, payload),
+    )
+    if cursor.lastrowid is None:
+        raise ValidationError("failed to append lifecycle event")
+    return int(cursor.lastrowid)
