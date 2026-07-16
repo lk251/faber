@@ -48,19 +48,22 @@ This is deliberately not a generic AI code reviewer. The novel product is
 3. `docs/BUILD_WEEK_2026.md`
 4. `docs/FABER_PROOF_PRODUCT.md`
 5. `codex/build-week/STATUS.md`
-6. The next incomplete prompt in `codex/future/`
+6. `codex/build-week/RESET_STRATEGY.md`
+7. `codex/build-week/AUDIT_QUEUE.md`
+8. The next incomplete prompt in `codex/future/`
 
 ## Autonomous execution protocol
 
 1. Work on branch `build-week/faber-proof`. Create it from the current canonical
    `master` if it does not exist.
-2. Select the first incomplete **P0** item in `codex/build-week/STATUS.md` whose
-   dependencies are complete.
-3. Implement exactly that item. Preserve the global invariants in `AGENTS.md` and the
+2. Address any open P0 audit finding before new feature work.
+3. Otherwise select the first incomplete **P0** item in
+   `codex/build-week/STATUS.md` whose dependencies are complete.
+4. Implement exactly that item. Preserve the global invariants in `AGENTS.md` and the
    Build Week product constraints.
-4. Add or update tests before changing verification, routing, evidence, or decision
+5. Add or update tests before changing verification, routing, evidence, or decision
    behavior.
-5. Run the acceptance commands named in the prompt plus the closest available full
+6. Run the acceptance commands named in the prompt plus the closest available full
    checks:
 
    ```bash
@@ -71,12 +74,12 @@ This is deliberately not a generic AI code reviewer. The novel product is
 
    Run `nix develop --command just check` when Nix is available. State precisely when
    it is not available.
-6. Update `codex/build-week/STATUS.md` with the commit, tests, demo state, and next
+7. Update `codex/build-week/STATUS.md` with the commit, tests, demo state, and next
    item. Update `docs/CODEX_SESSION_HANDOFF.md` when the recommended next action
    changes.
-7. Make one focused commit for the work item. Do not squash eligible Build Week
+8. Make one focused commit for the work item. Do not squash eligible Build Week
    history.
-8. Continue to the next P0 item without waiting for Javier unless a human-only gate is
+9. Continue to the next P0 item without waiting for Javier unless a human-only gate is
    reached or the working tree cannot be made safe.
 
 ## Human-only gates
@@ -94,6 +97,31 @@ Codex must stop and clearly report the exact action needed only for these tasks:
 
 Everything else should be completed autonomously with deterministic fakes or replay
 fixtures when live credentials are unavailable.
+
+## Using fresh GPT-5.6 resets
+
+Use one primary implementation thread for the core vertical slice, ideally work items
+0077 through 0081. This is the thread whose `/feedback` session ID should represent the
+majority of core work.
+
+Use fresh reset sessions for independent audits only after their implementation gates
+are eligible. The instruction is:
+
+```text
+Use $build-week-auditor and run the next eligible independent audit.
+```
+
+The reset plan and prompts are already in:
+
+```text
+codex/build-week/RESET_STRATEGY.md
+codex/build-week/AUDIT_QUEUE.md
+codex/audits/
+```
+
+The audits cover architecture and authority, adversarial security, clean installation,
+judge comprehension, and final compliance. They write durable findings for the primary
+director to address. Do not use resets to create competing product architectures.
 
 ## Win-oriented priority order
 
@@ -150,5 +178,6 @@ The project is submittable only when:
 - The final video is public, narrated, and under three minutes.
 - The submitted commit matches an immutable final tag and all links and repository
   permissions have been checked from a clean context.
+- Every required independent audit is green and no P0 audit finding remains open.
 
 Do not start the P1 stretch item until every P0 gate is green.
