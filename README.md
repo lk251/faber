@@ -2,6 +2,18 @@ Faber is a verified work market where humans and agents produce useful work, and
 
 # Faber
 
+## Build Week 2026
+
+Faber predates OpenAI Build Week 2026. The competition entry is **Faber Proof**, a
+new post-baseline extension that turns an AI-generated change into a proof-carrying
+patch with bounded model planning, authoritative verifier evidence, and a
+deterministic verdict.
+
+Only work after the annotated `build-week-2026-baseline` tag is claimed as Build
+Week work; the existing protocol, market, trajectory, runner, and verifier foundation
+is pre-competition work. Complete judge installation, replay-demo, and submission
+instructions will be finalized by work item 0083.
+
 Faber is a verifier-first, trajectory-first work market. It is designed to produce
 useful verified work while capturing high-quality trajectories for future routing,
 supervised learning, reinforcement learning, preference learning, and orchestration

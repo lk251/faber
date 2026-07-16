@@ -42,18 +42,21 @@ private data as part of the Build Week queue.
 
 - Repository: `lk251/faber`
 - Canonical long-lived branch: `master` (`main` was intentionally removed)
-- Intended Build Week implementation branch: `build-week/faber-proof`
-- Branch state: the planning and queue files were committed to `master`; the
-  implementation branch has not yet been verified from a local clone and must be
-  created or switched to safely in work item 0076
-- Pre-Build-Week implementation reference: `64f775c` (`Implement work item 0075 roadmap
-  synthesis`), but do **not** assume this is the competition eligibility baseline
-- Eligibility baseline: work item 0076 must compute the last commit before
-  `2026-07-13T09:00:00-07:00` and create annotated tag
-  `build-week-2026-baseline`
-- Active work item: `0076-build-week-control-plane.md`
+- Active Build Week implementation branch: `build-week/faber-proof`
+- Branch starting commit: `c915523383dc58114bf748f7d7a64c1c398faaba`
+- Eligibility baseline: `64f775cfe2f622837bd9aaa40f6369aa22af1d80`
+  (`Implement work item 0075 roadmap synthesis`), the verified last commit strictly
+  before `2026-07-13T09:00:00-07:00`
+- Eligibility tag: annotated `build-week-2026-baseline`, verified locally at the
+  baseline commit
+- Eligible history at the branch starting point: 28 commits with no pre-cutoff author
+  or committer dates; the focused 0076 completion commit is the 29th
+- Active work item after the control-plane commit: `0077-proof-protocol-and-policy.md`
 - Snapshot date: 2026-07-16
-- Current local working-tree state: unknown; inspect it rather than relying on this file
+- Primary-session designation: this director thread is the primary Build Week
+  implementation session; its `/feedback` ID has not yet been recorded
+- Current local working-tree state: expected clean after the focused 0076 commit;
+  inspect it rather than relying on this file
 
 Confirm the checked-out state before changing anything:
 
@@ -239,17 +242,21 @@ The Build Week delta and README must distinguish it from the Faber Proof extensi
 
 ## Last recorded validation baseline
 
-The last full HB2 fallback validation after work item 0075 was:
+The completed work item 0076 baseline on HB3 uses Python 3.12.2, pytest 9.0.2,
+Ruff 0.15.10, and mypy 2.1.0:
 
-- `python -m pytest`: 309 passed
+- focused Build Week delta tests: 8 passed in 4.02 seconds
+- `python -m pytest`: 317 passed in 11.11 seconds
 - `python -m ruff check .`: passed
 - `python -m mypy src`: passed across 75 source files
-- funded trajectory demo and trajectory validation: passed, RL-grade, one eligible
-  dataset record
-- `nix develop --command just check`: unavailable because Nix was not installed
+- `nix develop --command just check`: unavailable because Nix and `just` are not
+  installed on HB3
 
-This is historical evidence, not a current claim. Work item 0076 must rerun the checks
-on the active implementation machine and update both this section and the status file.
+The local delta smoke resolved the baseline and branch target, reported all 28 eligible
+pre-0076 commits and 25 changed files, and emitted only the expected dirty-tree warning
+before the focused commit. The Python tools are installed in the Windows user site;
+Codex had to run outside its workspace sandbox to read them, while an ordinary HB3
+shell can use them normally.
 
 ## Current code map
 
@@ -271,7 +278,7 @@ on the active implementation machine and update both this section and the status
 
 ## Recommended next action
 
-Run work item 0076 through the director skill:
+Continue with work item 0077 through the director skill:
 
 ```text
 Use $build-week-director and continue until the next human-only gate.
@@ -283,10 +290,10 @@ Fallback when the skill has not yet been discovered:
 Read codex/BUILD_WEEK_START_HERE.md and execute the next incomplete Build Week work item.
 ```
 
-Work item 0076 must inspect local state, create or switch to the implementation branch,
-compute and tag the eligibility baseline, add the delta tool, update the status, and
-re-establish the validation baseline. Do not begin proof-protocol implementation until
-that boundary is clean and committed.
+Work item 0076 established the branch, annotated eligibility tag, deterministic local
+delta report, competition boundary, and HB3 validation baseline. Work item 0077 is the
+next P0 item and must add the proof protocol records and deterministic fail-closed
+decision policy without introducing provider-specific behavior into the core.
 
 ## Invariants to preserve
 

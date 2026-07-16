@@ -8,11 +8,15 @@ reports under `codex/build-week/audits/`.
 
 ## Current state
 
-- Phase: planning committed; implementation not started
-- Canonical implementation branch: `build-week/faber-proof` (create locally on first
-  Codex run if absent)
-- Current P0 item: `0076`
+- Phase: competition boundary established; proof implementation is next
+- Canonical implementation branch: `build-week/faber-proof`
+- Branch starting commit: `c915523383dc58114bf748f7d7a64c1c398faaba`
+- Eligibility baseline: `64f775cfe2f622837bd9aaa40f6369aa22af1d80`, tagged by
+  annotated `build-week-2026-baseline`
+- Eligible commit count: 28 at branch start; 29 including the focused 0076 commit
+- Current P0 item: `0077`
 - Current demo state: not implemented
+- Primary implementation session: this director thread (0076 onward)
 - Primary `/feedback` session ID: **not yet recorded**
 - Final submission tag: **not yet created**
 - Human-only gate currently blocking work: none
@@ -21,7 +25,7 @@ reports under `codex/build-week/audits/`.
 
 ## P0 queue
 
-- [ ] `0076` — Build Week control plane, eligibility baseline, and repository handoff
+- [x] `0076` — Build Week control plane, eligibility baseline, and repository handoff
 - [ ] `0077` — Proof protocol records and deterministic decision policy
 - [ ] `0078` — GPT-5.6 proof-planner adapter with live and replay modes
 - [ ] `0079` — Bounded proof-template catalog and safe proof executors
@@ -61,10 +65,10 @@ until all required audits are green and no P0 finding remains open.
 
 ### Competition eligibility
 
-- [ ] Baseline commit before the submission period identified
-- [ ] Annotated `build-week-2026-baseline` tag created
-- [ ] Pre-existing versus Build Week work documented
-- [ ] Eligible commit history preserved
+- [x] Baseline commit before the submission period identified
+- [x] Annotated `build-week-2026-baseline` tag created
+- [x] Pre-existing versus Build Week work documented
+- [x] Eligible commit history preserved
 - [ ] Primary Codex session covers the majority of core Build Week functionality
 - [ ] `/feedback` session ID recorded
 
@@ -101,10 +105,10 @@ until all required audits are green and no P0 finding remains open.
 
 ### Reliability
 
-- [ ] Full pytest suite passes
-- [ ] Ruff passes
-- [ ] mypy passes
-- [ ] Nix check passes when Nix is available, or unavailability is documented
+- [x] Full pytest suite passes
+- [x] Ruff passes
+- [x] mypy passes
+- [x] Nix check passes when Nix is available, or unavailability is documented
 - [ ] Wheel builds and installs in a clean environment
 - [ ] Linux and Windows CI pass
 - [ ] Adversarial cases cannot cause unjustified `PASS`
@@ -138,7 +142,7 @@ until all required audits are green and no P0 finding remains open.
 
 | Item | Status | Commit | Tests and demos | Primary/secondary session | Notes |
 |---|---|---|---|---|---|
-| 0076 | Not started | — | — | Primary | — |
+| 0076 | Complete | This focused commit (exact SHA recorded by the next ledger update) | 8 focused tests; 317 full tests; Ruff; mypy 75 files; local delta smoke | Primary | Baseline `64f775c`; annotated tag verified; 0077 next |
 | 0077 | Not started | — | — | Primary | — |
 | 0078 | Not started | — | — | Primary | — |
 | 0079 | Not started | — | — | Primary | A1 becomes eligible |
@@ -167,29 +171,36 @@ Record exact values after each runnable milestone.
 
 ## Validation baseline
 
-Current pre-implementation repository evidence from the handoff:
+HB3 work item 0076 environment and completed baseline:
 
-- `python -m pytest`: 309 passed
+- Python 3.12.2; pytest 9.0.2; Ruff 0.15.10; mypy 2.1.0
+- `python -m pytest tests/test_build_week_delta.py -q`: 8 passed in 4.02 seconds
+- `python -m pytest`: 317 passed in 11.11 seconds
 - `python -m ruff check .`: passed
 - `python -m mypy src`: passed across 75 source files
-- Nix was unavailable on the last recorded Windows machine
-
-Rerun these checks on the active implementation machine before claiming a new baseline.
+- `python scripts/build_week_delta.py --json`: baseline and target resolved, 28 eligible
+  pre-commit commits and 25 changed files; the sole warning correctly identified the
+  uncommitted 0076 working tree
+- `nix develop --command just check`: unavailable because Nix and `just` are not
+  installed on HB3
 
 ## Session handoff template
 
 After each session, replace this section with current facts:
 
-- Last completed item or finding:
-- Last commit:
-- Working tree state:
-- Exact tests passed:
-- Exact tests unavailable or failed:
-- Bad-patch verdict:
-- Repaired-patch verdict:
-- Open audit P0/P1 findings:
-- Next P0 item:
-- Next eligible independent audit:
-- Human-only action needed:
-- Should this session be submitted with `/feedback`:
-- Known risks:
+- Last completed item or finding: 0076 Build Week control plane
+- Last commit: focused 0076 commit; exact SHA to be recorded in the next ledger update
+- Working tree state: expected clean after the 0076 commit
+- Exact tests passed: 8 focused delta-tool tests; 317 full pytest tests; Ruff; mypy
+  across 75 source files; real local delta smoke
+- Exact tests unavailable or failed: Nix/`just` unavailable on HB3
+- Bad-patch verdict: not implemented
+- Repaired-patch verdict: not implemented
+- Open audit P0/P1 findings: none
+- Next P0 item: 0077 proof protocol and deterministic decision policy
+- Next eligible independent audit: A1 after 0079
+- Human-only action needed: none
+- Should this session be submitted with `/feedback`: yes, after the primary 0077-0081
+  vertical slice where practical; the ID is not yet recorded
+- Known risks: live GPT-5.6 smoke testing will eventually require a human-supplied API
+  key; replay remains the no-key acceptance path

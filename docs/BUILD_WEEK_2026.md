@@ -47,6 +47,24 @@ The Build Week implementation must therefore:
 
 Do not rewrite or squash eligible history before submission.
 
+### Recorded boundary
+
+- Submission-period cutoff: `2026-07-13T09:00:00-07:00` (strictly before).
+- Verified last pre-period commit: `64f775cfe2f622837bd9aaa40f6369aa22af1d80`
+  (`Implement work item 0075 roadmap synthesis`, authored and committed
+  `2026-07-09T21:45:20Z`).
+- Annotated boundary tag: `build-week-2026-baseline`, verified locally at that commit.
+- Build Week implementation branch starting commit:
+  `c915523383dc58114bf748f7d7a64c1c398faaba`.
+- Eligible commits before the focused 0076 completion commit: 28. The completion
+  commit makes the baseline-to-branch range 29 commits.
+
+The immediately older commits are work items 0074 and 0073, dated July 9. The first
+commit after the baseline is `6d8c84b46daffc234b56238b28da903358f749c6`
+(`Add machine transfer handoff`), authored and committed `2026-07-16T05:04:08Z`.
+The local delta report is generated without network access by
+`python scripts/build_week_delta.py`.
+
 ## Required submission artifacts
 
 The final submission must include:
