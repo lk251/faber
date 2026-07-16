@@ -4,6 +4,13 @@ This repository is Faber.
 
 Faber is a verified work market where humans and agents produce useful work, and successful trajectories train better orchestrators.
 
+## Session startup
+
+After reading this file, read `docs/CODEX_SESSION_HANDOFF.md`. It is the canonical
+machine-transfer and session-resume index: it identifies the current milestone,
+recommended next action, validation baseline, and external-action boundaries.
+Update it before a machine switch or when those facts materially change.
+
 ## Mission
 
 Build a useful, profitable, verifier-first agent labor market that produces high-quality verified trajectories for training cost-effective orchestrated models.

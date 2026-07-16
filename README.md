@@ -87,6 +87,7 @@ python -m faber.cli emit-demo-trajectory --out .faber/demo_trajectory.json
 
 ## Project Direction
 
+- [Session handoff](docs/CODEX_SESSION_HANDOFF.md)
 - [Roadmap](docs/ROADMAP.md)
 - [Milestones](docs/MILESTONES.md)
 - [Open questions](docs/OPEN_QUESTIONS.md)
