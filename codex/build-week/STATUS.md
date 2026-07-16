@@ -1,7 +1,10 @@
 # Faber Proof Build Week status
 
-This file is the machine-resume state for the Build Week queue. Update it after every
-focused work-item commit.
+This file is the machine-resume state for the Build Week implementation queue. Update it
+after every focused work-item or accepted-finding commit.
+
+Independent reset sessions use `codex/build-week/AUDIT_QUEUE.md` and write durable audit
+reports under `codex/build-week/audits/`.
 
 ## Current state
 
@@ -13,6 +16,8 @@ focused work-item commit.
 - Primary `/feedback` session ID: **not yet recorded**
 - Final submission tag: **not yet created**
 - Human-only gate currently blocking work: none
+- Open audit P0 findings: none recorded
+- Next eligible independent audit: none until 0079 is complete
 
 ## P0 queue
 
@@ -31,6 +36,26 @@ focused work-item commit.
 
 Do not begin P1 until every P0 gate is green and the final submission package can be
 produced from a clean clone.
+
+## Independent audit lane
+
+The complete audit state and finding ledger live in
+`codex/build-week/AUDIT_QUEUE.md`.
+
+- [ ] `A1` — Architecture and authority, eligible after 0079
+- [ ] `A2` — Adversarial security, eligible after 0081
+- [ ] `A3` — Clean-room installation, eligible after 0082
+- [ ] `A4` — Judge comprehension, eligible after 0082 and generated reports
+- [ ] `A5` — Final compliance, eligible after 0083 machine work
+
+Fresh reset instruction:
+
+```text
+Use $build-week-auditor and run the next eligible independent audit.
+```
+
+Open audit P0 findings take priority over new feature work. Final tagging is blocked
+until all required audits are green and no P0 finding remains open.
 
 ## Global acceptance gates
 
@@ -86,6 +111,17 @@ produced from a clean clone.
 - [ ] Replay digest tampering is detected
 - [ ] Secret-like data is redacted from requests and reports
 
+### Independent audits
+
+- [ ] A1 architecture and authority is green
+- [ ] A2 adversarial security is green
+- [ ] A3 clean-room installation is green
+- [ ] A4 judge comprehension is green
+- [ ] A5 final compliance is green against the final tag
+- [ ] No audit P0 finding remains open
+- [ ] Every accepted P1 affecting the three-minute experience is resolved or explicitly
+  rejected with rationale
+
 ### Submission
 
 - [ ] README contains Build Week boundary and Codex/GPT-5.6 collaboration details
@@ -105,18 +141,18 @@ produced from a clean clone.
 | 0076 | Not started | — | — | Primary | — |
 | 0077 | Not started | — | — | Primary | — |
 | 0078 | Not started | — | — | Primary | — |
-| 0079 | Not started | — | — | Primary | — |
+| 0079 | Not started | — | — | Primary | A1 becomes eligible |
 | 0080 | Not started | — | — | Primary | — |
-| 0081 | Not started | — | — | Primary | — |
-| 0082 | Not started | — | — | Secondary audits allowed | — |
-| 0083 | Not started | — | — | Submission audit | — |
+| 0081 | Not started | — | — | Primary | A2 becomes eligible; run `/feedback` before primary thread ends |
+| 0082 | Not started | — | — | Secondary audits allowed | A3 and A4 become eligible |
+| 0083 | Not started | — | — | Submission audit | A5 becomes eligible |
 | 0084 | Blocked by P0 | — | — | Optional | — |
 
 ## Demo scorecard
 
 Record exact values after each runnable milestone.
 
-| Metric | Bad patch | Fixed patch |
+| Metric | Bad patch | Repaired patch |
 |---|---:|---:|
 | Ordinary test result | Not run | Not run |
 | Faber Proof verdict | Not run | Not run |
@@ -144,14 +180,16 @@ Rerun these checks on the active implementation machine before claiming a new ba
 
 After each session, replace this section with current facts:
 
-- Last completed item:
+- Last completed item or finding:
 - Last commit:
 - Working tree state:
 - Exact tests passed:
 - Exact tests unavailable or failed:
 - Bad-patch verdict:
-- Fixed-patch verdict:
-- Next item:
+- Repaired-patch verdict:
+- Open audit P0/P1 findings:
+- Next P0 item:
+- Next eligible independent audit:
 - Human-only action needed:
 - Should this session be submitted with `/feedback`:
 - Known risks:
