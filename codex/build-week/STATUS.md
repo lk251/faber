@@ -8,13 +8,13 @@ reports under `codex/build-week/audits/`.
 
 ## Current state
 
-- Phase: proof protocol established; GPT-5.6 planner adapter is next
+- Phase: GPT-5.6 planner established; bounded proof executors are next
 - Canonical implementation branch: `build-week/faber-proof`
 - Branch starting commit: `c915523383dc58114bf748f7d7a64c1c398faaba`
 - Eligibility baseline: `64f775cfe2f622837bd9aaa40f6369aa22af1d80`, tagged by
   annotated `build-week-2026-baseline`
-- Eligible commit count: 28 at branch start; 30 including focused items 0076 and 0077
-- Current P0 item: `0078`
+- Eligible commit count: 28 at branch start; 31 including focused items 0076 through 0078
+- Current P0 item: `0079`
 - Current demo state: not implemented
 - Primary implementation session: this director thread (0076 onward)
 - Primary `/feedback` session ID: **not yet recorded**
@@ -27,7 +27,7 @@ reports under `codex/build-week/audits/`.
 
 - [x] `0076` — Build Week control plane, eligibility baseline, and repository handoff
 - [x] `0077` — Proof protocol records and deterministic decision policy
-- [ ] `0078` — GPT-5.6 proof-planner adapter with live and replay modes
+- [x] `0078` — GPT-5.6 proof-planner adapter with live and replay modes
 - [ ] `0079` — Bounded proof-template catalog and safe proof executors
 - [ ] `0080` — End-to-end `faber proof` CLI and evidence report
 - [ ] `0081` — Repository-scoped Codex skill and original winning demonstration
@@ -75,10 +75,10 @@ until all required audits are green and no P0 finding remains open.
 ### Core product
 
 - [ ] Direct `gpt-5.6` structured-output adapter works in a guarded live smoke test
-- [ ] Replay mode needs no key, account, or network
-- [ ] Live and replay responses use the same parser and validator
+- [x] Replay mode needs no key, account, or network
+- [x] Live and replay responses use the same parser and validator
 - [x] Model output can never define executable commands or source
-- [ ] Unknown templates and malformed parameters fail closed
+- [x] Unknown templates and malformed parameters fail closed
 - [x] Mandatory proof obligations cannot be removed by the model
 - [x] Deterministic `PASS`, `BLOCK`, and `HUMAN_REVIEW` policy exists
 - [x] Proof plans, evidence, receipts, and decisions have stable digests
@@ -112,8 +112,8 @@ until all required audits are green and no P0 finding remains open.
 - [ ] Wheel builds and installs in a clean environment
 - [ ] Linux and Windows CI pass
 - [ ] Adversarial cases cannot cause unjustified `PASS`
-- [ ] Replay digest tampering is detected
-- [ ] Secret-like data is redacted from requests and reports
+- [x] Replay digest tampering is detected
+- [x] Secret-like data is redacted from requests and reports
 
 ### Independent audits
 
@@ -143,8 +143,8 @@ until all required audits are green and no P0 finding remains open.
 | Item | Status | Commit | Tests and demos | Primary/secondary session | Notes |
 |---|---|---|---|---|---|
 | 0076 | Complete | `ab9edd6` | 8 focused tests; 317 full tests; Ruff; mypy 75 files; clean local delta | Primary | Baseline `64f775c`; annotated tag verified |
-| 0077 | Complete | This focused commit (exact SHA recorded by the next ledger update) | 138 focused tests; 455 full tests; Ruff; mypy 76 files | Primary | Six digest-stable records; fail-closed authority policy; 0078 next |
-| 0078 | Not started | — | — | Primary | — |
+| 0077 | Complete | `5b714fe` | 138 focused tests; 455 full tests; Ruff; mypy 76 files | Primary | Six digest-stable records; fail-closed authority policy |
+| 0078 | Complete | This focused commit (exact SHA recorded by the next ledger update) | 86 focused tests; 541 full tests; Ruff; mypy 82 files; SDK 2.45.0 mock | Primary | Strict GPT-5.6 live adapter; externally pinned replay; adversarial review green; 0079 next |
 | 0079 | Not started | — | — | Primary | A1 becomes eligible |
 | 0080 | Not started | — | — | Primary | — |
 | 0081 | Not started | — | — | Primary | A2 becomes eligible; run `/feedback` before primary thread ends |
@@ -171,17 +171,18 @@ Record exact values after each runnable milestone.
 
 ## Validation baseline
 
-HB3 work item 0077 environment and completed baseline:
+HB3 work item 0078 environment and completed baseline:
 
 - Python 3.12.2; pytest 9.0.2; Ruff 0.15.10; mypy 2.1.0
-- `python -m pytest tests/test_proofs.py -q`: 138 passed in 0.26 seconds
-- `python -m pytest`: 455 passed in 11.78 seconds
+- `python -m pytest tests/test_openai_proof_planner.py
+  tests/test_openai_proof_planner_live.py -q`: 86 passed, 1 guarded live test skipped
+- `python -m pytest -q`: 541 passed, 1 guarded live test skipped in 12.14 seconds
 - `python -m ruff check .`: passed
-- `python -m ruff format --check` for the 0077 files: passed; the repository-wide
+- `python -m ruff format --check` for the 0078 files: passed; the repository-wide
   format check still reports 46 pre-existing files outside this item
-- `python -m mypy src`: passed across 76 source files
-- post-commit `python scripts/build_week_delta.py --json`: baseline `64f775c`, target
-  `ab9edd6`, 29 eligible commits, 27 changed files, clean tree, zero warnings
+- `python -m mypy src`: passed across 82 source files
+- OpenAI SDK 2.45.0 mock transport accepted the exact Responses API call shape and
+  explicit official base URL; the base environment imports adapter/replay without SDK
 - `nix develop --command just check`: unavailable because Nix and `just` are not
   installed on HB3
 
@@ -189,19 +190,19 @@ HB3 work item 0077 environment and completed baseline:
 
 After each session, replace this section with current facts:
 
-- Last completed item or finding: 0077 proof protocol and deterministic decision policy
-- Last commit: focused 0077 commit; exact SHA to be recorded in the next ledger update
-- Working tree state: expected clean after the 0077 commit
-- Exact tests passed: 138 focused proof tests; 455 full pytest tests; Ruff; focused
-  format check; mypy across 76 source files
+- Last completed item or finding: 0078 GPT-5.6 proof planner with live and replay modes
+- Last commit: focused 0078 commit; exact SHA to be recorded in the next ledger update
+- Working tree state: expected clean after the 0078 commit
+- Exact tests passed: 86 focused planner tests; 541 full pytest tests; Ruff; focused
+  format check; mypy across 82 source files; SDK 2.45.0 mock transport
 - Exact tests unavailable or failed: Nix/`just` unavailable on HB3
 - Bad-patch verdict: not implemented
 - Repaired-patch verdict: not implemented
 - Open audit P0/P1 findings: none
-- Next P0 item: 0078 GPT-5.6 proof-planner adapter with live and replay modes
+- Next P0 item: 0079 bounded proof-template catalog and safe proof executors
 - Next eligible independent audit: A1 after 0079
 - Human-only action needed: none
 - Should this session be submitted with `/feedback`: yes, after the primary 0077-0081
   vertical slice where practical; the ID is not yet recorded
 - Known risks: live GPT-5.6 smoke testing will eventually require a human-supplied API
-  key; replay remains the no-key acceptance path
+  key; replay is externally digest-pinned and remains the no-key acceptance path

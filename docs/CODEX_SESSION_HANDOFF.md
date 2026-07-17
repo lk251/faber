@@ -50,12 +50,12 @@ private data as part of the Build Week queue.
 - Eligibility tag: annotated `build-week-2026-baseline`, verified locally at the
   baseline commit
 - Eligible history at the branch starting point: 28 commits with no pre-cutoff author
-  or committer dates; focused items 0076 and 0077 bring the branch total to 30
-- Active work item after the proof-protocol commit: `0078-openai-proof-planner-adapter.md`
+  or committer dates; focused items 0076 through 0078 bring the branch total to 31
+- Active work item after the GPT-5.6 planner commit: `0079-proof-template-executors.md`
 - Snapshot date: 2026-07-17
 - Primary-session designation: this director thread is the primary Build Week
   implementation session; its `/feedback` ID has not yet been recorded
-- Current local working-tree state: expected clean after the focused 0077 commit;
+- Current local working-tree state: expected clean after the focused 0078 commit;
   inspect it rather than relying on this file
 
 Confirm the checked-out state before changing anything:
@@ -242,23 +242,22 @@ The Build Week delta and README must distinguish it from the Faber Proof extensi
 
 ## Last recorded validation baseline
 
-The completed work item 0077 baseline on HB3 uses Python 3.12.2, pytest 9.0.2,
+The completed work item 0078 baseline on HB3 uses Python 3.12.2, pytest 9.0.2,
 Ruff 0.15.10, and mypy 2.1.0:
 
-- focused proof protocol and policy tests: 138 passed in 0.26 seconds
-- `python -m pytest`: 455 passed in 11.78 seconds
+- focused OpenAI planner and replay tests: 86 passed; 1 guarded live test skipped
+- `python -m pytest -q`: 541 passed; 1 guarded live test skipped in 12.14 seconds
 - `python -m ruff check .`: passed
-- focused 0077 files pass `python -m ruff format --check`; a repository-wide format
+- focused 0078 files pass `python -m ruff format --check`; a repository-wide format
   check reports 46 pre-existing files outside the focused item
-- `python -m mypy src`: passed across 76 source files
+- `python -m mypy src`: passed across 82 source files
+- OpenAI SDK 2.45.0 accepted the exact Responses API call shape through a mock
+  transport; replay and the base adapter import without the optional SDK
 - `nix develop --command just check`: unavailable because Nix and `just` are not
   installed on HB3
 
-The post-commit local delta smoke resolved baseline `64f775c` and target `ab9edd6`,
-reported 29 eligible commits and 27 changed files, and found a clean tree with zero
-warnings. The Python tools are installed in the Windows user site; Codex had to run
-outside its workspace sandbox to read them, while an ordinary HB3 shell can use them
-normally.
+The Python tools are installed in the Windows user site; Codex had to run outside its
+workspace sandbox to read them, while an ordinary HB3 shell can use them normally.
 
 ## Current code map
 
@@ -270,6 +269,8 @@ normally.
   authority, human review, calibration, and advisory scoring.
 - `src/faber/proofs.py`: provider-neutral proof records, bounded advisory plan
   validation, authoritative evidence binding, and deterministic fail-closed policy.
+- `src/faber/proof_planning.py` and `src/faber/adapters/openai/`: provider-neutral
+  planning records plus the guarded GPT-5.6 live and externally pinned replay paths.
 - `src/faber/budgets.py`, `budget_ledger.py`, `market_policies.py`, and
   `tournaments.py`: provider-neutral budgets, reservations, settlement policy, and
   candidate selection.
@@ -282,7 +283,7 @@ normally.
 
 ## Recommended next action
 
-Continue with work item 0078 through the director skill:
+Continue with work item 0079 through the director skill:
 
 ```text
 Use $build-week-director and continue until the next human-only gate.
@@ -294,10 +295,11 @@ Fallback when the skill has not yet been discovered:
 Read codex/BUILD_WEEK_START_HERE.md and execute the next incomplete Build Week work item.
 ```
 
-Work item 0077 added the provider-neutral proof protocol, fixed golden digests, bounded
-data-only template selections, exact receipt/run authority binding, and deterministic
-`BLOCK > HUMAN_REVIEW > PASS` policy. Work item 0078 is next and must add the optional
-GPT-5.6 planner adapter while preserving one shared strict parser for live and replay.
+Work item 0078 added the optional direct GPT-5.6 Responses API adapter, strict
+catalog-derived schemas, bounded redaction, shared live/replay validation, externally
+pinned replay bundles, stable provider errors, and adversarial coverage. Work item 0079
+is next and must turn data-only selections into authoritative evidence exclusively
+through catalog-owned capabilities and safe executors.
 
 ## Invariants to preserve
 
