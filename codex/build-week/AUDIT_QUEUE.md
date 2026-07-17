@@ -16,8 +16,8 @@ Use $build-week-auditor and run the next eligible independent audit.
   - Eligible after: work item 0079 complete
   - Prompt: `codex/audits/A1-architecture-and-authority.md`
   - Report: `codex/build-week/audits/A1-architecture-and-authority-report.md`
-  - Result: `not-green` against `9314ddb51962aa194989e97a619a8dbedc19f04a`;
-    the P0 director fix is complete and requires fresh A1 verification
+  - Result: `green` against `6d11e7a76a8b3f235a026c877d4bf6710bda4925`;
+    the original P0 finding is verified fixed
 
 - [ ] `A2` — Adversarial security audit
   - Eligible after: work item 0081 complete
@@ -42,17 +42,17 @@ Use $build-week-auditor and run the next eligible independent audit.
 ## Current state
 
 - Implementation branch to audit: `build-week/faber-proof`
-- Eligible audit: fresh `A1` fix verification against the focused `A1-P0-001` fix
-- Open or unverified P0 findings: 1 (`A1-P0-001`, fixed pending verification)
+- Eligible audit: none; A2 becomes eligible after work item 0081
+- Open or unverified P0 findings: none
 - Open P1 findings: none recorded
-- Last audit commit: `c4c461a87051e6534ada5d118c15592fd19c41c0`
-- Last implementation commit audited: `9314ddb51962aa194989e97a619a8dbedc19f04a`
+- Last audit commit: this focused A1 verification audit commit; exact SHA from `git log`
+- Last implementation commit audited: `6d11e7a76a8b3f235a026c877d4bf6710bda4925`
 
 ## Finding ledger
 
 | ID | Audit | Severity | Status | Summary | Owner | Fix commit | Verification |
 |---|---|---|---|---|---|---|---|
-| `A1-P0-001` | `A1` | P0 | fixed | Unbound or advisory-metadata-only receipted runs can be relabeled as unrelated selected proof evidence and produce `PASS` | `$build-week-director` | this focused fix commit; exact SHA from `git log` | `python -m pytest -q tests/test_proofs.py::test_unbound_receipted_run_cannot_be_relabelled_as_another_selected_proof` |
+| `A1-P0-001` | `A1` | P0 | verified | Unbound or advisory-metadata-only receipted runs can be relabeled as unrelated selected proof evidence and produce `PASS` | `$build-week-director` | `6d11e7a76a8b3f235a026c877d4bf6710bda4925` | 2-case regression passed; independent 16-case complete-binding tamper matrix failed closed |
 
 Use finding IDs such as `A1-P0-001`. Status is one of:
 

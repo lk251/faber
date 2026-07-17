@@ -52,12 +52,13 @@ private data as part of the Build Week queue.
 - Eligible history at the branch starting point: 28 commits with no pre-cutoff author
   or committer dates; focused items 0076 through 0079 bring the branch total to 32
 - Last completed work item: `0079-proof-template-executors.md`
-- Last independent audit: A1 architecture/authority against `9314ddb`, verdict
-  `not-green`; the `A1-P0-001` director fix is complete and awaits fresh verification
+- Last independent audit: A1 architecture/authority against `6d11e7a`, verdict
+  `green`; `A1-P0-001` is independently verified
 - Snapshot date: 2026-07-17
 - Primary-session designation: this director thread is the primary Build Week
   implementation session; its `/feedback` ID has not yet been recorded
-- Current local working-tree state: expected clean after the focused A1 audit commit;
+- Current local working-tree state: expected clean after the focused A1 verification
+  audit commit;
   inspect it rather than relying on this file
 
 Confirm the checked-out state before changing anything:
@@ -244,15 +245,20 @@ The Build Week delta and README must distinguish it from the Faber Proof extensi
 
 ## Last recorded validation baseline
 
-The `A1-P0-001` director-fix baseline on HB3 uses Python 3.12.2, pytest 9.0.2,
-Ruff 0.15.10, and mypy 2.1.0:
+The independent A1 fix-verification baseline against `6d11e7a` on HB3 uses Python
+3.12.2, pytest 9.0.2, Ruff 0.15.10, and mypy 2.1.0:
 
-- exact A1 regression: 2 passed in 0.15 seconds
-- focused proof/executor/runner tests: 256 passed in 2.87 seconds
-- `python -m pytest -q`: 652 passed; 1 guarded live test skipped in 13.39 seconds
+- exact A1 regression: 2 passed in 0.11 seconds
+- named A1 and adjacent negative paths: 17 passed in 0.23 seconds
+- independent complete-binding matrix: valid workflow `PASS`; all 16 tampered variants
+  returned `HUMAN_REVIEW`
+- focused proofs/planner/executor/verifier tests: 342 passed; 1 guarded live test
+  skipped in 3.12 seconds
+- `python -m pytest -q`: 652 passed; 1 guarded live test skipped in 13.31 seconds
 - `python -m ruff check .`: passed
 - changed proof source and tests pass `python -m ruff format --check`
 - `python -m mypy src`: passed across 86 source files
+- isolated `python -I -S` import confirmed the core loads with no OpenAI SDK available
 - selected proof evidence now requires the complete executor tag and binding; unbound
   ordinary verifier runs remain compatible only with the separate mandatory-verifier
   scan
@@ -292,24 +298,22 @@ The Python tools are installed in the ignored `.faber/dev-venv` workspace enviro
 
 ## Recommended next action
 
-Run a fresh A1 fix-verification audit before work item 0080:
+Resume the implementation director at work item 0080:
 
 ```text
-Use $build-week-auditor and run the next eligible independent audit.
+Use $build-week-director and continue until the next human-only gate.
 ```
 
-The original finding and exact reproduction are in:
+The fresh A1 audit verified `A1-P0-001` against the exact clean fix commit. The two
+original relabeling reproductions and a 16-case adjacent binding-tamper matrix all fail
+closed, while a complete workflow-generated binding still passes. The durable evidence
+is in:
 
 ```text
 codex/build-week/audits/A1-architecture-and-authority-report.md
 ```
 
-The director fix makes `_verifier_run_binds_plan` reject every selected proof outcome
-whose run is not executor-tagged and fully bound. The audit regression now starts from
-a legitimately bound run, strips or replaces its owner binding metadata, and verifies
-both relabeling variants fail closed. Untagged ordinary verifier runs remain available
-only to the separate mandatory-verifier cross-scan. A fresh auditor must inspect the
-exact clean fix commit and change `A1-P0-001` from `fixed` to `verified` before 0080.
+No new independent audit is eligible now. A2 becomes eligible after work item 0081.
 
 ## Invariants to preserve
 
