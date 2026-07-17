@@ -8,22 +8,21 @@ reports under `codex/build-week/audits/`.
 
 ## Current state
 
-- Phase: A1 architecture/authority audit is `not-green`; fix `A1-P0-001` before 0080
+- Phase: `A1-P0-001` fixed; fresh A1 verification is required before 0080
 - Canonical implementation branch: `build-week/faber-proof`
 - Branch starting commit: `c915523383dc58114bf748f7d7a64c1c398faaba`
 - Eligibility baseline: `64f775cfe2f622837bd9aaa40f6369aa22af1d80`, tagged by
   annotated `build-week-2026-baseline`
 - Eligible commit count: 28 at branch start; 32 including focused items 0076 through 0079
-- Current P0 item: `A1-P0-001`, then fresh A1 verification before `0080`
+- Current P0 item: fresh A1 fix verification, then `0080`
 - Current demo state: not implemented
 - Primary implementation session: this director thread (0076 onward)
 - Primary `/feedback` session ID: **not yet recorded**
 - Final submission tag: **not yet created**
 - Human-only gate currently blocking work: none
-- Open audit P0 findings: 1 — `A1-P0-001` unbound receipted verifier runs can be
-  relabeled as unrelated selected proof evidence and produce `PASS`
-- Next eligible independent audit: fresh `A1` fix verification; no new audit is
-  currently eligible
+- Open or unverified audit P0 findings: 1 — `A1-P0-001` is fixed pending independent
+  verification
+- Next eligible independent audit: fresh `A1` fix verification now
 
 ## P0 queue
 
@@ -31,8 +30,8 @@ reports under `codex/build-week/audits/`.
 - [x] `0077` — Proof protocol records and deterministic decision policy
 - [x] `0078` — GPT-5.6 proof-planner adapter with live and replay modes
 - [x] `0079` — Bounded proof-template catalog and safe proof executors
-- [ ] `A1-P0-001` — Require complete catalog/plan/selection authority binding for
-  every selected proof outcome
+- [x] `A1-P0-001` — Require complete catalog/plan/selection authority binding for
+  every selected proof outcome; fixed pending independent verification
 - [ ] `0080` — End-to-end `faber proof` CLI and evidence report
 - [ ] `0081` — Repository-scoped Codex skill and original winning demonstration
 - [ ] `0082` — Adversarial evals, packaging, clean-install path, and CI
@@ -51,7 +50,7 @@ The complete audit state and finding ledger live in
 `codex/build-week/AUDIT_QUEUE.md`.
 
 - [x] `A1` — Architecture and authority completed `not-green` against `9314ddb`;
-  fresh verification required after `A1-P0-001`
+  director fix complete and fresh verification required
 - [ ] `A2` — Adversarial security, eligible after 0081
 - [ ] `A3` — Clean-room installation, eligible after 0082
 - [ ] `A4` — Judge comprehension, eligible after 0082 and generated reports
@@ -110,8 +109,8 @@ until all required audits are green and no P0 finding remains open.
 
 ### Reliability
 
-- [ ] Full pytest suite passes after audit fix — current audit test has 2 expected
-  failures reproducing `A1-P0-001` (650 other tests pass; 1 guarded live test skips)
+- [x] Full pytest suite passes after audit fix — 652 passed and 1 guarded live test
+  skipped
 - [x] Ruff passes
 - [x] mypy passes
 - [x] Nix check passes when Nix is available, or unavailability is documented
@@ -152,6 +151,7 @@ until all required audits are green and no P0 finding remains open.
 | 0077 | Complete | `5b714fe` | 138 focused tests; 455 full tests; Ruff; mypy 76 files | Primary | Six digest-stable records; fail-closed authority policy |
 | 0078 | Complete | `2a2eaa2` | 86 focused tests; 541 full tests; Ruff; mypy 82 files; SDK 2.45.0 mock | Primary | Strict GPT-5.6 live adapter; externally pinned replay; adversarial review green; 0079 next |
 | 0079 | Complete | `9314ddb` | 254 focused tests; 650 full tests, 1 guarded live skip; Ruff; focused format; mypy 86 files | Primary | Five bounded families; source/workspace/receipt authority binding; local isolation limits documented; A1 found `A1-P0-001` |
+| A1-P0-001 | Fixed; verification pending | This focused fix commit | 2 audit regressions; 256 focused tests; 652 full tests, 1 skip; Ruff; format; mypy | Primary | Selected outcomes require a complete executor-tagged proof binding; fresh A1 verification next |
 | 0080 | Not started | — | — | Primary | — |
 | 0081 | Not started | — | — | Primary | A2 becomes eligible; run `/feedback` before primary thread ends |
 | 0082 | Not started | — | — | Secondary audits allowed | A3 and A4 become eligible |
@@ -177,20 +177,18 @@ Record exact values after each runnable milestone.
 
 ## Validation baseline
 
-HB3 work item 0079 environment and completed baseline:
+HB3 `A1-P0-001` director-fix baseline:
 
 - Python 3.12.2; pytest 9.0.2; Ruff 0.15.10; mypy 2.1.0
-- `python -m pytest -q tests/test_proof_executors.py tests/test_verifier_registry_runner.py
-  tests/test_proofs.py`: 254 passed in 2.91 seconds
-- `python -m pytest -q`: 650 passed, 1 guarded live test skipped in 12.94 seconds
+- exact A1 reproduction: 2 passed in 0.15 seconds
+- `python -m pytest -q tests/test_proofs.py tests/test_proof_executors.py
+  tests/test_verifier_registry_runner.py`: 256 passed in 2.87 seconds
+- `python -m pytest -q`: 652 passed, 1 guarded live test skipped in 13.39 seconds
 - `python -m ruff check .`: passed
-- `python -m ruff format --check` for all 0079 source and test files: passed; the
-  repository-wide format check still reports 47 files outside this item
+- `python -m ruff format --check src/faber/proofs.py tests/test_proofs.py`: passed
 - `python -m mypy src`: passed across 86 source files
-- Adversarial coverage includes operational-field injection, path and symlink escape,
-  pinned-source tampering, stale unchecked bytecode, ambient pytest configuration,
-  partial process capture, raw-run reuse, stale-plan replay, and receipt metadata
-  relabeling; all fail closed
+- selected proof evidence now requires the complete executor tag and binding; unbound
+  ordinary verifier runs remain accepted only by the separate mandatory-verifier scan
 - `nix develop --command just check`: unavailable because Nix and `just` are not
   installed on HB3
 
@@ -198,21 +196,20 @@ HB3 work item 0079 environment and completed baseline:
 
 After each session, replace this section with current facts:
 
-- Last completed item or finding: A1 architecture/authority audit completed `not-green`;
-  `A1-P0-001` is open
+- Last completed item or finding: director fix for `A1-P0-001`; independent
+  verification pending
 - Last implementation commit audited: `9314ddb51962aa194989e97a619a8dbedc19f04a`
-- Working tree state: audit artifacts and a failing regression test are expected until
-  the focused A1 audit commit is made
-- Exact tests passed: 254 focused proof/executor/runner tests; 650 full pytest tests
-  with 1 guarded live skip; Ruff; focused format check; mypy across 86 source files
-- Exact tests unavailable or failed: the audit regression has 2 expected failures
-  reproducing `A1-P0-001`; Nix/`just` unavailable on HB3
+- Working tree state: expected clean after the focused `A1-P0-001` fix commit
+- Exact tests passed: 2 A1 regressions; 256 focused proof/executor/runner tests; 652
+  full pytest tests with 1 guarded live skip; Ruff; focused format; mypy across 86
+  source files
+- Exact tests unavailable or failed: Nix/`just` unavailable on HB3
 - Bad-patch verdict: not implemented
 - Repaired-patch verdict: not implemented
-- Open audit P0/P1 findings: one P0 (`A1-P0-001`), no P1
-- Next P0 item: director fixes `A1-P0-001`; 0080 remains gated
-- Next eligible independent audit: fresh A1 verification after the fix
-- Human-only action needed: none; resume `$build-week-director` to fix the P0
+- Open audit P0/P1 findings: one fixed-but-unverified P0 (`A1-P0-001`), no P1
+- Next P0 item: 0080 after fresh A1 verification
+- Next eligible independent audit: fresh A1 fix verification now
+- Human-only action needed: start a fresh Codex context and run the next eligible audit
 - Should this session be submitted with `/feedback`: yes, after the primary 0077-0081
   vertical slice where practical; the ID is not yet recorded
 - Known risks: local executors do not provide OS, network, container, or descendant

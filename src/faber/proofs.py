@@ -1320,6 +1320,8 @@ def _verifier_run_binds_plan(
     metadata = dict(run.metadata)
     executor_tagged = bool(_EXECUTOR_METADATA_FIELDS & set(metadata))
     advisory_binding_tagged = "proof_plan_digest" in metadata or "selection_digest" in metadata
+    if expected_selection is not None and not executor_tagged:
+        return False
     if not executor_tagged and not advisory_binding_tagged:
         return True
 

@@ -24,6 +24,7 @@ from faber.proofs import (
     ProofPolicy,
     ProofTemplateSelection,
     decide_proof,
+    proof_authority_binding_digest,
 )
 from faber.receipts import VerificationReceipt
 from faber.schema_registry import protocol_schema_registry
@@ -170,6 +171,57 @@ def _run(*, passed: bool = True, suffix: str = "main") -> VerifierRun:
     )
 
 
+def _bind_run_to_selection(
+    plan: ProofPlan,
+    selection: ProofTemplateSelection,
+    raw_run: VerifierRun,
+) -> VerifierRun:
+    family = "pytest-node"
+    capability_digest = sha256_digest(f"capability:{selection.template_id}")
+    execution_policy_digest = sha256_digest("proof execution policy")
+    workspace_digest = sha256_digest("proof workspace")
+    authority_binding = proof_authority_binding_digest(
+        task_contract_digest=plan.task_contract_digest,
+        attempt_digest=plan.attempt_digest,
+        proof_plan_digest=plan.digest(),
+        selection_digest=selection.digest(),
+        catalog_digest=plan.proof_catalog_digest,
+        catalog_entry_id=selection.template_id,
+        catalog_entry_version=selection.template_version,
+        family=family,
+        capability_digest=capability_digest,
+        execution_policy_digest=execution_policy_digest,
+        workspace_digest=workspace_digest,
+        verifier_id=raw_run.verifier_id,
+        verifier_version=raw_run.version,
+        raw_verifier_run_digest=raw_run.digest(),
+        raw_verifier_run_id=raw_run.id,
+    )
+    return replace(
+        raw_run,
+        metrics={
+            **raw_run.metrics,
+            "proof_authority_binding_digest": authority_binding,
+        },
+        metadata={
+            "attempt_digest": plan.attempt_digest,
+            "capability_digest": capability_digest,
+            "catalog_digest": plan.proof_catalog_digest,
+            "catalog_entry_id": selection.template_id,
+            "catalog_entry_version": selection.template_version,
+            "execution_policy_digest": execution_policy_digest,
+            "family": family,
+            "proof_authority_binding_digest": authority_binding,
+            "proof_plan_digest": plan.digest(),
+            "raw_verifier_run_digest": raw_run.digest(),
+            "raw_verifier_run_id": raw_run.id,
+            "selection_digest": selection.digest(),
+            "task_contract_digest": plan.task_contract_digest,
+            "workspace_digest": workspace_digest,
+        },
+    )
+
+
 def _receipt(
     contract: TaskContract,
     attempt: Attempt,
@@ -211,6 +263,21 @@ def _evidence(
         counterexample_summary=({"reason": "empty input changed"} if status == "failed" else None),
         failure_reason_codes=[] if status == "passed" else ["assertion_failed"],
     )
+
+
+def _bound_authority(
+    contract: TaskContract,
+    attempt: Attempt,
+    plan: ProofPlan,
+    selection: ProofTemplateSelection,
+    *,
+    passed: bool = True,
+    suffix: str = "main",
+) -> tuple[VerifierRun, VerificationReceipt, ProofEvidence]:
+    run = _bind_run_to_selection(plan, selection, _run(passed=passed, suffix=suffix))
+    receipt = _receipt(contract, attempt, run, suffix=suffix)
+    evidence = _evidence(plan, selection, run, receipt)
+    return run, receipt, evidence
 
 
 def _policy(
@@ -275,9 +342,12 @@ def _passing_fixture() -> tuple[
     attempt = _attempt(contract)
     plan = _plan(contract, attempt)
     policy = _policy()
-    run = _run()
-    receipt = _receipt(contract, attempt, run)
-    evidence = _evidence(plan, plan.selections[0], run, receipt)
+    run, receipt, evidence = _bound_authority(
+        contract,
+        attempt,
+        plan,
+        plan.selections[0],
+    )
     return contract, attempt, plan, policy, run, receipt, evidence
 
 
@@ -329,10 +399,10 @@ def test_plan_evidence_and_decision_golden_digests_are_pinned() -> None:
         "sha256:c0f833796093bbb250855cb5c132de1f52722825d42957be52d764be12f616c4"
     )
     assert evidence.digest() == (
-        "sha256:f501155365db5a4b1a4d5ba7fe66516624c5182276a278b9f3bd94459eb8bec0"
+        "sha256:b2fd5c0e9fb64ac0f901f58d91da3b40147311bf1fa8af0a7e66ca0be1014882"
     )
     assert decision.digest() == (
-        "sha256:c5668a26afece0b267e9aeb647c0f940c3fff6f912843df7eb0dd7dcf3224592"
+        "sha256:71a52048ca8024c0b0f9d5f7ad7cc1097b19e6b68bd9f97734dd4552358ac5d2"
     )
 
 
@@ -830,9 +900,13 @@ def test_valid_authoritative_failure_blocks() -> None:
     contract = _contract()
     attempt = _attempt(contract)
     plan = _plan(contract, attempt)
-    run = _run(passed=False)
-    receipt = _receipt(contract, attempt, run)
-    evidence = _evidence(plan, plan.selections[0], run, receipt)
+    run, receipt, evidence = _bound_authority(
+        contract,
+        attempt,
+        plan,
+        plan.selections[0],
+        passed=False,
+    )
 
     decision = _decide(plan, [evidence], _policy(), contract, attempt, [run], [receipt])
 
@@ -860,9 +934,13 @@ def test_demonstrated_failure_precedes_other_missing_evidence() -> None:
         mandatory_claim_ids=["claim.a", "claim.b"],
         mandatory_template_ids=["template.a", "template.b"],
     )
-    run = _run(passed=False)
-    receipt = _receipt(contract, attempt, run)
-    failed = _evidence(plan, selections[0], run, receipt)
+    run, receipt, failed = _bound_authority(
+        contract,
+        attempt,
+        plan,
+        selections[0],
+        passed=False,
+    )
 
     decision = _decide(plan, [failed], policy, contract, attempt, [run], [receipt])
 
@@ -875,9 +953,13 @@ def test_authoritative_failure_precedes_model_refusal() -> None:
     contract = _contract()
     attempt = _attempt(contract)
     plan = _plan(contract, attempt, model_run=_model_run(refusal="refused"))
-    run = _run(passed=False)
-    receipt = _receipt(contract, attempt, run)
-    evidence = _evidence(plan, plan.selections[0], run, receipt)
+    run, receipt, evidence = _bound_authority(
+        contract,
+        attempt,
+        plan,
+        plan.selections[0],
+        passed=False,
+    )
 
     decision = _decide(
         plan,
@@ -914,8 +996,13 @@ def test_bound_authoritative_failure_blocks_even_if_evidence_claims_no_outcome(
         approved_verifier_ids=[VERIFIER_ID, "verifier.contract-required"],
         mandatory_verifier_ids=[],
     )
-    run = _run(passed=False)
-    receipt = _receipt(contract, attempt, run)
+    run, receipt, _evidence_record = _bound_authority(
+        contract,
+        attempt,
+        plan,
+        plan.selections[0],
+        passed=False,
+    )
     disguised_failure = _evidence(
         plan,
         plan.selections[0],
@@ -947,9 +1034,16 @@ def test_bound_authoritative_failure_blocks_even_if_evidence_claims_no_outcome(
 def test_model_refusal_or_terminal_error_produces_human_review(
     model_run: ModelRunEvidence,
 ) -> None:
-    contract, attempt, _plan_record, policy, run, receipt, _evidence_record = _passing_fixture()
+    contract, attempt, _plan_record, policy, _run_record, _receipt_record, _evidence_record = (
+        _passing_fixture()
+    )
     plan = _plan(contract, attempt, model_run=model_run)
-    evidence = _evidence(plan, plan.selections[0], run, receipt)
+    run, receipt, evidence = _bound_authority(
+        contract,
+        attempt,
+        plan,
+        plan.selections[0],
+    )
 
     decision = _decide(plan, [evidence], policy, contract, attempt, [run], [receipt])
 
@@ -957,9 +1051,16 @@ def test_model_refusal_or_terminal_error_produces_human_review(
 
 
 def test_explicit_material_human_review_recommendation_cannot_pass() -> None:
-    contract, attempt, _plan_record, policy, run, receipt, _evidence_record = _passing_fixture()
+    contract, attempt, _plan_record, policy, _run_record, _receipt_record, _evidence_record = (
+        _passing_fixture()
+    )
     plan = _plan(contract, attempt, human_review_recommended=True)
-    evidence = _evidence(plan, plan.selections[0], run, receipt)
+    run, receipt, evidence = _bound_authority(
+        contract,
+        attempt,
+        plan,
+        plan.selections[0],
+    )
 
     decision = _decide(plan, [evidence], policy, contract, attempt, [run], [receipt])
 
@@ -998,8 +1099,8 @@ def test_unbound_receipted_run_cannot_be_relabelled_as_another_selected_proof(
         [receipt],
     )
     assert first_decision.verdict == "pass"
-    assert "proof_plan_digest" not in run.metadata
-    assert "selection_digest" not in run.metadata
+    assert run.metadata["proof_plan_digest"] == first_plan.digest()
+    assert run.metadata["selection_digest"] == first_plan.selections[0].digest()
 
     unrelated_claim = _claim("claim.unrelated-boundary")
     unrelated_selection = _selection(
@@ -1020,8 +1121,9 @@ def test_unbound_receipted_run_cannot_be_relabelled_as_another_selected_proof(
         mandatory_claim_ids=[unrelated_claim.id],
         mandatory_template_ids=[unrelated_selection.template_id],
     )
-    relabelled_run = run
-    if relabel_mode == "advisory-metadata-only":
+    if relabel_mode == "unbound":
+        relabelled_run = replace(run, metadata={})
+    else:
         relabelled_run = replace(
             run,
             metadata={
@@ -1099,9 +1201,12 @@ def test_partial_multi_selection_evidence_cannot_pass() -> None:
         mandatory_template_ids=["template.a", "template.b"],
     )
     policy = _policy(mandatory_template_ids=["template.a", "template.b"])
-    run = _run()
-    receipt = _receipt(contract, attempt, run)
-    evidence = _evidence(plan, first_selection, run, receipt)
+    run, receipt, evidence = _bound_authority(
+        contract,
+        attempt,
+        plan,
+        first_selection,
+    )
 
     decision = _decide(plan, [evidence], policy, contract, attempt, [run], [receipt])
 
@@ -1292,7 +1397,11 @@ def test_truthy_non_boolean_authority_results_cannot_produce_pass(
     contract = _contract()
     attempt = _attempt(contract)
     plan = _plan(contract, attempt)
-    run = replace(_run(), passed=truthy_non_bool)  # type: ignore[arg-type]
+    run = _bind_run_to_selection(
+        plan,
+        plan.selections[0],
+        replace(_run(), passed=truthy_non_bool),  # type: ignore[arg-type]
+    )
     receipt = _receipt(contract, attempt, run)
     assert receipt.accepted == truthy_non_bool
     evidence = _evidence(plan, plan.selections[0], run, receipt, status="passed")
@@ -1317,7 +1426,11 @@ def test_passing_authority_with_failure_reasons_cannot_produce_pass(
     contract = _contract()
     attempt = _attempt(contract)
     plan = _plan(contract, attempt)
-    run = replace(_run(), failure_reasons=[failure_reason])  # type: ignore[list-item]
+    run = _bind_run_to_selection(
+        plan,
+        plan.selections[0],
+        replace(_run(), failure_reasons=[failure_reason]),  # type: ignore[list-item]
+    )
     receipt = _receipt(contract, attempt, run)
     evidence = _evidence(plan, plan.selections[0], run, receipt, status="passed")
 
@@ -1354,8 +1467,13 @@ def test_authoritative_failure_blocks_even_if_evidence_lies_about_status() -> No
     contract = _contract()
     attempt = _attempt(contract)
     plan = _plan(contract, attempt)
-    run = _run(passed=False)
-    receipt = _receipt(contract, attempt, run)
+    run, receipt, _evidence_record = _bound_authority(
+        contract,
+        attempt,
+        plan,
+        plan.selections[0],
+        passed=False,
+    )
     lying_evidence = _evidence(
         plan,
         plan.selections[0],
@@ -1547,12 +1665,20 @@ def test_decision_is_invariant_under_evidence_and_authority_input_permutations()
         mandatory_claim_ids=["claim.a", "claim.b"],
         mandatory_template_ids=["template.a", "template.b"],
     )
-    run_a = _run(suffix="a")
-    run_b = _run(suffix="b")
-    receipt_a = _receipt(contract, attempt, run_a, suffix="a")
-    receipt_b = _receipt(contract, attempt, run_b, suffix="b")
-    evidence_a = _evidence(plan, selections[0], run_a, receipt_a)
-    evidence_b = _evidence(plan, selections[1], run_b, receipt_b)
+    run_a, receipt_a, evidence_a = _bound_authority(
+        contract,
+        attempt,
+        plan,
+        selections[0],
+        suffix="a",
+    )
+    run_b, receipt_b, evidence_b = _bound_authority(
+        contract,
+        attempt,
+        plan,
+        selections[1],
+        suffix="b",
+    )
 
     forward = _decide(
         plan,

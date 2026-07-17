@@ -17,7 +17,7 @@ Use $build-week-auditor and run the next eligible independent audit.
   - Prompt: `codex/audits/A1-architecture-and-authority.md`
   - Report: `codex/build-week/audits/A1-architecture-and-authority-report.md`
   - Result: `not-green` against `9314ddb51962aa194989e97a619a8dbedc19f04a`;
-    one P0 finding requires a director fix and fresh A1 verification
+    the P0 director fix is complete and requires fresh A1 verification
 
 - [ ] `A2` — Adversarial security audit
   - Eligible after: work item 0081 complete
@@ -42,18 +42,17 @@ Use $build-week-auditor and run the next eligible independent audit.
 ## Current state
 
 - Implementation branch to audit: `build-week/faber-proof`
-- Eligible audit: fresh `A1` fix verification after the director resolves `A1-P0-001`;
-  no new audit is currently eligible
-- Open P0 findings: 1 (`A1-P0-001`)
+- Eligible audit: fresh `A1` fix verification against the focused `A1-P0-001` fix
+- Open or unverified P0 findings: 1 (`A1-P0-001`, fixed pending verification)
 - Open P1 findings: none recorded
-- Last audit commit: this focused A1 audit commit; exact SHA is available from `git log`
+- Last audit commit: `c4c461a87051e6534ada5d118c15592fd19c41c0`
 - Last implementation commit audited: `9314ddb51962aa194989e97a619a8dbedc19f04a`
 
 ## Finding ledger
 
 | ID | Audit | Severity | Status | Summary | Owner | Fix commit | Verification |
 |---|---|---|---|---|---|---|---|
-| `A1-P0-001` | `A1` | P0 | open | Unbound or advisory-metadata-only receipted runs can be relabeled as unrelated selected proof evidence and produce `PASS` | `$build-week-director` | — | `python -m pytest -q tests/test_proofs.py::test_unbound_receipted_run_cannot_be_relabelled_as_another_selected_proof` |
+| `A1-P0-001` | `A1` | P0 | fixed | Unbound or advisory-metadata-only receipted runs can be relabeled as unrelated selected proof evidence and produce `PASS` | `$build-week-director` | this focused fix commit; exact SHA from `git log` | `python -m pytest -q tests/test_proofs.py::test_unbound_receipted_run_cannot_be_relabelled_as_another_selected_proof` |
 
 Use finding IDs such as `A1-P0-001`. Status is one of:
 

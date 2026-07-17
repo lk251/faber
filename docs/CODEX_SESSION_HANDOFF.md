@@ -53,7 +53,7 @@ private data as part of the Build Week queue.
   or committer dates; focused items 0076 through 0079 bring the branch total to 32
 - Last completed work item: `0079-proof-template-executors.md`
 - Last independent audit: A1 architecture/authority against `9314ddb`, verdict
-  `not-green`; `A1-P0-001` is open and blocks 0080
+  `not-green`; the `A1-P0-001` director fix is complete and awaits fresh verification
 - Snapshot date: 2026-07-17
 - Primary-session designation: this director thread is the primary Build Week
   implementation session; its `/feedback` ID has not yet been recorded
@@ -244,17 +244,18 @@ The Build Week delta and README must distinguish it from the Faber Proof extensi
 
 ## Last recorded validation baseline
 
-The completed work item 0079 baseline on HB3 uses Python 3.12.2, pytest 9.0.2,
+The `A1-P0-001` director-fix baseline on HB3 uses Python 3.12.2, pytest 9.0.2,
 Ruff 0.15.10, and mypy 2.1.0:
 
-- focused proof/executor/runner tests: 254 passed in 2.91 seconds
-- `python -m pytest -q`: 650 passed; 1 guarded live test skipped in 12.94 seconds
+- exact A1 regression: 2 passed in 0.15 seconds
+- focused proof/executor/runner tests: 256 passed in 2.87 seconds
+- `python -m pytest -q`: 652 passed; 1 guarded live test skipped in 13.39 seconds
 - `python -m ruff check .`: passed
-- all 0079 files pass `python -m ruff format --check`; a repository-wide format check
-  reports 47 files outside the focused item
+- changed proof source and tests pass `python -m ruff format --check`
 - `python -m mypy src`: passed across 86 source files
-- adversarial executor coverage verifies path, source, bytecode, environment, process
-  capture, workspace, run-reuse, stale-plan, and receipt-binding failures close safely
+- selected proof evidence now requires the complete executor tag and binding; unbound
+  ordinary verifier runs remain compatible only with the separate mandatory-verifier
+  scan
 - `nix develop --command just check`: unavailable because Nix and `just` are not
   installed on HB3
 
@@ -291,25 +292,24 @@ The Python tools are installed in the ignored `.faber/dev-venv` workspace enviro
 
 ## Recommended next action
 
-Resume the implementation director and fix `A1-P0-001` before work item 0080:
+Run a fresh A1 fix-verification audit before work item 0080:
 
 ```text
-Use $build-week-director and address the open A1 P0 finding.
+Use $build-week-auditor and run the next eligible independent audit.
 ```
 
-The exact reproduction and minimal-fix guidance are in:
+The original finding and exact reproduction are in:
 
 ```text
 codex/build-week/audits/A1-architecture-and-authority-report.md
 ```
 
-A1 verified the main workflow's provider, catalog, execution, receipt, and deterministic
-policy layering, but found that `decide_proof` accepts an unbound or
-advisory-metadata-only receipted run as selected proof evidence. The same legitimate run
-can be relabeled to an unrelated claim/template and produce `PASS`. The director must
-require the complete workflow-generated authority binding for selected outcomes, make
-the committed regression test green, and run full checks. A fresh A1 verification audit
-must inspect the exact clean fix commit before 0080 begins.
+The director fix makes `_verifier_run_binds_plan` reject every selected proof outcome
+whose run is not executor-tagged and fully bound. The audit regression now starts from
+a legitimately bound run, strips or replaces its owner binding metadata, and verifies
+both relabeling variants fail closed. Untagged ordinary verifier runs remain available
+only to the separate mandatory-verifier cross-scan. A fresh auditor must inspect the
+exact clean fix commit and change `A1-P0-001` from `fixed` to `verified` before 0080.
 
 ## Invariants to preserve
 
