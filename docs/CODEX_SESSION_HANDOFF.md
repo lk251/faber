@@ -50,14 +50,15 @@ private data as part of the Build Week queue.
 - Eligibility tag: annotated `build-week-2026-baseline`, verified locally at the
   baseline commit
 - Eligible history at the branch starting point: 28 commits with no pre-cutoff author
-  or committer dates; focused items 0076 through 0080 bring the branch total to 33
-- Last completed work item: `0080-faber-proof-cli-and-report.md`
+  or committer dates; the focused 0081 machine-work commit brings the total to 34
+- Last completed machine slice: `0081-codex-skill-and-winning-demo.md`; final
+  live-reviewed replay provenance remains a human-only gate
 - Last independent audit: A1 architecture/authority against `6d11e7a`, verdict
   `green`; `A1-P0-001` is independently verified
 - Snapshot date: 2026-07-17
 - Primary-session designation: this director thread is the primary Build Week
   implementation session; its `/feedback` ID has not yet been recorded
-- Current local working-tree state: expected clean after the focused 0080 implementation
+- Current local working-tree state: expected clean after the focused 0081 machine-work
   commit;
   inspect it rather than relying on this file
 
@@ -245,21 +246,17 @@ The Build Week delta and README must distinguish it from the Faber Proof extensi
 
 ## Last recorded validation baseline
 
-The work item 0080 baseline on HB3 uses Python 3.12.2, pytest 9.0.2, Ruff 0.15.10,
-and mypy 2.1.0:
+The work item 0081 machine-work baseline on HB3 uses Python 3.12.2, pytest 9.0.2,
+Ruff 0.15.10, and mypy 2.1.0:
 
-- focused Faber Proof product tests: 11 passed in 10.03 seconds
-- adjacent proof/planner/executor tests: 343 passed; 1 guarded live test skipped
-- `python -m pytest -q`: 663 passed; 1 guarded live test skipped in 25.34 seconds
+- focused demo and skill tests: 12 passed in 14.32 seconds
+- `python -m pytest -q`: 675 passed; 1 guarded live test skipped in 40.18 seconds
 - `python -m ruff check .`: passed
-- all eight changed Python files pass `python -m ruff format --check`
-- `python -m mypy src`: passed across 90 source files
-- editable console installation succeeded; `faber proof --help` and `faber doctor` ran
-  successfully
-- replay generated and validated complete `PASS`, `BLOCK`, and `HUMAN_REVIEW`
-  bundles without a key or network; dry-run never emitted `PASS`
-- tampered artifacts, stale replay bindings, secret-like input, unsafe output reuse,
-  and unconfigured live mode all fail closed in focused tests
+- all 14 changed Python files pass `python -m ruff format --check`
+- `python -m mypy src`: passed across 91 source files
+- deterministic fixture regeneration and two skill validators passed
+- installed no-key demo completed in 3.8 seconds with ordinary `PASS`/`PASS` and Faber
+  Proof `BLOCK`/`PASS`; the exact last-turn counterexample is visible above the fold
 - `nix develop --command just check`: unavailable because Nix and `just` are not
   installed on HB3
 
@@ -287,6 +284,11 @@ The Python tools are installed in the ignored `.faber/dev-venv` workspace enviro
 - `src/faber/proof_context.py`, `proof_configuration.py`, `proof_product.py`, and
   `proof_reports.py`: bounded local Git collection, owner-approved configuration,
   end-to-end orchestration, portable artifact validation, and self-contained reports.
+- `src/faber/proof_demo.py` and `examples/build-week-proof/`: deterministic original
+  bad/repaired scheduler revisions, context-bound replay review, one-command comparison,
+  live capture/install gate, and judge-facing documentation.
+- `.agents/skills/faber-proof/`: repository-scoped proof, evidence-driven repair, and
+  stale-replay safety workflow with deterministic validation.
 - `src/faber/budgets.py`, `budget_ledger.py`, `market_policies.py`, and
   `tournaments.py`: provider-neutral budgets, reservations, settlement policy, and
   candidate selection.
@@ -299,22 +301,25 @@ The Python tools are installed in the ignored `.faber/dev-venv` workspace enviro
 
 ## Recommended next action
 
-Resume the implementation director at work item 0081:
+Resume the implementation director at the work item 0081 human gate:
 
 ```text
 Use $build-week-director and continue until the next human-only gate.
 ```
 
-Work item 0080 provides the no-key replay product path, deterministic local Git
-context, complete portable evidence bundles, self-contained reports, and the installed
-`faber proof` console entrypoint. The prior A1 evidence remains in:
+The no-key original demo is complete and green, but its committed planner fixtures are
+honestly labeled `fake-development`. Javier must make an API key available through the
+local environment without pasting it into chat or files. The director can then run the
+guarded capture, review the exact model IDs/bindings/verdicts, install live-reviewed
+bundles and sample reports, and complete 0081. Javier must also run `/feedback` and
+return the primary session ID before this task ends. The prior A1 evidence remains in:
 
 ```text
 codex/build-week/audits/A1-architecture-and-authority-report.md
 ```
 
-No new independent audit is eligible now. Implement the repository skill and original
-bad/fixed demonstration in 0081; A2 becomes eligible immediately afterward.
+No new independent audit is eligible while live provenance is pending. After the
+live-reviewed 0081 completion commit, A2 becomes eligible immediately.
 
 ## Invariants to preserve
 

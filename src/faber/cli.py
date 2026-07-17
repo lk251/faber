@@ -36,6 +36,7 @@ from faber.golden import (
     settle_demo,
     submit_demo_attempt,
 )
+from faber.proof_demo import ProofDemoError, run_proof_demo
 from faber.proof_product import ProofProductError, run_proof_product
 from faber.store import export_trajectory, init_local_store, list_records, store_summary
 from faber.trajectories import build_demo_trajectory
@@ -185,6 +186,20 @@ def build_parser() -> argparse.ArgumentParser:
         help="Print the machine-readable run summary instead of human output.",
     )
 
+    demo = subparsers.add_parser("demo", help="Run an original self-contained demonstration.")
+    demo_commands = demo.add_subparsers(dest="demo_command", required=True)
+    proof_demo = demo_commands.add_parser(
+        "proof",
+        help="Compare ordinary tests with Faber Proof on bad and repaired patches.",
+    )
+    proof_demo.add_argument("--mode", choices=("live", "replay"), default="replay")
+    proof_demo.add_argument("--out-dir", default=".faber/build-week-demo")
+    proof_demo.add_argument(
+        "--json",
+        action="store_true",
+        help="Print only the canonical machine-readable comparison.",
+    )
+
     proof = subparsers.add_parser(
         "proof",
         help="Turn a local candidate commit into a proof bundle and evidence report.",
@@ -286,6 +301,27 @@ def main(argv: Sequence[str] | None = None) -> int:
             except (OSError, webbrowser.Error):
                 pass
         return proof_result.exit_code
+
+    if args.command == "demo" and args.demo_command == "proof":
+        try:
+            demo_result = run_proof_demo(
+                repository_root=".",
+                mode=args.mode,
+                output_directory=args.out_dir,
+            )
+        except ProofDemoError as exc:
+            _print_cli_error(
+                f"proof demo failed: {exc}",
+                why="The required ordinary-test and Faber Proof contrast did not validate.",
+                next_step="Inspect the fixture, replay provenance, and named failed binding.",
+            )
+            return 2
+        if args.json:
+            print(canonical_json(demo_result.summary))
+        else:
+            for line in demo_result.human_lines():
+                print(line)
+        return 0
 
     if args.command == "init-local-store":
         store_path = init_local_store(args.path)

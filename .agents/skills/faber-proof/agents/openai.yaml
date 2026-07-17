@@ -1,0 +1,7 @@
+interface:
+  display_name: "Faber Proof"
+  short_description: "Prove and repair AI-generated patches"
+  default_prompt: "Use $faber-proof to prove the current patch and repair only authoritative failures."
+
+policy:
+  allow_implicit_invocation: true

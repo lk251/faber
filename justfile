@@ -34,4 +34,7 @@ demo:
 demo-funded-trajectory:
     python -m faber.cli demo-funded-trajectory --out-dir .faber/funded-demo
 
+demo-proof:
+    python -m faber.cli demo proof --mode replay --out-dir .faber/build-week-demo
+
 check: format-check lint typecheck test smoke
