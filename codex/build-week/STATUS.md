@@ -8,14 +8,15 @@ reports under `codex/build-week/audits/`.
 
 ## Current state
 
-- Phase: A1 architecture and authority is `green`; work item 0080 is next
+- Phase: work item 0080 is complete; work item 0081 is next
 - Canonical implementation branch: `build-week/faber-proof`
 - Branch starting commit: `c915523383dc58114bf748f7d7a64c1c398faaba`
 - Eligibility baseline: `64f775cfe2f622837bd9aaa40f6369aa22af1d80`, tagged by
   annotated `build-week-2026-baseline`
-- Eligible commit count: 28 at branch start; 32 including focused items 0076 through 0079
-- Current P0 item: `0080`
-- Current demo state: not implemented
+- Eligible commit count: 28 at branch start; 33 including focused items 0076 through 0080
+- Current P0 item: `0081`
+- Current demo state: the generic replay CLI and reports are runnable; the original
+  bad/fixed demonstration is not implemented until 0081
 - Primary implementation session: this director thread (0076 onward)
 - Primary `/feedback` session ID: **not yet recorded**
 - Final submission tag: **not yet created**
@@ -31,7 +32,7 @@ reports under `codex/build-week/audits/`.
 - [x] `0079` — Bounded proof-template catalog and safe proof executors
 - [x] `A1-P0-001` — Require complete catalog/plan/selection authority binding for
   every selected proof outcome; independently verified
-- [ ] `0080` — End-to-end `faber proof` CLI and evidence report
+- [x] `0080` — End-to-end `faber proof` CLI and evidence report
 - [ ] `0081` — Repository-scoped Codex skill and original winning demonstration
 - [ ] `0082` — Adversarial evals, packaging, clean-install path, and CI
 - [ ] `0083` — Submission materials, video package, final audit, and freeze
@@ -101,15 +102,15 @@ until all required audits are green and no P0 finding remains open.
 
 - [ ] `.agents/skills/faber-proof/SKILL.md` is detected by Codex
 - [ ] One skill invocation can run proof, repair from evidence, and rerun
-- [ ] Self-contained HTML report opens from disk
+- [x] Self-contained HTML report opens from disk
 - [ ] Report is understandable within five seconds
 - [ ] Clean judge path is no more than five documented commands
 - [ ] Supported platforms are explicit and tested or honestly qualified
 
 ### Reliability
 
-- [x] Full pytest suite passes after audit fix — 652 passed and 1 guarded live test
-  skipped
+- [x] Full pytest suite passes after work item 0080 — 663 passed and 1 guarded live
+  test skipped
 - [x] Ruff passes
 - [x] mypy passes
 - [x] Nix check passes when Nix is available, or unavailability is documented
@@ -151,7 +152,7 @@ until all required audits are green and no P0 finding remains open.
 | 0078 | Complete | `2a2eaa2` | 86 focused tests; 541 full tests; Ruff; mypy 82 files; SDK 2.45.0 mock | Primary | Strict GPT-5.6 live adapter; externally pinned replay; adversarial review green; 0079 next |
 | 0079 | Complete | `9314ddb` | 254 focused tests; 650 full tests, 1 guarded live skip; Ruff; focused format; mypy 86 files | Primary | Five bounded families; source/workspace/receipt authority binding; local isolation limits documented; A1 found `A1-P0-001` |
 | A1-P0-001 | Verified | `6d11e7a` | 2 audit regressions; 16-case binding matrix; 342 focused tests, 1 skip; 652 full tests, 1 skip; isolated import; Ruff; format; mypy | Primary fix; secondary verification | Selected outcomes require a complete executor-tagged proof binding; A1 is green |
-| 0080 | Not started | — | — | Primary | — |
+| 0080 | Complete | This focused commit (exact SHA recorded by the next ledger update) | 11 focused product tests; 343 adjacent proof/planner/executor tests, 1 guarded live skip; 663 full tests, 1 skip; Ruff; format; mypy 90 files; editable console install and `faber doctor` | Primary | Local Git context, owner configuration, externally pinned replay, atomic portable bundle, Markdown/HTML report, exit codes, and console entrypoint |
 | 0081 | Not started | — | — | Primary | A2 becomes eligible; run `/feedback` before primary thread ends |
 | 0082 | Not started | — | — | Secondary audits allowed | A3 and A4 become eligible |
 | 0083 | Not started | — | — | Submission audit | A5 becomes eligible |
@@ -176,22 +177,21 @@ Record exact values after each runnable milestone.
 
 ## Validation baseline
 
-HB3 independent A1 fix-verification baseline against `6d11e7a`:
+HB3 work item 0080 baseline:
 
 - Python 3.12.2; pytest 9.0.2; Ruff 0.15.10; mypy 2.1.0
-- exact A1 reproduction: 2 passed in 0.11 seconds
-- named A1 and adjacent negative paths: 17 passed in 0.23 seconds
-- independent complete-binding matrix: valid workflow `PASS`; all 16 tampered variants
-  returned `HUMAN_REVIEW`
-- focused proofs/planner/executor/verifier tests: 342 passed, 1 guarded live test
-  skipped in 3.12 seconds
-- `python -m pytest -q`: 652 passed, 1 guarded live test skipped in 13.31 seconds
+- focused Faber Proof product tests: 11 passed in 10.03 seconds
+- adjacent proof/planner/executor tests: 343 passed, 1 guarded live test skipped
+- `python -m pytest -q`: 663 passed, 1 guarded live test skipped in 25.34 seconds
 - `python -m ruff check .`: passed
-- `python -m ruff format --check src/faber/proofs.py tests/test_proofs.py`: passed
-- `python -m mypy src`: passed across 86 source files
-- isolated `python -I -S` import confirmed the core loads with no OpenAI SDK available
-- selected proof evidence requires the complete executor tag and binding; unbound
-  ordinary verifier runs remain accepted only by the separate mandatory-verifier scan
+- all eight changed Python files pass `python -m ruff format --check`
+- `python -m mypy src`: passed across 90 source files
+- editable console installation succeeded; `faber proof --help` and `faber doctor`
+  both ran successfully
+- replay mode generated and validated complete `PASS`, `BLOCK`, and `HUMAN_REVIEW`
+  bundles without a key or network; dry-run never emitted `PASS`
+- artifact tampering, stale replay bindings, secret-like inputs, unsafe output reuse,
+  and unconfigured live mode all failed closed in focused tests
 - `nix develop --command just check`: unavailable because Nix and `just` are not
   installed on HB3
 
@@ -199,21 +199,21 @@ HB3 independent A1 fix-verification baseline against `6d11e7a`:
 
 After each session, replace this section with current facts:
 
-- Last completed item or finding: A1 architecture/authority verification `green`;
-  `A1-P0-001` verified
-- Last implementation commit audited: `6d11e7a76a8b3f235a026c877d4bf6710bda4925`
-- Working tree state: expected clean after the focused A1 verification audit commit
-- Exact tests passed: 2 A1 regressions; 17 named A1 paths; 16 independent binding
-  tamper cases; 342 focused tests with 1 guarded live skip; 652 full pytest tests with
-  1 guarded live skip; isolated SDK-free import; Ruff; focused format; mypy across 86
-  source files
+- Last completed item or finding: work item 0080 Faber Proof CLI and evidence report
+- Last implementation commit audited: the focused 0080 commit recorded in the work-item
+  ledger by the next update
+- Working tree state: expected clean after the focused 0080 commit
+- Exact tests passed: 11 focused product tests; 343 adjacent proof/planner/executor
+  tests with 1 guarded live skip; 663 full pytest tests with 1 guarded live skip; Ruff;
+  changed-file format; mypy across 90 source files; editable console install; console
+  proof help and doctor smoke checks
 - Exact tests unavailable or failed: Nix/`just` unavailable on HB3
 - Bad-patch verdict: not implemented
 - Repaired-patch verdict: not implemented
 - Open audit P0/P1 findings: none
-- Next P0 item: 0080
+- Next P0 item: 0081
 - Next eligible independent audit: A2 after work item 0081
-- Human-only action needed: none; resume `$build-week-director` at 0080
+- Human-only action needed: none; resume `$build-week-director` at 0081
 - Should this session be submitted with `/feedback`: yes, after the primary 0077-0081
   vertical slice where practical; the ID is not yet recorded
 - Known risks: local executors do not provide OS, network, container, or descendant

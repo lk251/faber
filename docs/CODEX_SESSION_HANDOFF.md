@@ -50,15 +50,15 @@ private data as part of the Build Week queue.
 - Eligibility tag: annotated `build-week-2026-baseline`, verified locally at the
   baseline commit
 - Eligible history at the branch starting point: 28 commits with no pre-cutoff author
-  or committer dates; focused items 0076 through 0079 bring the branch total to 32
-- Last completed work item: `0079-proof-template-executors.md`
+  or committer dates; focused items 0076 through 0080 bring the branch total to 33
+- Last completed work item: `0080-faber-proof-cli-and-report.md`
 - Last independent audit: A1 architecture/authority against `6d11e7a`, verdict
   `green`; `A1-P0-001` is independently verified
 - Snapshot date: 2026-07-17
 - Primary-session designation: this director thread is the primary Build Week
   implementation session; its `/feedback` ID has not yet been recorded
-- Current local working-tree state: expected clean after the focused A1 verification
-  audit commit;
+- Current local working-tree state: expected clean after the focused 0080 implementation
+  commit;
   inspect it rather than relying on this file
 
 Confirm the checked-out state before changing anything:
@@ -245,23 +245,21 @@ The Build Week delta and README must distinguish it from the Faber Proof extensi
 
 ## Last recorded validation baseline
 
-The independent A1 fix-verification baseline against `6d11e7a` on HB3 uses Python
-3.12.2, pytest 9.0.2, Ruff 0.15.10, and mypy 2.1.0:
+The work item 0080 baseline on HB3 uses Python 3.12.2, pytest 9.0.2, Ruff 0.15.10,
+and mypy 2.1.0:
 
-- exact A1 regression: 2 passed in 0.11 seconds
-- named A1 and adjacent negative paths: 17 passed in 0.23 seconds
-- independent complete-binding matrix: valid workflow `PASS`; all 16 tampered variants
-  returned `HUMAN_REVIEW`
-- focused proofs/planner/executor/verifier tests: 342 passed; 1 guarded live test
-  skipped in 3.12 seconds
-- `python -m pytest -q`: 652 passed; 1 guarded live test skipped in 13.31 seconds
+- focused Faber Proof product tests: 11 passed in 10.03 seconds
+- adjacent proof/planner/executor tests: 343 passed; 1 guarded live test skipped
+- `python -m pytest -q`: 663 passed; 1 guarded live test skipped in 25.34 seconds
 - `python -m ruff check .`: passed
-- changed proof source and tests pass `python -m ruff format --check`
-- `python -m mypy src`: passed across 86 source files
-- isolated `python -I -S` import confirmed the core loads with no OpenAI SDK available
-- selected proof evidence now requires the complete executor tag and binding; unbound
-  ordinary verifier runs remain compatible only with the separate mandatory-verifier
-  scan
+- all eight changed Python files pass `python -m ruff format --check`
+- `python -m mypy src`: passed across 90 source files
+- editable console installation succeeded; `faber proof --help` and `faber doctor` ran
+  successfully
+- replay generated and validated complete `PASS`, `BLOCK`, and `HUMAN_REVIEW`
+  bundles without a key or network; dry-run never emitted `PASS`
+- tampered artifacts, stale replay bindings, secret-like input, unsafe output reuse,
+  and unconfigured live mode all fail closed in focused tests
 - `nix develop --command just check`: unavailable because Nix and `just` are not
   installed on HB3
 
@@ -286,6 +284,9 @@ The Python tools are installed in the ignored `.faber/dev-venv` workspace enviro
   exact JSON assertions, redacted counterexamples, and honest isolation limits.
 - `src/faber/proof_workflow.py`: preflight-all stable execution, workspace binding,
   evidence and receipt creation, raw-authority reuse prevention, and aggregate result.
+- `src/faber/proof_context.py`, `proof_configuration.py`, `proof_product.py`, and
+  `proof_reports.py`: bounded local Git collection, owner-approved configuration,
+  end-to-end orchestration, portable artifact validation, and self-contained reports.
 - `src/faber/budgets.py`, `budget_ledger.py`, `market_policies.py`, and
   `tournaments.py`: provider-neutral budgets, reservations, settlement policy, and
   candidate selection.
@@ -293,27 +294,27 @@ The Python tools are installed in the ignored `.faber/dev-venv` workspace enviro
   Build Week integration belongs here rather than in core.
 - `src/faber/adapters/github/funded_product_loop.py` and `src/faber/funded_demo.py`: the
   pre-existing local fake funded flow.
-- `src/faber/cli.py`: inspectable local workflows and validation commands.
+- `src/faber/cli.py`: inspectable local workflows plus the `faber proof` product CLI.
 - `tests/fixtures/golden/`: canonical cross-platform and trajectory snapshots.
 
 ## Recommended next action
 
-Resume the implementation director at work item 0080:
+Resume the implementation director at work item 0081:
 
 ```text
 Use $build-week-director and continue until the next human-only gate.
 ```
 
-The fresh A1 audit verified `A1-P0-001` against the exact clean fix commit. The two
-original relabeling reproductions and a 16-case adjacent binding-tamper matrix all fail
-closed, while a complete workflow-generated binding still passes. The durable evidence
-is in:
+Work item 0080 provides the no-key replay product path, deterministic local Git
+context, complete portable evidence bundles, self-contained reports, and the installed
+`faber proof` console entrypoint. The prior A1 evidence remains in:
 
 ```text
 codex/build-week/audits/A1-architecture-and-authority-report.md
 ```
 
-No new independent audit is eligible now. A2 becomes eligible after work item 0081.
+No new independent audit is eligible now. Implement the repository skill and original
+bad/fixed demonstration in 0081; A2 becomes eligible immediately afterward.
 
 ## Invariants to preserve
 

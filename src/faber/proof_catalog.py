@@ -579,8 +579,6 @@ def _object_projection_schema(
         "properties": {name: copy.deepcopy(properties[name]) for name in names},
         "required": list(names),
         "additionalProperties": False,
-        "minProperties": len(names),
-        "maxProperties": len(names),
     }
     if "description" in full:
         result["description"] = full["description"]

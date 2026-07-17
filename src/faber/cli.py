@@ -6,6 +6,7 @@ import argparse
 import json
 import sqlite3
 import sys
+import webbrowser
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -35,13 +36,14 @@ from faber.golden import (
     settle_demo,
     submit_demo_attempt,
 )
+from faber.proof_product import ProofProductError, run_proof_product
 from faber.store import export_trajectory, init_local_store, list_records, store_summary
 from faber.trajectories import build_demo_trajectory
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="python -m faber.cli",
+        prog="faber",
         description="Local/self-hosted Faber CLI; this build has no hosted commands.",
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -183,6 +185,43 @@ def build_parser() -> argparse.ArgumentParser:
         help="Print the machine-readable run summary instead of human output.",
     )
 
+    proof = subparsers.add_parser(
+        "proof",
+        help="Turn a local candidate commit into a proof bundle and evidence report.",
+    )
+    proof.add_argument("--repo", default=".", help="Exact local Git repository root.")
+    proof.add_argument("--task", required=True, help="Validated task-contract JSON path.")
+    proof.add_argument(
+        "--catalog",
+        required=True,
+        help="Owner-approved proof configuration and executable catalog JSON path.",
+    )
+    proof.add_argument("--base", required=True, help="Base revision resolved locally by Git.")
+    proof.add_argument(
+        "--candidate", required=True, help="Candidate revision resolved locally by Git."
+    )
+    proof.add_argument("--mode", choices=("live", "replay"), required=True)
+    proof.add_argument("--replay", help="Approved GPT-5.6 replay bundle for replay mode.")
+    proof.add_argument("--model", default="gpt-5.6", help="Requested planner model identifier.")
+    proof.add_argument("--critic-count", type=int, choices=(0, 1), default=0)
+    proof.add_argument("--max-diff-bytes", type=int, default=262_144)
+    proof.add_argument("--out-dir", default=".faber/proof")
+    proof.add_argument(
+        "--json",
+        action="store_true",
+        help="Print only the canonical machine-readable run summary.",
+    )
+    proof.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Validate context and planning without executing proof obligations.",
+    )
+    proof.add_argument(
+        "--open-report",
+        action="store_true",
+        help="Ask the standard browser to open the generated local report.",
+    )
+
     return parser
 
 
@@ -216,6 +255,37 @@ def main(argv: Sequence[str] | None = None) -> int:
         for line in doctor_lines():
             print(line)
         return 0
+
+    if args.command == "proof":
+        try:
+            proof_result = run_proof_product(
+                repository=args.repo,
+                task_path=args.task,
+                catalog_path=args.catalog,
+                base_revision=args.base,
+                candidate_revision=args.candidate,
+                mode=args.mode,
+                replay_path=args.replay,
+                model=args.model,
+                critic_count=args.critic_count,
+                max_diff_bytes=args.max_diff_bytes,
+                output_directory=args.out_dir,
+                dry_run=args.dry_run,
+            )
+        except ProofProductError as exc:
+            _print_cli_error(exc.failure, why=exc.why, next_step=exc.next_step)
+            return 2
+        if args.json:
+            print(canonical_json(proof_result.summary))
+        else:
+            for line in proof_result.human_lines():
+                print(line)
+        if args.open_report:
+            try:
+                webbrowser.open(proof_result.report_path.resolve().as_uri(), new=2)
+            except (OSError, webbrowser.Error):
+                pass
+        return proof_result.exit_code
 
     if args.command == "init-local-store":
         store_path = init_local_store(args.path)
