@@ -40,7 +40,7 @@ Use $build-week-auditor and run the next eligible independent audit.
 ## Current state
 
 - Implementation branch to audit: `build-week/faber-proof`
-- Eligible audit: none until 0079 is complete
+- Eligible audit: `A1` architecture and authority against the focused 0079 commit
 - Open P0 findings: none recorded
 - Open P1 findings: none recorded
 - Last audit commit: —

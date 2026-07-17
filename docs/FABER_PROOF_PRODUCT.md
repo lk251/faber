@@ -194,6 +194,44 @@ Invokes an existing Faber artifact validator against an approved artifact type.
 The first release does not need a universal testing language. It needs enough
 expressiveness to prove the original demonstration and show a credible extension path.
 
+## Execution authority and local isolation
+
+The executable proof catalog is repository-owner policy, not planner output. Each
+entry binds an immutable ID and version to an exact registered verifier, family,
+working directory, environment, timeout, output limit, approved paths or targets, and
+trusted source digests. Before any launch, Faber verifies the complete catalog and
+registry commitments, every parameter schema, the trusted-source byte budget, and a
+bounded digest of the executable workspace. It rechecks that workspace around each
+obligation and fails closed if the visible state changes.
+
+The initial executors deliberately use narrow launch paths:
+
+- `existing-command` resolves an exact `VerifierSpec` and runner-policy digest, with
+  only catalog-owned environment values;
+- `pytest-node` uses isolated Python, a fixed Faber-owned temporary config, disabled
+  ambient plugins and `conftest.py`, a fresh external bytecode cache, and only pinned
+  node sources;
+- `python-call` uses a fixed Faber helper, exact pinned source bytes, guarded
+  repository-local imports, a closed assertion and exception vocabulary, and bounded
+  typed JSON;
+- file and artifact families resolve normalized in-root paths without following
+  symlinks and persist bounded observations rather than unbounded content.
+
+Child input, output, errors, and drain completion are bounded. Timeouts, truncation,
+partial capture, missing evidence, source changes, and operational errors cannot create
+passing authority. Each workflow run also places the same canonical proof-authority
+binding in run metadata and receipted result metrics. That commitment covers the task,
+attempt, plan, selection, catalog entry and catalog, capability, execution policy,
+workspace, verifier identity, and raw verifier authority, preventing an old receipt
+from being relabeled for a different proof.
+
+This is still development-local execution, not a security sandbox. It does not provide
+operating-system, container, network, or descendant-process isolation. Snapshot checks
+detect ordinary workspace mutation but cannot eliminate every concurrent
+swap-and-restore race. The local path is therefore for an owner-approved workspace;
+production execution needs an immutable checkout plus an isolated process, VM, or
+container boundary with enforceable network and process-tree policy.
+
 ## Model roles
 
 ### Planner

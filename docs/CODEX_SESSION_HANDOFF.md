@@ -50,12 +50,13 @@ private data as part of the Build Week queue.
 - Eligibility tag: annotated `build-week-2026-baseline`, verified locally at the
   baseline commit
 - Eligible history at the branch starting point: 28 commits with no pre-cutoff author
-  or committer dates; focused items 0076 through 0078 bring the branch total to 31
-- Active work item after the GPT-5.6 planner commit: `0079-proof-template-executors.md`
+  or committer dates; focused items 0076 through 0079 bring the branch total to 32
+- Last completed work item: `0079-proof-template-executors.md`; A1 is the next
+  fresh-context gate before `0080-faber-proof-cli-and-report.md`
 - Snapshot date: 2026-07-17
 - Primary-session designation: this director thread is the primary Build Week
   implementation session; its `/feedback` ID has not yet been recorded
-- Current local working-tree state: expected clean after the focused 0078 commit;
+- Current local working-tree state: expected clean after the focused 0079 commit;
   inspect it rather than relying on this file
 
 Confirm the checked-out state before changing anything:
@@ -242,22 +243,21 @@ The Build Week delta and README must distinguish it from the Faber Proof extensi
 
 ## Last recorded validation baseline
 
-The completed work item 0078 baseline on HB3 uses Python 3.12.2, pytest 9.0.2,
+The completed work item 0079 baseline on HB3 uses Python 3.12.2, pytest 9.0.2,
 Ruff 0.15.10, and mypy 2.1.0:
 
-- focused OpenAI planner and replay tests: 86 passed; 1 guarded live test skipped
-- `python -m pytest -q`: 541 passed; 1 guarded live test skipped in 12.14 seconds
+- focused proof/executor/runner tests: 254 passed in 2.91 seconds
+- `python -m pytest -q`: 650 passed; 1 guarded live test skipped in 12.94 seconds
 - `python -m ruff check .`: passed
-- focused 0078 files pass `python -m ruff format --check`; a repository-wide format
-  check reports 46 pre-existing files outside the focused item
-- `python -m mypy src`: passed across 82 source files
-- OpenAI SDK 2.45.0 accepted the exact Responses API call shape through a mock
-  transport; replay and the base adapter import without the optional SDK
+- all 0079 files pass `python -m ruff format --check`; a repository-wide format check
+  reports 47 files outside the focused item
+- `python -m mypy src`: passed across 86 source files
+- adversarial executor coverage verifies path, source, bytecode, environment, process
+  capture, workspace, run-reuse, stale-plan, and receipt-binding failures close safely
 - `nix develop --command just check`: unavailable because Nix and `just` are not
   installed on HB3
 
-The Python tools are installed in the Windows user site; Codex had to run outside its
-workspace sandbox to read them, while an ordinary HB3 shell can use them normally.
+The Python tools are installed in the ignored `.faber/dev-venv` workspace environment.
 
 ## Current code map
 
@@ -268,9 +268,16 @@ workspace sandbox to read them, while an ordinary HB3 shell can use them normall
 - `src/faber/verifiers.py`, `reviews.py`, `calibration.py`, and `probabilistic.py`: hard
   authority, human review, calibration, and advisory scoring.
 - `src/faber/proofs.py`: provider-neutral proof records, bounded advisory plan
-  validation, authoritative evidence binding, and deterministic fail-closed policy.
+  validation, receipted proof-authority binding, and deterministic fail-closed policy.
 - `src/faber/proof_planning.py` and `src/faber/adapters/openai/`: provider-neutral
   planning records plus the guarded GPT-5.6 live and externally pinned replay paths.
+- `src/faber/proof_catalog.py`: immutable typed catalog entries, closed parameter
+  schemas, owner-only operational views, and stable capability/source commitments.
+- `src/faber/proof_executors.py` and `src/faber/proof_runtime_helper.py`: five bounded
+  proof families, fixed child-process paths, pinned source loading, bounded capture,
+  exact JSON assertions, redacted counterexamples, and honest isolation limits.
+- `src/faber/proof_workflow.py`: preflight-all stable execution, workspace binding,
+  evidence and receipt creation, raw-authority reuse prevention, and aggregate result.
 - `src/faber/budgets.py`, `budget_ledger.py`, `market_policies.py`, and
   `tournaments.py`: provider-neutral budgets, reservations, settlement policy, and
   candidate selection.
@@ -283,23 +290,23 @@ workspace sandbox to read them, while an ordinary HB3 shell can use them normall
 
 ## Recommended next action
 
-Continue with work item 0079 through the director skill:
+Run the newly eligible A1 architecture and authority audit in a fresh Codex context:
 
 ```text
-Use $build-week-director and continue until the next human-only gate.
+Use $build-week-auditor and run the next eligible independent audit.
 ```
 
 Fallback when the skill has not yet been discovered:
 
 ```text
-Read codex/BUILD_WEEK_START_HERE.md and execute the next incomplete Build Week work item.
+Read codex/build-week/AUDIT_QUEUE.md and run A1 against the focused 0079 commit.
 ```
 
-Work item 0078 added the optional direct GPT-5.6 Responses API adapter, strict
-catalog-derived schemas, bounded redaction, shared live/replay validation, externally
-pinned replay bundles, stable provider errors, and adversarial coverage. Work item 0079
-is next and must turn data-only selections into authoritative evidence exclusively
-through catalog-owned capabilities and safe executors.
+Work item 0079 added the typed catalog, five bounded proof families, preflight-all
+workflow, exact source and workspace commitments, bounded process capture, concrete
+counterexamples, authoritative run/receipt creation, and a receipted commitment to the
+complete proof context. A1 must independently inspect those architecture and authority
+boundaries before work item 0080 begins.
 
 ## Invariants to preserve
 

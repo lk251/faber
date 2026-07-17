@@ -1,4 +1,7 @@
+import io
 import sys
+import threading
+import time
 from pathlib import Path
 
 import pytest
@@ -8,7 +11,7 @@ from faber.contracts import TaskContract
 from faber.digests import sha256_digest
 from faber.errors import VerifierError
 from faber.receipts import VerificationReceipt
-from faber.runner.local import LocalVerifierRunner
+from faber.runner.local import LocalVerifierRunner, RunnerPolicy
 from faber.verifiers import VerifierRegistry, VerifierSpec
 
 
@@ -61,6 +64,37 @@ def test_verifier_spec_digest_is_stable() -> None:
     assert left.digest() == right.digest()
 
 
+def test_verifier_registry_digest_binds_exact_specs_in_stable_order() -> None:
+    first = VerifierSpec(
+        id="verifier-spec_first",
+        created_at="2026-01-01T00:00:00Z",
+        verifier_id="verifier.first",
+        name="First verifier",
+        version="1",
+        description="First deterministic check.",
+        command_template=[sys.executable, "-c", "print('first')"],
+    )
+    second = VerifierSpec(
+        id="verifier-spec_second",
+        created_at="2026-01-01T00:00:00Z",
+        verifier_id="verifier.second",
+        name="Second verifier",
+        version="1",
+        description="Second deterministic check.",
+        command_template=[sys.executable, "-c", "print('second')"],
+    )
+    left = VerifierRegistry()
+    right = VerifierRegistry()
+    left.register(second)
+    left.register(first)
+    right.register(first)
+    right.register(second)
+
+    assert left.snapshot() == right.snapshot()
+    assert left.digest() == right.digest()
+    assert left.digest() != VerifierRegistry().digest()
+
+
 def test_local_verifier_success_captures_metrics_and_digests(tmp_path: Path) -> None:
     registry = VerifierRegistry()
     spec = _spec([sys.executable, "-c", 'print(\'{"metrics":{"checks":1}}\')'])
@@ -101,6 +135,154 @@ def test_local_verifier_timeout_records_failure(tmp_path: Path) -> None:
     assert result.verifier_run.passed is False
     assert result.timed_out is True
     assert "timed out" in result.verifier_run.failure_reasons[0]
+
+
+@pytest.mark.parametrize("stream_name", ["stdout", "stderr"])
+def test_local_verifier_output_overflow_is_bounded_and_cannot_pass(
+    tmp_path: Path,
+    stream_name: str,
+) -> None:
+    registry = VerifierRegistry()
+    command = (
+        f"import sys; sys.{stream_name}.buffer.write(b'x' * 4096); sys.{stream_name}.buffer.flush()"
+    )
+    spec = _spec([sys.executable, "-c", command])
+    registry.register(spec)
+    runner = LocalVerifierRunner(
+        registry,
+        RunnerPolicy(max_capture_bytes=64),
+    )
+
+    result = runner.run(spec.verifier_id, working_directory=tmp_path)
+
+    assert result.status == "error"
+    assert result.error_code == "output_limit"
+    assert result.output_limit_exceeded is True
+    assert result.verifier_run.passed is False
+    assert "output_limit" in result.verifier_run.failure_reasons
+    assert result.verifier_run.metrics[f"{stream_name}_bytes"] == 64
+    assert result.verifier_run.metrics[f"{stream_name}_observed_bytes"] == 4096
+    assert getattr(result, f"{stream_name}_truncated") is True
+    assert getattr(result, f"{stream_name}_overflow") is True
+
+
+def test_local_verifier_closes_inherited_pipe_without_hanging(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import faber.runner.local as local_runner_module
+
+    grace_seconds = 0.02
+
+    class BlockingStream:
+        def __init__(self) -> None:
+            self.entered = threading.Event()
+            self.released = threading.Event()
+            self.finished = threading.Event()
+
+        def read(self, _size: int) -> bytes:
+            self.entered.set()
+            self.released.wait()
+            self.finished.set()
+            return b""
+
+        def close(self) -> None:
+            self.released.set()
+
+    blocking_stdout = BlockingStream()
+    popen_options: dict[str, object] = {}
+
+    class ExitedProcessWithInheritedPipe:
+        def __init__(self, _argv: list[str], **kwargs: object) -> None:
+            popen_options.update(kwargs)
+            self.stdout = blocking_stdout
+            self.stderr = io.BytesIO(b"")
+            self.returncode = 0
+
+        def wait(self, timeout: float | None = None) -> int:
+            assert timeout is not None
+            return self.returncode
+
+        def kill(self) -> None:
+            raise AssertionError("an already-exited verifier must not be killed")
+
+    monkeypatch.setattr(local_runner_module, "PIPE_DRAIN_GRACE_SECONDS", grace_seconds)
+    monkeypatch.setattr(local_runner_module.subprocess, "Popen", ExitedProcessWithInheritedPipe)
+    registry = VerifierRegistry()
+    spec = _spec([sys.executable, "-c", "print('ok')"])
+    registry.register(spec)
+
+    started = time.perf_counter()
+    result = LocalVerifierRunner(registry).run(
+        spec.verifier_id,
+        working_directory=tmp_path,
+    )
+    elapsed = time.perf_counter() - started
+
+    assert blocking_stdout.entered.is_set()
+    assert blocking_stdout.finished.wait(timeout=0.5)
+    assert elapsed < grace_seconds + 0.25
+    assert popen_options["shell"] is False
+    assert result.status == "error"
+    assert result.error_code == "output_capture_incomplete"
+    assert result.stdout_capture_incomplete is True
+    assert result.stdout_truncated is True
+    assert result.stdout_overflow is False
+    assert result.verifier_run.passed is False
+    assert "output_capture_incomplete" in result.verifier_run.failure_reasons
+
+
+def test_local_verifier_pipe_read_error_is_incomplete_and_cannot_pass(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import faber.runner.local as local_runner_module
+
+    class FailingStream:
+        def __init__(self) -> None:
+            self.reads = 0
+
+        def read(self, _size: int) -> bytes:
+            self.reads += 1
+            if self.reads == 1:
+                return b"partial"
+            raise OSError("simulated pipe read failure")
+
+        def close(self) -> None:
+            return None
+
+    failing_stdout = FailingStream()
+
+    class ExitedProcessWithBrokenPipe:
+        def __init__(self, _argv: list[str], **_kwargs: object) -> None:
+            self.stdout = failing_stdout
+            self.stderr = io.BytesIO(b"")
+            self.returncode = 0
+
+        def wait(self, timeout: float | None = None) -> int:
+            assert timeout is not None
+            return self.returncode
+
+        def kill(self) -> None:
+            raise AssertionError("an already-exited verifier must not be killed")
+
+    monkeypatch.setattr(local_runner_module.subprocess, "Popen", ExitedProcessWithBrokenPipe)
+    registry = VerifierRegistry()
+    spec = _spec([sys.executable, "-c", "print('ok')"])
+    registry.register(spec)
+
+    result = LocalVerifierRunner(registry).run(
+        spec.verifier_id,
+        working_directory=tmp_path,
+    )
+
+    assert failing_stdout.reads == 2
+    assert result.status == "error"
+    assert result.error_code == "output_capture_incomplete"
+    assert result.stdout_capture_incomplete is True
+    assert result.stdout_truncated is True
+    assert result.verifier_run.passed is False
+    assert "output_capture_incomplete" in result.verifier_run.failure_reasons
 
 
 def test_unregistered_verifier_is_rejected(tmp_path: Path) -> None:

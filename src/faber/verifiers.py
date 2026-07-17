@@ -93,6 +93,19 @@ class VerifierRegistry:
     def list_specs(self) -> list[VerifierSpec]:
         return [self._specs[key] for key in sorted(self._specs)]
 
+    def snapshot(self) -> dict[str, object]:
+        """Return the canonical owner-approved registry state used by a workflow."""
+
+        return {
+            "schema": "faber.verifier_registry_snapshot.v1",
+            "specs": [spec.to_dict() for spec in self.list_specs()],
+        }
+
+    def digest(self) -> str:
+        """Bind execution policy to the exact registered verifier specifications."""
+
+        return sha256_digest(self.snapshot())
+
 
 @dataclass(frozen=True)
 class VerifierRun:

@@ -33,6 +33,7 @@ ADVISORY_AUTHORITY = "advisory"
 MAX_JSON_DEPTH = 16
 MAX_JSON_BYTES = 16_384
 MAX_JSON_ITEMS = 256
+PROOF_AUTHORITY_BINDING_SCHEMA = "faber.proof_authority_binding.v1"
 
 _EXECUTABLE_FIELD_NAMES = {
     "code",
@@ -51,6 +52,61 @@ _EXECUTABLE_FIELD_NAMES = {
 
 class _FrozenList(tuple[object, ...]):
     """Internal immutable representation of a validated JSON list."""
+
+
+def proof_authority_binding_digest(
+    *,
+    task_contract_digest: object,
+    attempt_digest: object,
+    proof_plan_digest: object,
+    selection_digest: object,
+    catalog_digest: object,
+    catalog_entry_id: object,
+    catalog_entry_version: object,
+    family: object,
+    capability_digest: object,
+    execution_policy_digest: object,
+    workspace_digest: object,
+    verifier_id: object,
+    verifier_version: object,
+    raw_verifier_run_digest: object,
+    raw_verifier_run_id: object,
+) -> str:
+    """Commit receipted result data to its exact proof authority context."""
+
+    digest_fields = {
+        "task_contract_digest": task_contract_digest,
+        "attempt_digest": attempt_digest,
+        "proof_plan_digest": proof_plan_digest,
+        "selection_digest": selection_digest,
+        "catalog_digest": catalog_digest,
+        "capability_digest": capability_digest,
+        "execution_policy_digest": execution_policy_digest,
+        "workspace_digest": workspace_digest,
+        "raw_verifier_run_digest": raw_verifier_run_digest,
+    }
+    validated_digest_fields = {
+        field_name: require_digest(value, field_name) for field_name, value in digest_fields.items()
+    }
+    text_fields = {
+        "catalog_entry_id": catalog_entry_id,
+        "catalog_entry_version": catalog_entry_version,
+        "family": family,
+        "verifier_id": verifier_id,
+        "verifier_version": verifier_version,
+        "raw_verifier_run_id": raw_verifier_run_id,
+    }
+    validated_text_fields = {
+        field_name: require_non_empty_string(value, field_name)
+        for field_name, value in text_fields.items()
+    }
+    return sha256_digest(
+        {
+            "schema": PROOF_AUTHORITY_BINDING_SCHEMA,
+            **validated_digest_fields,
+            **validated_text_fields,
+        }
+    )
 
 
 def _record_payload(
@@ -1242,9 +1298,85 @@ def _receipt_binds_run_and_context(
     )
 
 
+_EXECUTOR_METADATA_FIELDS = frozenset(
+    {
+        "family",
+        "capability_digest",
+        "catalog_entry_id",
+        "catalog_entry_version",
+        "catalog_digest",
+        "execution_policy_digest",
+        "workspace_digest",
+    }
+)
+
+
+def _verifier_run_binds_plan(
+    run: VerifierRun,
+    plan: ProofPlan,
+    *,
+    expected_selection: ProofTemplateSelection | None = None,
+) -> bool:
+    metadata = dict(run.metadata)
+    executor_tagged = bool(_EXECUTOR_METADATA_FIELDS & set(metadata))
+    advisory_binding_tagged = "proof_plan_digest" in metadata or "selection_digest" in metadata
+    if not executor_tagged and not advisory_binding_tagged:
+        return True
+
+    selection_digest = metadata.get("selection_digest")
+    if not isinstance(selection_digest, str):
+        return False
+    selections = {selection.digest(): selection for selection in plan.selections}
+    selection = selections.get(selection_digest)
+    if selection is None:
+        return False
+    if expected_selection is not None and selection_digest != expected_selection.digest():
+        return False
+    if metadata.get("proof_plan_digest") != plan.digest():
+        return False
+    if not executor_tagged:
+        return True
+
+    raw_run_digest = metadata.get("raw_verifier_run_digest")
+    raw_run_id = metadata.get("raw_verifier_run_id")
+    authority_binding = metadata.get("proof_authority_binding_digest")
+    metrics_binding = run.metrics.get("proof_authority_binding_digest")
+    try:
+        expected_binding = proof_authority_binding_digest(
+            task_contract_digest=plan.task_contract_digest,
+            attempt_digest=plan.attempt_digest,
+            proof_plan_digest=plan.digest(),
+            selection_digest=selection_digest,
+            catalog_digest=plan.proof_catalog_digest,
+            catalog_entry_id=selection.template_id,
+            catalog_entry_version=selection.template_version,
+            family=metadata.get("family"),
+            capability_digest=metadata.get("capability_digest"),
+            execution_policy_digest=metadata.get("execution_policy_digest"),
+            workspace_digest=metadata.get("workspace_digest"),
+            verifier_id=run.verifier_id,
+            verifier_version=run.version,
+            raw_verifier_run_digest=raw_run_digest,
+            raw_verifier_run_id=raw_run_id,
+        )
+    except ValidationError:
+        return False
+    return (
+        metadata.get("catalog_entry_id") == selection.template_id
+        and metadata.get("catalog_entry_version") == selection.template_version
+        and metadata.get("catalog_digest") == plan.proof_catalog_digest
+        and metadata.get("attempt_digest") == plan.attempt_digest
+        and metadata.get("task_contract_digest") == plan.task_contract_digest
+        and authority_binding == expected_binding
+        and metrics_binding == expected_binding
+    )
+
+
 def _resolve_authoritative_outcome(
     proof: ProofEvidence,
     *,
+    plan: ProofPlan,
+    selection: ProofTemplateSelection,
     context_bound: bool,
     task_contract: TaskContract | None,
     attempt: Attempt | None,
@@ -1252,6 +1384,8 @@ def _resolve_authoritative_outcome(
     runs: Mapping[str, VerifierRun | VerificationReceipt],
     receipts: Mapping[str, VerifierRun | VerificationReceipt],
     reasons: set[str],
+    consumed_run_authorities: set[str],
+    consumed_receipt_authorities: set[str],
 ) -> tuple[str | None, str | None]:
     if proof.verifier_run_digest is None or proof.verification_receipt_digest is None:
         if proof.status == "missing":
@@ -1274,9 +1408,49 @@ def _resolve_authoritative_outcome(
     if run.verifier_id != proof.verifier_id or run.version != proof.verifier_version:
         reasons.add("verifier_run_binding_mismatch")
         return None, None
+    if not _verifier_run_binds_plan(
+        run,
+        plan,
+        expected_selection=selection,
+    ):
+        reasons.add("verifier_run_binding_mismatch")
+        return None, None
+    run_metadata = dict(run.metadata)
     if not _receipt_binds_run_and_context(receipt, run, task_contract, attempt):
         reasons.add("verification_receipt_binding_mismatch")
         return None, None
+    raw_run_digest = run_metadata.get("raw_verifier_run_digest")
+    if raw_run_digest is not None:
+        try:
+            raw_run_digest = require_digest(
+                raw_run_digest,
+                "raw_verifier_run_digest",
+            )
+        except ValidationError:
+            reasons.add("verifier_run_binding_mismatch")
+            return None, None
+    raw_run_id = run_metadata.get("raw_verifier_run_id", run.id)
+    if not isinstance(raw_run_id, str) or not raw_run_id.strip():
+        reasons.add("verifier_run_binding_mismatch")
+        return None, None
+    run_authorities = {
+        f"digest:{run.digest()}",
+        f"id:{run.id}",
+        f"raw:{raw_run_digest or run.digest()}",
+        f"raw-id:{raw_run_id}",
+    }
+    receipt_authorities = {
+        f"digest:{receipt.digest()}",
+        f"id:{receipt.id}",
+    }
+    if (
+        run_authorities & consumed_run_authorities
+        or receipt_authorities & consumed_receipt_authorities
+    ):
+        reasons.add("authoritative_record_reused")
+        return None, None
+    consumed_run_authorities.update(run_authorities)
+    consumed_receipt_authorities.update(receipt_authorities)
     actual = "passed" if run.passed else "failed"
     if proof.status != actual:
         reasons.add("evidence_status_mismatch")
@@ -1376,6 +1550,8 @@ def decide_proof(
     authoritative_receipts: set[str] = set()
     authoritative_outcomes = 0
     verifier_outcomes: dict[str, list[str]] = {}
+    consumed_run_authorities: set[str] = set()
+    consumed_receipt_authorities: set[str] = set()
 
     for selection_digest, selection in selection_by_digest.items():
         selection_counts[selection.claim_id] = selection_counts.get(selection.claim_id, 0) + 1
@@ -1391,6 +1567,8 @@ def decide_proof(
         for proof in candidates:
             outcome, receipt_digest = _resolve_authoritative_outcome(
                 proof,
+                plan=plan,
+                selection=selection,
                 context_bound=context_bound,
                 task_contract=task_contract,
                 attempt=attempt,
@@ -1398,6 +1576,8 @@ def decide_proof(
                 runs=run_records,
                 receipts=receipt_records,
                 reasons=reasons,
+                consumed_run_authorities=consumed_run_authorities,
+                consumed_receipt_authorities=consumed_receipt_authorities,
             )
             if outcome is None:
                 missing_claim_ids.add(selection.claim_id)
@@ -1450,6 +1630,9 @@ def decide_proof(
                 if not isinstance(run_record, VerifierRun):
                     continue
                 if run_record.verifier_id != verifier_id:
+                    continue
+                if not _verifier_run_binds_plan(run_record, plan):
+                    reasons.add("verifier_run_binding_mismatch")
                     continue
                 for receipt_record in receipt_records.values():
                     if not isinstance(receipt_record, VerificationReceipt):
