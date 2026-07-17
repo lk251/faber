@@ -983,6 +983,75 @@ def test_evidence_from_another_plan_cannot_pass() -> None:
     assert decision.verdict == "human_review"
 
 
+@pytest.mark.parametrize("relabel_mode", ["unbound", "advisory-metadata-only"])
+def test_unbound_receipted_run_cannot_be_relabelled_as_another_selected_proof(
+    relabel_mode: str,
+) -> None:
+    contract, attempt, first_plan, first_policy, run, receipt, first_evidence = _passing_fixture()
+    first_decision = _decide(
+        first_plan,
+        [first_evidence],
+        first_policy,
+        contract,
+        attempt,
+        [run],
+        [receipt],
+    )
+    assert first_decision.verdict == "pass"
+    assert "proof_plan_digest" not in run.metadata
+    assert "selection_digest" not in run.metadata
+
+    unrelated_claim = _claim("claim.unrelated-boundary")
+    unrelated_selection = _selection(
+        unrelated_claim.id,
+        template_id="template.unrelated-boundary",
+    )
+    unrelated_plan = ProofPlan.from_dict(
+        _plan(
+            contract,
+            attempt,
+            claims=[unrelated_claim],
+            selections=[unrelated_selection],
+            mandatory_claim_ids=[unrelated_claim.id],
+            mandatory_template_ids=[unrelated_selection.template_id],
+        ).to_dict()
+    )
+    unrelated_policy = _policy(
+        mandatory_claim_ids=[unrelated_claim.id],
+        mandatory_template_ids=[unrelated_selection.template_id],
+    )
+    relabelled_run = run
+    if relabel_mode == "advisory-metadata-only":
+        relabelled_run = replace(
+            run,
+            metadata={
+                "proof_plan_digest": unrelated_plan.digest(),
+                "selection_digest": unrelated_selection.digest(),
+            },
+        )
+    relabelled_evidence = ProofEvidence.from_dict(
+        _evidence(
+            unrelated_plan,
+            unrelated_selection,
+            relabelled_run,
+            receipt,
+        ).to_dict()
+    )
+
+    decision = _decide(
+        unrelated_plan,
+        [relabelled_evidence],
+        unrelated_policy,
+        contract,
+        attempt,
+        [relabelled_run],
+        [receipt],
+    )
+
+    assert decision.verdict == "human_review"
+    assert "verifier_run_binding_mismatch" in decision.reason_codes
+
+
 def test_duplicate_identical_evidence_cannot_pass() -> None:
     contract, attempt, plan, policy, run, receipt, evidence = _passing_fixture()
 

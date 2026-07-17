@@ -12,10 +12,12 @@ Use $build-week-auditor and run the next eligible independent audit.
 
 ## Queue
 
-- [ ] `A1` — Architecture and authority audit
+- [x] `A1` — Architecture and authority audit
   - Eligible after: work item 0079 complete
   - Prompt: `codex/audits/A1-architecture-and-authority.md`
   - Report: `codex/build-week/audits/A1-architecture-and-authority-report.md`
+  - Result: `not-green` against `9314ddb51962aa194989e97a619a8dbedc19f04a`;
+    one P0 finding requires a director fix and fresh A1 verification
 
 - [ ] `A2` — Adversarial security audit
   - Eligible after: work item 0081 complete
@@ -40,16 +42,18 @@ Use $build-week-auditor and run the next eligible independent audit.
 ## Current state
 
 - Implementation branch to audit: `build-week/faber-proof`
-- Eligible audit: `A1` architecture and authority against the focused 0079 commit
-- Open P0 findings: none recorded
+- Eligible audit: fresh `A1` fix verification after the director resolves `A1-P0-001`;
+  no new audit is currently eligible
+- Open P0 findings: 1 (`A1-P0-001`)
 - Open P1 findings: none recorded
-- Last audit commit: —
-- Last implementation commit audited: —
+- Last audit commit: this focused A1 audit commit; exact SHA is available from `git log`
+- Last implementation commit audited: `9314ddb51962aa194989e97a619a8dbedc19f04a`
 
 ## Finding ledger
 
 | ID | Audit | Severity | Status | Summary | Owner | Fix commit | Verification |
 |---|---|---|---|---|---|---|---|
+| `A1-P0-001` | `A1` | P0 | open | Unbound or advisory-metadata-only receipted runs can be relabeled as unrelated selected proof evidence and produce `PASS` | `$build-week-director` | — | `python -m pytest -q tests/test_proofs.py::test_unbound_receipted_run_cannot_be_relabelled_as_another_selected_proof` |
 
 Use finding IDs such as `A1-P0-001`. Status is one of:
 

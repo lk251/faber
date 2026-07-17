@@ -8,20 +8,22 @@ reports under `codex/build-week/audits/`.
 
 ## Current state
 
-- Phase: bounded proof executors complete; fresh A1 architecture/authority audit is next
+- Phase: A1 architecture/authority audit is `not-green`; fix `A1-P0-001` before 0080
 - Canonical implementation branch: `build-week/faber-proof`
 - Branch starting commit: `c915523383dc58114bf748f7d7a64c1c398faaba`
 - Eligibility baseline: `64f775cfe2f622837bd9aaa40f6369aa22af1d80`, tagged by
   annotated `build-week-2026-baseline`
 - Eligible commit count: 28 at branch start; 32 including focused items 0076 through 0079
-- Current P0 item: `0080`, gated on the fresh A1 audit
+- Current P0 item: `A1-P0-001`, then fresh A1 verification before `0080`
 - Current demo state: not implemented
 - Primary implementation session: this director thread (0076 onward)
 - Primary `/feedback` session ID: **not yet recorded**
 - Final submission tag: **not yet created**
-- Human-only gate currently blocking work: none; a fresh Codex context is required for A1
-- Open audit P0 findings: none recorded
-- Next eligible independent audit: `A1` architecture and authority, before 0080
+- Human-only gate currently blocking work: none
+- Open audit P0 findings: 1 — `A1-P0-001` unbound receipted verifier runs can be
+  relabeled as unrelated selected proof evidence and produce `PASS`
+- Next eligible independent audit: fresh `A1` fix verification; no new audit is
+  currently eligible
 
 ## P0 queue
 
@@ -29,6 +31,8 @@ reports under `codex/build-week/audits/`.
 - [x] `0077` — Proof protocol records and deterministic decision policy
 - [x] `0078` — GPT-5.6 proof-planner adapter with live and replay modes
 - [x] `0079` — Bounded proof-template catalog and safe proof executors
+- [ ] `A1-P0-001` — Require complete catalog/plan/selection authority binding for
+  every selected proof outcome
 - [ ] `0080` — End-to-end `faber proof` CLI and evidence report
 - [ ] `0081` — Repository-scoped Codex skill and original winning demonstration
 - [ ] `0082` — Adversarial evals, packaging, clean-install path, and CI
@@ -46,7 +50,8 @@ produced from a clean clone.
 The complete audit state and finding ledger live in
 `codex/build-week/AUDIT_QUEUE.md`.
 
-- [ ] `A1` — Architecture and authority, eligible after 0079
+- [x] `A1` — Architecture and authority completed `not-green` against `9314ddb`;
+  fresh verification required after `A1-P0-001`
 - [ ] `A2` — Adversarial security, eligible after 0081
 - [ ] `A3` — Clean-room installation, eligible after 0082
 - [ ] `A4` — Judge comprehension, eligible after 0082 and generated reports
@@ -105,7 +110,8 @@ until all required audits are green and no P0 finding remains open.
 
 ### Reliability
 
-- [x] Full pytest suite passes
+- [ ] Full pytest suite passes after audit fix — current audit test has 2 expected
+  failures reproducing `A1-P0-001` (650 other tests pass; 1 guarded live test skips)
 - [x] Ruff passes
 - [x] mypy passes
 - [x] Nix check passes when Nix is available, or unavailability is documented
@@ -145,7 +151,7 @@ until all required audits are green and no P0 finding remains open.
 | 0076 | Complete | `ab9edd6` | 8 focused tests; 317 full tests; Ruff; mypy 75 files; clean local delta | Primary | Baseline `64f775c`; annotated tag verified |
 | 0077 | Complete | `5b714fe` | 138 focused tests; 455 full tests; Ruff; mypy 76 files | Primary | Six digest-stable records; fail-closed authority policy |
 | 0078 | Complete | `2a2eaa2` | 86 focused tests; 541 full tests; Ruff; mypy 82 files; SDK 2.45.0 mock | Primary | Strict GPT-5.6 live adapter; externally pinned replay; adversarial review green; 0079 next |
-| 0079 | Complete | This focused commit (exact SHA recorded by the next ledger update) | 254 focused tests; 650 full tests, 1 guarded live skip; Ruff; focused format; mypy 86 files | Primary | Five bounded families; source/workspace/receipt authority binding; local isolation limits documented; A1 next |
+| 0079 | Complete | `9314ddb` | 254 focused tests; 650 full tests, 1 guarded live skip; Ruff; focused format; mypy 86 files | Primary | Five bounded families; source/workspace/receipt authority binding; local isolation limits documented; A1 found `A1-P0-001` |
 | 0080 | Not started | — | — | Primary | — |
 | 0081 | Not started | — | — | Primary | A2 becomes eligible; run `/feedback` before primary thread ends |
 | 0082 | Not started | — | — | Secondary audits allowed | A3 and A4 become eligible |
@@ -192,18 +198,21 @@ HB3 work item 0079 environment and completed baseline:
 
 After each session, replace this section with current facts:
 
-- Last completed item or finding: 0079 bounded proof catalog and safe executors
-- Last commit: focused 0079 commit; exact SHA to be recorded in the next ledger update
-- Working tree state: expected clean after the 0079 commit
+- Last completed item or finding: A1 architecture/authority audit completed `not-green`;
+  `A1-P0-001` is open
+- Last implementation commit audited: `9314ddb51962aa194989e97a619a8dbedc19f04a`
+- Working tree state: audit artifacts and a failing regression test are expected until
+  the focused A1 audit commit is made
 - Exact tests passed: 254 focused proof/executor/runner tests; 650 full pytest tests
   with 1 guarded live skip; Ruff; focused format check; mypy across 86 source files
-- Exact tests unavailable or failed: Nix/`just` unavailable on HB3
+- Exact tests unavailable or failed: the audit regression has 2 expected failures
+  reproducing `A1-P0-001`; Nix/`just` unavailable on HB3
 - Bad-patch verdict: not implemented
 - Repaired-patch verdict: not implemented
-- Open audit P0/P1 findings: none
-- Next P0 item: 0080 end-to-end CLI and evidence report, after A1
-- Next eligible independent audit: A1 architecture and authority now
-- Human-only action needed: start a fresh Codex context and instruct it to run A1
+- Open audit P0/P1 findings: one P0 (`A1-P0-001`), no P1
+- Next P0 item: director fixes `A1-P0-001`; 0080 remains gated
+- Next eligible independent audit: fresh A1 verification after the fix
+- Human-only action needed: none; resume `$build-week-director` to fix the P0
 - Should this session be submitted with `/feedback`: yes, after the primary 0077-0081
   vertical slice where practical; the ID is not yet recorded
 - Known risks: local executors do not provide OS, network, container, or descendant

@@ -51,12 +51,13 @@ private data as part of the Build Week queue.
   baseline commit
 - Eligible history at the branch starting point: 28 commits with no pre-cutoff author
   or committer dates; focused items 0076 through 0079 bring the branch total to 32
-- Last completed work item: `0079-proof-template-executors.md`; A1 is the next
-  fresh-context gate before `0080-faber-proof-cli-and-report.md`
+- Last completed work item: `0079-proof-template-executors.md`
+- Last independent audit: A1 architecture/authority against `9314ddb`, verdict
+  `not-green`; `A1-P0-001` is open and blocks 0080
 - Snapshot date: 2026-07-17
 - Primary-session designation: this director thread is the primary Build Week
   implementation session; its `/feedback` ID has not yet been recorded
-- Current local working-tree state: expected clean after the focused 0079 commit;
+- Current local working-tree state: expected clean after the focused A1 audit commit;
   inspect it rather than relying on this file
 
 Confirm the checked-out state before changing anything:
@@ -290,23 +291,25 @@ The Python tools are installed in the ignored `.faber/dev-venv` workspace enviro
 
 ## Recommended next action
 
-Run the newly eligible A1 architecture and authority audit in a fresh Codex context:
+Resume the implementation director and fix `A1-P0-001` before work item 0080:
 
 ```text
-Use $build-week-auditor and run the next eligible independent audit.
+Use $build-week-director and address the open A1 P0 finding.
 ```
 
-Fallback when the skill has not yet been discovered:
+The exact reproduction and minimal-fix guidance are in:
 
 ```text
-Read codex/build-week/AUDIT_QUEUE.md and run A1 against the focused 0079 commit.
+codex/build-week/audits/A1-architecture-and-authority-report.md
 ```
 
-Work item 0079 added the typed catalog, five bounded proof families, preflight-all
-workflow, exact source and workspace commitments, bounded process capture, concrete
-counterexamples, authoritative run/receipt creation, and a receipted commitment to the
-complete proof context. A1 must independently inspect those architecture and authority
-boundaries before work item 0080 begins.
+A1 verified the main workflow's provider, catalog, execution, receipt, and deterministic
+policy layering, but found that `decide_proof` accepts an unbound or
+advisory-metadata-only receipted run as selected proof evidence. The same legitimate run
+can be relabeled to an unrelated claim/template and produce `PASS`. The director must
+require the complete workflow-generated authority binding for selected outcomes, make
+the committed regression test green, and run full checks. A fresh A1 verification audit
+must inspect the exact clean fix commit before 0080 begins.
 
 ## Invariants to preserve
 
