@@ -50,12 +50,12 @@ private data as part of the Build Week queue.
 - Eligibility tag: annotated `build-week-2026-baseline`, verified locally at the
   baseline commit
 - Eligible history at the branch starting point: 28 commits with no pre-cutoff author
-  or committer dates; the focused 0076 completion commit is the 29th
-- Active work item after the control-plane commit: `0077-proof-protocol-and-policy.md`
-- Snapshot date: 2026-07-16
+  or committer dates; focused items 0076 and 0077 bring the branch total to 30
+- Active work item after the proof-protocol commit: `0078-openai-proof-planner-adapter.md`
+- Snapshot date: 2026-07-17
 - Primary-session designation: this director thread is the primary Build Week
   implementation session; its `/feedback` ID has not yet been recorded
-- Current local working-tree state: expected clean after the focused 0076 commit;
+- Current local working-tree state: expected clean after the focused 0077 commit;
   inspect it rather than relying on this file
 
 Confirm the checked-out state before changing anything:
@@ -242,21 +242,23 @@ The Build Week delta and README must distinguish it from the Faber Proof extensi
 
 ## Last recorded validation baseline
 
-The completed work item 0076 baseline on HB3 uses Python 3.12.2, pytest 9.0.2,
+The completed work item 0077 baseline on HB3 uses Python 3.12.2, pytest 9.0.2,
 Ruff 0.15.10, and mypy 2.1.0:
 
-- focused Build Week delta tests: 8 passed in 4.02 seconds
-- `python -m pytest`: 317 passed in 11.11 seconds
+- focused proof protocol and policy tests: 138 passed in 0.26 seconds
+- `python -m pytest`: 455 passed in 11.78 seconds
 - `python -m ruff check .`: passed
-- `python -m mypy src`: passed across 75 source files
+- focused 0077 files pass `python -m ruff format --check`; a repository-wide format
+  check reports 46 pre-existing files outside the focused item
+- `python -m mypy src`: passed across 76 source files
 - `nix develop --command just check`: unavailable because Nix and `just` are not
   installed on HB3
 
-The local delta smoke resolved the baseline and branch target, reported all 28 eligible
-pre-0076 commits and 25 changed files, and emitted only the expected dirty-tree warning
-before the focused commit. The Python tools are installed in the Windows user site;
-Codex had to run outside its workspace sandbox to read them, while an ordinary HB3
-shell can use them normally.
+The post-commit local delta smoke resolved baseline `64f775c` and target `ab9edd6`,
+reported 29 eligible commits and 27 changed files, and found a clean tree with zero
+warnings. The Python tools are installed in the Windows user site; Codex had to run
+outside its workspace sandbox to read them, while an ordinary HB3 shell can use them
+normally.
 
 ## Current code map
 
@@ -266,6 +268,8 @@ shell can use them normally.
   process evidence, ingestion, privacy, consent, retention, and training-use controls.
 - `src/faber/verifiers.py`, `reviews.py`, `calibration.py`, and `probabilistic.py`: hard
   authority, human review, calibration, and advisory scoring.
+- `src/faber/proofs.py`: provider-neutral proof records, bounded advisory plan
+  validation, authoritative evidence binding, and deterministic fail-closed policy.
 - `src/faber/budgets.py`, `budget_ledger.py`, `market_policies.py`, and
   `tournaments.py`: provider-neutral budgets, reservations, settlement policy, and
   candidate selection.
@@ -278,7 +282,7 @@ shell can use them normally.
 
 ## Recommended next action
 
-Continue with work item 0077 through the director skill:
+Continue with work item 0078 through the director skill:
 
 ```text
 Use $build-week-director and continue until the next human-only gate.
@@ -290,10 +294,10 @@ Fallback when the skill has not yet been discovered:
 Read codex/BUILD_WEEK_START_HERE.md and execute the next incomplete Build Week work item.
 ```
 
-Work item 0076 established the branch, annotated eligibility tag, deterministic local
-delta report, competition boundary, and HB3 validation baseline. Work item 0077 is the
-next P0 item and must add the proof protocol records and deterministic fail-closed
-decision policy without introducing provider-specific behavior into the core.
+Work item 0077 added the provider-neutral proof protocol, fixed golden digests, bounded
+data-only template selections, exact receipt/run authority binding, and deterministic
+`BLOCK > HUMAN_REVIEW > PASS` policy. Work item 0078 is next and must add the optional
+GPT-5.6 planner adapter while preserving one shared strict parser for live and replay.
 
 ## Invariants to preserve
 
