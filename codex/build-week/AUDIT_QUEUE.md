@@ -20,7 +20,9 @@ Use $build-week-auditor and run the next eligible independent audit.
     the original P0 finding is verified fixed
 
 - [ ] `A2` — Adversarial security audit
-  - Eligible after: work item 0081 complete
+  - Eligible after: work item 0081 machine implementation complete
+  - Scope note: audit current security and replay behavior now; after guarded live
+    capture, verify final bundle provenance and sanitization in an addendum before tag
   - Prompt: `codex/audits/A2-adversarial-security.md`
   - Report: `codex/build-week/audits/A2-adversarial-security-report.md`
 
@@ -42,7 +44,8 @@ Use $build-week-auditor and run the next eligible independent audit.
 ## Current state
 
 - Implementation branch to audit: `build-week/faber-proof`
-- Eligible audit: none; A2 becomes eligible after work item 0081
+- Eligible audit: A2 against the current machine-complete implementation; final live
+  provenance remains unavailable and requires a later addendum
 - Open or unverified P0 findings: none
 - Open P1 findings: none recorded
 - Last audit commit: this focused A1 verification audit commit; exact SHA from `git log`

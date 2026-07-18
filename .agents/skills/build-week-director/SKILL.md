@@ -31,8 +31,8 @@ paste repository prompts.
 - Update `STATUS.md` with the commit, exact validation, demo state, limitations, and
   next action. For a finding, update its ledger entry but leave verification to an
   independent audit. Update the handoff only when its baseline or next action changes.
-- Create one focused commit, then continue through eligible P0 work while the tree is
-  clean and no incomplete human-only gate blocks progress.
+- Create one focused commit, then continue through eligible P0 machine work while the
+  tree is clean. A human-only gate blocks only work that actually depends on it.
 
 ## Boundaries
 
@@ -40,18 +40,19 @@ Preserve the authority and fail-closed rules in `AGENTS.md` and the product docu
 Do not broaden P0 scope or rewrite settled product decisions unless an acceptance gate
 cannot otherwise be met.
 
-Stop only at an incomplete human-only gate recorded in `STATUS.md` or the Build Week
-control document; never request evidence already recorded there. Leave a clean commit
-and the exact human action needed.
+Stop only when an incomplete human-only gate blocks the selected work, an actual P0
+failure prevents safe progress, or the tree cannot be made safe. Never request evidence
+already recorded in `STATUS.md`. Leave a clean commit and the exact human action needed.
 
-When `AUDIT_QUEUE.md` says an independent audit is eligible, instruct the user:
+When `AUDIT_QUEUE.md` says an independent audit is eligible, record it and continue
+machine-completable implementation. Include this instruction in the milestone report:
 
 ```text
 Use $build-week-auditor and run the next eligible independent audit.
 ```
 
-Do not independently audit the director's own work. Open P0 findings or an incomplete
-final audit block final tagging.
+Do not independently audit the director's own work. Open P0 findings take priority;
+open P0 findings or an incomplete final audit block final tagging.
 
 Report completed work and commits, verification and demo verdicts, remaining P0 work,
 the next eligible audit, and any human gate.

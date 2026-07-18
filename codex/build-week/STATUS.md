@@ -8,24 +8,27 @@ reports under `codex/build-week/audits/`.
 
 ## Current state
 
-- Phase: work item 0081 machine work is complete; live-reviewed replay provenance is
-  the next human-only gate
+- Phase: offline P0 machine lane; 0081 machine implementation is complete, its live
+  provenance gate is deferred, and 0082 is current
 - Canonical implementation branch: `build-week/faber-proof`
 - Branch starting commit: `c915523383dc58114bf748f7d7a64c1c398faaba`
 - Eligibility baseline: `64f775cfe2f622837bd9aaa40f6369aa22af1d80`, tagged by
   annotated `build-week-2026-baseline`
-- Eligible commit count: 28 at branch start; 34 including the focused 0081 machine-work
-  commit
-- Current P0 item: `0081`
+- Eligible commit count: 28 at branch start; 40 before the offline control-plane
+  commit, which makes the total 41
+- Current P0 item: `0082`; 0081 live-reviewed provenance remains open but does not
+  block independent machine work
 - Current demo state: the original no-key command produces ordinary `PASS`/`PASS` and
   Faber Proof `BLOCK`/`PASS`; replay provenance is explicitly `fake-development`
 - Primary implementation session: this director thread (0076 onward)
 - Primary `/feedback` session ID: `019f6d53-0a3d-71d3-abd7-749dc4a3784c`
 - Final submission tag: **not yet created**
-- Human-only gate currently blocking work: supply an API key through the local
-  environment for guarded bad/repaired live capture and review
+- Deferred human-only gate: guarded bad/repaired live capture and review. It blocks
+  live-dependent claims, final tagging, and submission completion, not 0082 or 0083
+  machine work
 - Open or unverified audit P0 findings: none
-- Next eligible independent audit: A2 after live-reviewed bundles complete work item 0081
+- Next eligible independent audit: A2 now for the current security implementation; a
+  provenance addendum remains required after live-reviewed bundles exist
 
 ## P0 queue
 
@@ -36,10 +39,14 @@ reports under `codex/build-week/audits/`.
 - [x] `A1-P0-001` — Require complete catalog/plan/selection authority binding for
   every selected proof outcome; independently verified
 - [x] `0080` — End-to-end `faber proof` CLI and evidence report
-- [ ] `0081` — Repository-scoped Codex skill and original winning demonstration;
-  machine work complete, live-reviewed replay provenance pending
-- [ ] `0082` — Adversarial evals, packaging, clean-install path, and CI
+- [ ] `0081` — Repository-scoped Codex skill and original winning demonstration
+  - [x] Machine implementation and deterministic no-key demo
+  - [ ] Guarded live capture and `live-reviewed` replay provenance
+- [ ] `0082` — Adversarial evals, packaging, clean-install path, and CI; eligible now
 - [ ] `0083` — Submission materials, video package, final audit, and freeze
+  - machine-completable work becomes eligible after 0082
+  - live capture, repository sharing, video upload, Devpost entry, and final tag remain
+    human/final gates
 
 ## P1 queue
 
@@ -55,7 +62,8 @@ The complete audit state and finding ledger live in
 
 - [x] `A1` — Architecture and authority `green` against `6d11e7a`; `A1-P0-001`
   independently verified
-- [ ] `A2` — Adversarial security, eligible after 0081
+- [ ] `A2` — Adversarial security, eligible against the current machine-complete
+  implementation; final live provenance needs a later addendum
 - [ ] `A3` — Clean-room installation, eligible after 0082
 - [ ] `A4` — Judge comprehension, eligible after 0082 and generated reports
 - [ ] `A5` — Final compliance, eligible after 0083 machine work
@@ -157,9 +165,9 @@ until all required audits are green and no P0 finding remains open.
 | 0079 | Complete | `9314ddb` | 254 focused tests; 650 full tests, 1 guarded live skip; Ruff; focused format; mypy 86 files | Primary | Five bounded families; source/workspace/receipt authority binding; local isolation limits documented; A1 found `A1-P0-001` |
 | A1-P0-001 | Verified | `6d11e7a` | 2 audit regressions; 16-case binding matrix; 342 focused tests, 1 skip; 652 full tests, 1 skip; isolated import; Ruff; format; mypy | Primary fix; secondary verification | Selected outcomes require a complete executor-tagged proof binding; A1 is green |
 | 0080 | Complete | `c759ac4` | 11 focused product tests; 343 adjacent proof/planner/executor tests, 1 guarded live skip; 663 full tests, 1 skip; Ruff; format; mypy 90 files; editable console install and `faber doctor` | Primary | Local Git context, owner configuration, externally pinned replay, atomic portable bundle, Markdown/HTML report, exit codes, and console entrypoint |
-| 0081 | Machine complete; human gate | `d74b967` | 12 focused demo/skill tests; 675 full tests, 1 guarded live skip; Ruff; 14-file format; mypy 91 files; deterministic fixture regeneration; two skill validators; installed no-key console demo | Primary | Original stdlib demo and `$faber-proof`; fake-development replay is honest; human live capture/review pending before A2; primary session `019f6d53-0a3d-71d3-abd7-749dc4a3784c` recorded |
-| 0082 | Not started | — | — | Secondary audits allowed | A3 and A4 become eligible |
-| 0083 | Not started | — | — | Submission audit | A5 becomes eligible |
+| 0081 | Machine complete; live gate deferred | `d74b967` | 12 focused demo/skill tests; 675 full tests, 1 guarded live skip; Ruff; 14-file format; mypy 91 files; deterministic fixture regeneration; two skill validators; installed no-key console demo | Primary | Original stdlib demo and `$faber-proof`; fake-development replay is honest; human live capture/review remains required; primary session `019f6d53-0a3d-71d3-abd7-749dc4a3784c` recorded |
+| 0082 | Current; eligible | — | — | Primary machine lane; A2 may run independently | A3 and A4 become eligible after completion |
+| 0083 | Machine work pending 0082 | — | — | Primary machine lane; A5 later | Human/final gates remain separate |
 | 0084 | Blocked by P0 | — | — | Optional | — |
 
 ## Demo scorecard
@@ -205,10 +213,10 @@ HB3 work item 0081 machine-work baseline:
 
 After each session, replace this section with current facts:
 
-- Last completed item or finding: work item 0081 deterministic machine work; live
-  provenance remains a human-only gate
+- Last completed item or finding: work item 0081 deterministic machine work; its live
+  provenance gate is deferred while the independent machine lane continues
 - Last implementation commit audited: `d74b967`, the focused 0081 machine-work commit
-- Working tree state: expected clean after the focused 0081 machine-work commit
+- Working tree state: expected clean after the offline control-plane commit
 - Exact tests passed: 12 focused demo/skill tests; 675 full pytest tests with 1 guarded
   live skip; Ruff; 14-file format; mypy across 91 source files; deterministic fixture
   check; two skill validators; installed no-key console demo
@@ -218,10 +226,10 @@ After each session, replace this section with current facts:
 - Repaired-patch verdict: ordinary tests `PASS`; replay Faber Proof `PASS` with complete
   required coverage
 - Open audit P0/P1 findings: none
-- Next P0 item: 0081
-- Next eligible independent audit: A2 after work item 0081
-- Human-only action needed: make an API key available in the local environment for the
-  guarded live bad/repaired capture; never paste the key into repository files or chat
+- Next P0 item: 0082, followed by 0083 machine work
+- Next eligible independent audit: A2 now; audit eligibility does not pause machine work
+- Deferred human-only action: guarded live bad/repaired capture and review; do not ask
+  for the key during the offline machine lane
 - Should this session be submitted with `/feedback`: completed; primary session ID
   `019f6d53-0a3d-71d3-abd7-749dc4a3784c` is recorded
 - Known risks: local executors do not provide OS, network, container, or descendant

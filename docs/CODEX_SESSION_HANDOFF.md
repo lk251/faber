@@ -29,9 +29,10 @@ $build-week-director
 ```
 
 A user instruction such as "continue Build Week," "continue Faber Proof," or "get to
-work" in this project context means: execute the first incomplete P0 work item whose
-dependencies are complete, commit it, update the status file, and continue until a
-human-only gate.
+work" in this project context means: execute the first eligible P0 machine slice,
+commit it, update the status file, and continue. Defer unrelated human-only gates;
+stop only when one blocks the selected work, a P0 failure prevents progress, or the
+working tree is unsafe.
 
 The ordinary Hermes external-pilot roadmap is paused until the competition freeze ends
 or Javier explicitly changes the decision. Do not contact upstream maintainers, publish
@@ -50,16 +51,16 @@ private data as part of the Build Week queue.
 - Eligibility tag: annotated `build-week-2026-baseline`, verified locally at the
   baseline commit
 - Eligible history at the branch starting point: 28 commits with no pre-cutoff author
-  or committer dates; the focused 0081 machine-work commit brings the total to 34
-- Last completed machine slice: `0081-codex-skill-and-winning-demo.md`; final
-  live-reviewed replay provenance remains a human-only gate
+  or committer dates; the offline control-plane commit brings the total to 41
+- Last completed machine slice: 0081 deterministic implementation and demo; its final
+  live-reviewed replay provenance is deferred while 0082 proceeds
 - Last independent audit: A1 architecture/authority against `6d11e7a`, verdict
   `green`; `A1-P0-001` is independently verified
-- Snapshot date: 2026-07-17
+- Snapshot date: 2026-07-18
 - Primary-session designation: this director thread is the primary Build Week
   implementation session; `/feedback` session ID
   `019f6d53-0a3d-71d3-abd7-749dc4a3784c` is recorded
-- Current local working-tree state: expected clean after the focused 0081 machine-work
+- Current local working-tree state: expected clean after the offline control-plane
   commit;
   inspect it rather than relying on this file
 
@@ -140,8 +141,9 @@ instructions. Javier should not need to paste their contents into Codex.
 ## Autonomous session protocol
 
 1. Work on `build-week/faber-proof` after work item 0076 establishes it safely.
-2. Select the first incomplete P0 item in `codex/build-week/STATUS.md` whose dependencies
-   are complete.
+2. Select the first incomplete eligible P0 machine slice in
+   `codex/build-week/STATUS.md`. Skip only deferred human slices that do not block the
+   selected work.
 3. Implement only that item.
 4. Add tests before or alongside verification, proof, routing, evidence, and decision
    changes.
@@ -149,18 +151,17 @@ instructions. Javier should not need to paste their contents into Codex.
 6. Update the status file with exact results and the demo scorecard.
 7. Update this handoff when the recommended next action or validation baseline changes.
 8. Make one focused commit.
-9. Continue to the next P0 item while the working tree is clean and no human-only gate
-   is required.
+9. Continue through eligible machine work while the tree is clean. Audit eligibility
+   and unrelated deferred human gates do not pause the implementation lane.
 
-Keep work items 0077 through 0081 in one primary Codex thread where practical. Before
-that thread ends, Javier must run `/feedback` and record the returned session ID. Use
-fresh secondary sessions for architecture, security, installation, judge, and final
-submission audits rather than parallel redesigns of the core protocol.
+The primary implementation session ID is already recorded. Use fresh secondary sessions
+for architecture, security, installation, judge, and final submission audits rather
+than parallel redesigns of the core protocol.
 
 ## Human-only gates
 
-Codex may complete all deterministic local work without waiting. It must stop with an
-exact instruction only for:
+Codex must complete deterministic local work without waiting. These actions remain
+human-only, but they block only work that actually depends on them:
 
 - supplying an OpenAI API key for a guarded live run;
 - requesting or redeeming competition credits;
@@ -172,7 +173,8 @@ exact instruction only for:
   credential use, or private-data collection.
 
 Do not mark one of these gates complete without the real value or explicit human
-attestation.
+attestation. During the offline lane, do not ask again for an API key or `/feedback`;
+preserve those gates and continue 0082 and 0083 machine work.
 
 ## Start on another machine
 
@@ -302,25 +304,27 @@ The Python tools are installed in the ignored `.faber/dev-venv` workspace enviro
 
 ## Recommended next action
 
-Resume the implementation director at the work item 0081 human gate:
+Execute work item 0082, then continue directly through all machine-completable 0083
+submission preparation under:
 
 ```text
-Use $build-week-director and continue until the next human-only gate.
+codex/build-week/OFFLINE_CONTINUATION.md
 ```
 
-The no-key original demo is complete and green, but its committed planner fixtures are
-honestly labeled `fake-development`. Javier must make an API key available through the
-local environment without pasting it into chat or files. The director can then run the
-guarded capture, review the exact model IDs/bindings/verdicts, install live-reviewed
-bundles and sample reports, and complete 0081. The primary `/feedback` session ID is
-recorded. The prior A1 evidence remains in:
+The no-key original demo is complete and green, and its committed planner fixtures
+remain honestly labeled `fake-development`. Guarded live capture remains required for
+final provenance, final tagging, and submission completion, but it does not block the
+offline machine lane. The primary `/feedback` session ID is recorded. The prior A1
+evidence remains in:
 
 ```text
 codex/build-week/audits/A1-architecture-and-authority-report.md
 ```
 
-No new independent audit is eligible while live provenance is pending. After the
-live-reviewed 0081 completion commit, A2 becomes eligible immediately.
+A2 is eligible now against the current security and replay implementation. A provenance
+addendum must inspect the final live-reviewed bundles after capture. Record audit
+eligibility without pausing the 0082/0083 machine lane; open P0 findings still take
+priority and block final tagging.
 
 ## Invariants to preserve
 

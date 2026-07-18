@@ -20,6 +20,11 @@ Read codex/BUILD_WEEK_START_HERE.md and execute the next incomplete Build Week w
 Do not ask Javier to copy a work-item prompt into chat. The prompts are already in
 `codex/future/`, and progress is tracked in `codex/build-week/STATUS.md`.
 
+When `codex/build-week/OFFLINE_CONTINUATION.md` is present and explicitly invoked, a
+missing `OPENAI_API_KEY` is a deferred provenance gate rather than a stop for unrelated
+machine work. Keep development replays honestly labeled, skip only work that actually
+depends on the deferred gate, and continue through eligible 0082 and 0083 machine work.
+
 ## Product decision
 
 The submission is **Faber Proof**.
@@ -57,8 +62,9 @@ This is deliberately not a generic AI code reviewer. The novel product is
 1. Work on branch `build-week/faber-proof`. Create it from the current canonical
    `master` if it does not exist.
 2. Address any open P0 audit finding before new feature work.
-3. Otherwise select the first incomplete **P0** item in
-   `codex/build-week/STATUS.md` whose dependencies are complete.
+3. Otherwise select the first incomplete eligible **P0 machine slice** in
+   `codex/build-week/STATUS.md`. A deferred human-only slice does not block independent
+   later machine work when the status explicitly records that separation.
 4. Implement exactly that item. Preserve the global invariants in `AGENTS.md` and the
    Build Week product constraints.
 5. Add or update tests before changing verification, routing, evidence, or decision
@@ -79,12 +85,16 @@ This is deliberately not a generic AI code reviewer. The novel product is
    changes.
 8. Make one focused commit for the work item. Do not squash eligible Build Week
    history.
-9. Continue to the next P0 item without waiting for Javier unless a human-only gate is
-   reached or the working tree cannot be made safe.
+9. Continue to the next eligible P0 machine item without waiting for Javier. Record
+   eligible independent audits but do not stop solely for audit scheduling. Stop only
+   when a human gate blocks the selected work, an actual P0 failure prevents progress,
+   or the working tree cannot be made safe.
 
 ## Human-only gates
 
-Codex must stop and clearly report the exact action needed only for these tasks:
+These actions remain human-only, but they block only work that actually depends on
+them. During an explicitly authorized offline continuation, defer them and finish all
+independent machine work:
 
 - Entering secrets or an OpenAI API key.
 - Requesting or redeeming hackathon credits.
@@ -94,6 +104,9 @@ Codex must stop and clearly report the exact action needed only for these tasks:
   Devpost form.
 - Approving any external publication, payment, third-party contribution, or use of
   private data.
+
+Do not request `/feedback` again after its session ID is recorded. Never mark a
+deferred gate complete without the real value or explicit human attestation.
 
 Everything else should be completed autonomously with deterministic fakes or replay
 fixtures when live credentials are unavailable.
