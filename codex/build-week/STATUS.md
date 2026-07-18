@@ -20,11 +20,10 @@ reports under `codex/build-week/audits/`.
 - Current demo state: the original no-key command produces ordinary `PASS`/`PASS` and
   Faber Proof `BLOCK`/`PASS`; replay provenance is explicitly `fake-development`
 - Primary implementation session: this director thread (0076 onward)
-- Primary `/feedback` session ID: **not yet recorded**
+- Primary `/feedback` session ID: `019f6d53-0a3d-71d3-abd7-749dc4a3784c`
 - Final submission tag: **not yet created**
 - Human-only gate currently blocking work: supply an API key through the local
-  environment for guarded bad/repaired live capture and review; run `/feedback` and
-  record the primary session ID before this task ends
+  environment for guarded bad/repaired live capture and review
 - Open or unverified audit P0 findings: none
 - Next eligible independent audit: A2 after live-reviewed bundles complete work item 0081
 
@@ -79,7 +78,7 @@ until all required audits are green and no P0 finding remains open.
 - [x] Pre-existing versus Build Week work documented
 - [x] Eligible commit history preserved
 - [x] Primary Codex session covers the majority of core Build Week functionality
-- [ ] `/feedback` session ID recorded
+- [x] `/feedback` session ID recorded â€” `019f6d53-0a3d-71d3-abd7-749dc4a3784c`
 
 ### Core product
 
@@ -105,7 +104,7 @@ until all required audits are green and no P0 finding remains open.
 
 ### Product design
 
-- [ ] `.agents/skills/faber-proof/SKILL.md` is detected by Codex
+- [x] `.agents/skills/faber-proof/SKILL.md` is detected by Codex
 - [ ] One skill invocation can run proof, repair from evidence, and rerun
 - [x] Self-contained HTML report opens from disk
 - [ ] Report is understandable within five seconds
@@ -158,7 +157,7 @@ until all required audits are green and no P0 finding remains open.
 | 0079 | Complete | `9314ddb` | 254 focused tests; 650 full tests, 1 guarded live skip; Ruff; focused format; mypy 86 files | Primary | Five bounded families; source/workspace/receipt authority binding; local isolation limits documented; A1 found `A1-P0-001` |
 | A1-P0-001 | Verified | `6d11e7a` | 2 audit regressions; 16-case binding matrix; 342 focused tests, 1 skip; 652 full tests, 1 skip; isolated import; Ruff; format; mypy | Primary fix; secondary verification | Selected outcomes require a complete executor-tagged proof binding; A1 is green |
 | 0080 | Complete | `c759ac4` | 11 focused product tests; 343 adjacent proof/planner/executor tests, 1 guarded live skip; 663 full tests, 1 skip; Ruff; format; mypy 90 files; editable console install and `faber doctor` | Primary | Local Git context, owner configuration, externally pinned replay, atomic portable bundle, Markdown/HTML report, exit codes, and console entrypoint |
-| 0081 | Machine complete; human gate | This focused commit (exact SHA recorded by the next ledger update) | 12 focused demo/skill tests; 675 full tests, 1 guarded live skip; Ruff; 14-file format; mypy 91 files; deterministic fixture regeneration; two skill validators; installed no-key console demo | Primary | Original stdlib demo and `$faber-proof`; fake-development replay is honest; human live capture/review and `/feedback` pending before A2 |
+| 0081 | Machine complete; human gate | `d74b967` | 12 focused demo/skill tests; 675 full tests, 1 guarded live skip; Ruff; 14-file format; mypy 91 files; deterministic fixture regeneration; two skill validators; installed no-key console demo | Primary | Original stdlib demo and `$faber-proof`; fake-development replay is honest; human live capture/review pending before A2; primary session `019f6d53-0a3d-71d3-abd7-749dc4a3784c` recorded |
 | 0082 | Not started | — | — | Secondary audits allowed | A3 and A4 become eligible |
 | 0083 | Not started | — | — | Submission audit | A5 becomes eligible |
 | 0084 | Blocked by P0 | — | — | Optional | — |
@@ -192,6 +191,7 @@ HB3 work item 0081 machine-work baseline:
 - `python -m mypy src`: passed across 91 source files
 - deterministic fixture regeneration check passed byte-identically
 - repository validator and bundled skill-creator validator both passed
+- Codex manually discovered the repository-scoped `faber-proof` skill in this session
 - installed `faber demo proof --mode replay` completed without a key in 3.8 seconds;
   ordinary tests were `PASS`/`PASS` and Faber Proof was `BLOCK`/`PASS`
 - the bad report shows the exact last-turn claim, `turn_budget=2`, `FINAL: summary`,
@@ -207,8 +207,7 @@ After each session, replace this section with current facts:
 
 - Last completed item or finding: work item 0081 deterministic machine work; live
   provenance remains a human-only gate
-- Last implementation commit audited: the focused 0081 machine-work commit recorded in
-  the work-item ledger by the next update
+- Last implementation commit audited: `d74b967`, the focused 0081 machine-work commit
 - Working tree state: expected clean after the focused 0081 machine-work commit
 - Exact tests passed: 12 focused demo/skill tests; 675 full pytest tests with 1 guarded
   live skip; Ruff; 14-file format; mypy across 91 source files; deterministic fixture
@@ -222,10 +221,9 @@ After each session, replace this section with current facts:
 - Next P0 item: 0081
 - Next eligible independent audit: A2 after work item 0081
 - Human-only action needed: make an API key available in the local environment for the
-  guarded live bad/repaired capture, then run `/feedback` and return the session ID;
-  never paste the key into repository files or chat
-- Should this session be submitted with `/feedback`: yes, now; the primary 0077-0081
-  machine vertical slice is complete and the ID is not yet recorded
+  guarded live bad/repaired capture; never paste the key into repository files or chat
+- Should this session be submitted with `/feedback`: completed; primary session ID
+  `019f6d53-0a3d-71d3-abd7-749dc4a3784c` is recorded
 - Known risks: local executors do not provide OS, network, container, or descendant
   process isolation; production needs an immutable checkout and enforceable sandbox.
   Live GPT-5.6 capture requires a human-supplied API key; committed replays remain

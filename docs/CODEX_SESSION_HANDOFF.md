@@ -57,7 +57,8 @@ private data as part of the Build Week queue.
   `green`; `A1-P0-001` is independently verified
 - Snapshot date: 2026-07-17
 - Primary-session designation: this director thread is the primary Build Week
-  implementation session; its `/feedback` ID has not yet been recorded
+  implementation session; `/feedback` session ID
+  `019f6d53-0a3d-71d3-abd7-749dc4a3784c` is recorded
 - Current local working-tree state: expected clean after the focused 0081 machine-work
   commit;
   inspect it rather than relying on this file
@@ -311,8 +312,8 @@ The no-key original demo is complete and green, but its committed planner fixtur
 honestly labeled `fake-development`. Javier must make an API key available through the
 local environment without pasting it into chat or files. The director can then run the
 guarded capture, review the exact model IDs/bindings/verdicts, install live-reviewed
-bundles and sample reports, and complete 0081. Javier must also run `/feedback` and
-return the primary session ID before this task ends. The prior A1 evidence remains in:
+bundles and sample reports, and complete 0081. The primary `/feedback` session ID is
+recorded. The prior A1 evidence remains in:
 
 ```text
 codex/build-week/audits/A1-architecture-and-authority-report.md
@@ -364,4 +365,4 @@ before any external work. A prepared package is not permission to execute or pub
 5. Commit clearly and push the intended branch with the repository-specific SSH
    identity.
 6. Verify the remote commit from a fresh fetch before leaving the machine.
-7. Remind Javier to run `/feedback` before the primary implementation thread ends.
+7. Preserve the recorded primary `/feedback` session ID in the Build Week status.
