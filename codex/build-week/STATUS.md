@@ -8,17 +8,17 @@ reports under `codex/build-week/audits/`.
 
 ## Current state
 
-- Phase: 0082-0083 machine lanes and remote CI complete; the final audit is
-  `machine_pass` and `human_incomplete`, while independent audits and final human/live
-  gates remain open
+- Phase: 0082-0083 machine lanes and remote CI complete; A2 initial independent audit
+  is `not-green`, while the final aggregate audit remains `machine_pass` and
+  `human_incomplete`
 - Canonical implementation branch: `build-week/faber-proof`
 - Branch starting commit: `c915523383dc58114bf748f7d7a64c1c398faaba`
 - Eligibility baseline: `64f775cfe2f622837bd9aaa40f6369aa22af1d80`, tagged by
   annotated `build-week-2026-baseline`
 - Eligible commit count: 45 from the eligibility baseline through the 0083 source
   snapshot `f2518bd`; the warning-free report covers 166 changed files
-- Current P0 item: machine work through `0083-M` and remote CI are complete; 0081
-  live-reviewed provenance, independent audits A2-A5, and final human actions remain
+- Current P0 item: fix `A2-P0-001`, then the other three open A2 P0 findings and obtain
+  independent A2 re-verification
 - Current demo state: the original no-key command produces ordinary `PASS`/`PASS` and
   Faber Proof `BLOCK`/`PASS`; replay provenance is explicitly `fake-development`
 - Primary implementation session: this director thread (0076 onward)
@@ -29,10 +29,9 @@ reports under `codex/build-week/audits/`.
 - Deferred human-only gates: deadline authorization/timely-submission confirmation,
   guarded bad/repaired live capture and review, judge repository access, narrated
   public video, Devpost entry, and final tag
-- Open or unverified audit P0 findings: none
-- Next eligible independent audit: A2, followed by A3 and A4. A5 can inspect the
-  machine package now but cannot become final-green until human values and the final
-  candidate tag exist
+- Open or unverified audit findings: 4 P0, 4 P1, and 4 P2
+- Next eligible independent audit: A2 re-verification after director fixes. A3 and A4
+  remain queued but are not the immediate action while A2 P0 findings are open
 
 ## P0 queue
 
@@ -42,6 +41,11 @@ reports under `codex/build-week/audits/`.
 - [x] `0079` — Bounded proof-template catalog and safe proof executors
 - [x] `A1-P0-001` — Require complete catalog/plan/selection authority binding for
   every selected proof outcome; independently verified
+- [ ] `A2-P0-001` — Recompute and structurally validate the complete portable bundle
+  authority graph before accepting a verdict or report
+- [ ] `A2-P0-002` — Require deterministic report regeneration/semantic equality
+- [ ] `A2-P0-003` — Bind `live-reviewed` provenance to the validated review transaction
+- [ ] `A2-P0-004` — Prevent cross-invocation reuse and rebinding of raw verifier authority
 - [x] `0080` — End-to-end `faber proof` CLI and evidence report
 - [ ] `0081` — Repository-scoped Codex skill and original winning demonstration
   - [x] Machine implementation and deterministic no-key demo
@@ -75,8 +79,9 @@ The complete audit state and finding ledger live in
 
 - [x] `A1` — Architecture and authority `green` against `6d11e7a`; `A1-P0-001`
   independently verified
-- [ ] `A2` — Adversarial security, eligible against the current machine-complete
-  implementation; final live provenance needs a later addendum
+- [x] `A2` — Initial adversarial security audit is `not-green` against
+  `795ff0ad8f1d4706c8d92f88059059aa81f89bbb`; 12 findings are open and independent
+  re-verification is required after fixes
 - [ ] `A3` — Clean-room installation, eligible after 0082
 - [ ] `A4` — Judge comprehension, eligible after 0082 and generated reports
 - [ ] `A5` — Final compliance, eligible after 0083 machine work
@@ -155,7 +160,7 @@ until all required audits are green and no P0 finding remains open.
 - [ ] A3 clean-room installation is green
 - [ ] A4 judge comprehension is green
 - [ ] A5 final compliance is green against the final tag
-- [x] No audit P0 finding remains open
+- [ ] No audit P0 finding remains open
 - [ ] Every accepted P1 affecting the three-minute experience is resolved or explicitly
   rejected with rationale
 
@@ -187,6 +192,7 @@ until all required audits are green and no P0 finding remains open.
 | 0081 | Machine complete; live gate deferred | `d74b967` | 12 focused demo/skill tests; 675 full tests, 1 guarded live skip; Ruff; 14-file format; mypy 91 files; deterministic fixture regeneration; two skill validators; installed no-key console demo | Primary | Original stdlib demo and `$faber-proof`; fake-development replay is honest; human live capture/review remains required; primary session `019f6d53-0a3d-71d3-abd7-749dc4a3784c` recorded |
 | 0082 | Complete, including remote CI | `b622d7b` | 712 passed, 1 skip locally; Ruff format/lint; mypy 93 files; 49/49 evals; clean wheel/sdist/install; Ubuntu/Windows/optional-extra Actions green | Primary machine lane; A2 may run independently | Workflow activated at `0ab9b7b`; replay command identity made cross-platform at `6e7aebd`; full audit history enabled at `b622d7b`; run `30217997785` green |
 | 0083 | Machine complete; human/final gates open | `f2518bd` | 710 passed, 1 skip; 26 focused docs/audit/delta tests; Ruff format/lint; mypy 93 files; 49/49 evals; clean install with optional extra; `BLOCK`/`PASS`; final audit machine pass; narration 391 words | Primary machine lane; A2-A5 remain independent | Warning-free delta: 45 commits, 166 files; remote CI green; no final tag |
+| A2 | Initial audit run; not green | `795ff0ad8f1d4706c8d92f88059059aa81f89bbb` | 712 passed, 1 skip; focused 379 passed, 1 guarded skip; structured/replay 259 passed; executor/eval 109 passed; 49/49 existing evals; 38 additional cases executed, 30 genuinely new; Ruff; mypy; no-key `BLOCK`/`PASS`; 51-file privacy pass; CI run `30219026273` green | Four independent fresh reviewers; report-only synthesis | 4 P0, 4 P1, and 4 P2 findings open; director fixes and independent re-verification required |
 | 0084 | Blocked by P0 | - | - | Optional | - |
 
 ## Demo scorecard
@@ -242,38 +248,65 @@ The generated reports live in `docs/generated/FINAL_SUBMISSION_AUDIT.*`,
 `docs/generated/DEMO_NARRATION_ANALYSIS.json`. Historical 0082 details remain in
 `codex/build-week/0082_HB2_HANDOFF.md`.
 
+## A2 independent audit baseline
+
+Against exact SHA `795ff0ad8f1d4706c8d92f88059059aa81f89bbb`:
+
+- full pytest: 712 passed, 1 skipped;
+- focused proof/planner/executor/decision/product/demo/privacy/CLI: 379 passed, 1
+  guarded live skip; additional structured/replay: 259 passed; executor/eval: 109 passed;
+- existing eval campaign: 49/49, zero reported unjustified PASS, suite digest
+  `sha256:eec59f8fcf20e546971010a466514841ffd5cdf60cbff978c9ddf43c1164c27c`;
+  `A2-P2-001` limits that metric because actual verdicts are inferred from expected
+  verdicts when linked assertions pass;
+- no-key replay: ordinary `PASS`/`PASS`, Faber Proof `BLOCK`/`PASS`, honest
+  `fake-development` provenance;
+- generated artifact privacy: 51 files, 231075 bytes, zero findings;
+- A2 cases: 38 additional executions, comprising 30 genuinely new cases and 8 deeper
+  corroborations of represented categories;
+- Ruff lint and format across 193 files passed; mypy passed across 93 source files;
+- GitHub Actions run `30219026273` passed Ubuntu, Windows, and optional
+  OpenAI-extra/no-provider-call;
+- Nix and `just` were unavailable on HB2.
+
+The durable synthesis report is
+`codex/build-week/audits/A2-adversarial-security-report.md`. Temporary harnesses and
+result JSON are machine-local, non-durable supporting evidence.
+
 ## Session handoff template
 
 After each session, replace this section with current facts:
 
-- Last completed item or finding: remote Linux/Windows CI activation and repair after
-  the 0083 machine package; final human/live gates remain
-- Current implementation commit: `b622d7bbb540ba8a71408de3deeca7ba6bfdaf56`
-- Working tree state at HB2 transfer: handoff/evidence changes are committed and pushed
-  after the source snapshot; verify clean/even state after cloning on HB3
-- Exact tests passed: full pytest 710 passed with 1 live skip; 26 focused submission
-  tests; 49/49 adversarial cases; clean build/install/demo/privacy including optional
-  extra; four byte-stable reports; Ruff across 193 files; mypy across 93 files; final
-  aggregate audit machine pass
+- Last completed item or finding: A2 initial independent audit against
+  `795ff0ad8f1d4706c8d92f88059059aa81f89bbb`; verdict `not-green`
+- Current implementation commit: `795ff0ad8f1d4706c8d92f88059059aa81f89bbb`
+- Working tree state: audited source candidate was clean and immutable; only the A2
+  report, audit queue, and this status file were changed for report-only synthesis
+- Exact tests passed: full pytest 712 passed with 1 skip; focused 379 passed with 1
+  guarded live skip; structured/replay 259 passed; executor/eval 109 passed; 49/49
+  existing eval cases; 38 additional A2 cases executed, 30 genuinely new; no-key
+  `BLOCK`/`PASS`; 51-file privacy pass; Ruff across 193 files; mypy across 93 files; CI
+  run `30219026273` green
 - Exact tests unavailable or failed: Nix/`just` unavailable on HB2
 - Bad-patch verdict: ordinary tests `PASS`; replay Faber Proof `BLOCK` with one exact
   last-turn counterexample
 - Repaired-patch verdict: ordinary tests `PASS`; replay Faber Proof `PASS` with complete
   required coverage
-- Open audit P0/P1 findings: none
-- Next P0 action: on HB3 run A2, A3, and A4 from fresh independent audit sessions
-- Next eligible independent audit: A2, then A3/A4; A5 needs a final human-complete
-  candidate for final-green status
+- Open audit findings: 4 P0, 4 P1, and 4 P2, all owned by `$build-week-director` with
+  no fix commit
+- Next P0 action: fix `A2-P0-001`, then the remaining A2 P0 findings
+- Next eligible independent audit: A2 re-verification after fixes; A3/A4 are not the
+  immediate action while P0 findings remain open
 - Deferred human-only actions: establish deadline authorization/timely-submission
   state, run guarded live bad/repaired capture and review, verify judge access, record
   and upload the video, complete Devpost, and create the audited tag
 - Should this session be submitted with `/feedback`: completed; primary session ID
   `019f6d53-0a3d-71d3-abd7-749dc4a3784c` is recorded
-- Known risks: local executors do not provide OS, network, container, or descendant
-  process isolation; production needs an immutable checkout and enforceable sandbox.
-  Live GPT-5.6 capture requires a human-supplied API key; committed replays remain
-  `fake-development`, so the final provenance addendum and final sample reports are not
-  yet eligible
+- Known risks: the A2 report records false-PASS bundle rewriting, visible report
+  disagreement, provenance relabeling, and cross-invocation raw-authority reuse. Local
+  executors also do not provide OS, network, container, or descendant-process
+  isolation. Live GPT-5.6 capture still requires a human-supplied API key; committed
+  replays remain `fake-development`
 - Dated machine-transfer packet:
   `codex/build-week/HB2_TO_HB3_HANDOFF_2026-07-26.md`
 - Deadline state: the official submission deadline has passed; human verification of
