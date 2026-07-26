@@ -263,9 +263,7 @@ class WorkerProfile:
             "supported_platforms": self.supported_platforms,
             "cost_model": self.cost_model.to_dict() if self.cost_model else None,
             "model_manifest": self.model_manifest.to_dict() if self.model_manifest else None,
-            "harness_manifest": self.harness_manifest.to_dict()
-            if self.harness_manifest
-            else None,
+            "harness_manifest": self.harness_manifest.to_dict() if self.harness_manifest else None,
             "environment_manifest": self.environment_manifest.to_dict()
             if self.environment_manifest
             else None,

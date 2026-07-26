@@ -78,9 +78,7 @@ class LocalPerformanceSmokeReport:
             "duplicate_record_attempt_count": self.duplicate_record_attempt_count,
             "duplicate_record_insert_count": self.duplicate_record_insert_count,
             "duplicate_event_attempt_count": self.duplicate_event_attempt_count,
-            "lifecycle_event_count_after_duplicates": (
-                self.lifecycle_event_count_after_duplicates
-            ),
+            "lifecycle_event_count_after_duplicates": (self.lifecycle_event_count_after_duplicates),
             "dataset_output_bytes": self.dataset_output_bytes,
             "store_path": self.store_path,
             "dataset_path": self.dataset_path,
@@ -150,9 +148,7 @@ def run_local_performance_smoke(
         "total_margin_minor_units": dataset_manifest.total_margin_minor_units,
     }
     return LocalPerformanceSmokeReport(
-        generated_record_count=(
-            contract_count + attempt_count + event_count + trajectory_count
-        ),
+        generated_record_count=(contract_count + attempt_count + event_count + trajectory_count),
         store_write_seconds=store_write_seconds,
         dataset_export_seconds=dataset_export_seconds,
         elapsed_seconds=elapsed_seconds,

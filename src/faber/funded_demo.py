@@ -131,9 +131,7 @@ def write_funded_trajectory_demo(out_dir: str | Path) -> FundedTrajectoryDemo:
             "digest": result.dataset_manifest.jsonl_digest,
             "record_count": result.dataset_manifest.record_count,
         },
-        "validations": {
-            name: validation.to_dict() for name, validation in validations.items()
-        },
+        "validations": {name: validation.to_dict() for name, validation in validations.items()},
         "paths": {name: str(path) for name, path in paths.items()},
         "external_integrations": {
             "network": False,

@@ -14,10 +14,11 @@ Read it after `AGENTS.md`, `docs/CODEX_SESSION_HANDOFF.md`, and
 - Active work item: `codex/future/0082-adversarial-evals-packaging-ci.md`
 - Follow-on item: `codex/future/0083-submission-video-final-audit.md`
 - Platform used: HB2, Windows, Python 3.11.15
-- State: 0082 is substantially implemented but is intentionally **not marked
-  complete**. Documentation, final repository-wide checks, GitHub CI, and the focused
-  completion commit remain for HB3.
-- 0083 machine work has not started.
+- State: this historical checkpoint has been completed locally. Threat/eval/live
+  documentation, repository-wide formatting, full checks, packaging, clean installation,
+  privacy, report regeneration, and performance evidence are green. The only 0082 gate
+  still open is remote workflow activation and observation.
+- 0083 machine work is current.
 
 The commit containing this file is a machine-transfer checkpoint, not the 0082
 completion commit. Use `git log -1 --oneline` after cloning to identify the exact
@@ -82,10 +83,10 @@ live extra OpenAI package: present
 ordinary tests: PASS / PASS
 Faber Proof: BLOCK / PASS
 demo files: 51
-demo bytes: 232351
+demo bytes: 232257
 privacy findings: 0
-wheel bytes: 332987
-sdist bytes: 386791
+wheel bytes: 333474
+sdist bytes: 388290
 ```
 
 ### Determinism and authority hardening
@@ -118,7 +119,7 @@ sdist bytes: 386791
 - `scripts/check_development_report_regeneration.py` verifies four byte-stable
   fake-development reports.
 - `scripts/measure_proof_demo.py` records runtime, bundle size, and privacy evidence.
-- Latest HB2 measurement: 8.890471 seconds total, 232260 output bytes, zero privacy
+- Latest HB2 measurement: 6.258291 seconds total, 232259 output bytes, zero privacy
   findings.
 - Generated evidence is under:
   - `docs/generated/DEVELOPMENT_REPORT_REGENERATION.json`
@@ -153,8 +154,9 @@ build 1.5.0
 
 Recorded passing checks:
 
-- full repository suite: 697 passed, 1 guarded live test skipped in 90.49 seconds
+- full repository suite: 699 passed, 1 guarded live test skipped in 117.88 seconds
 - `python -m ruff check .`: passed
+- `python -m ruff format --check .`: 189 files already formatted
 - planner-focused suite: 88 passed, 1 guarded live test skipped
 - product-focused suite after timing fields: 14 passed
 - packaging tests: 4 passed
@@ -169,63 +171,25 @@ Recorded passing checks:
 - wheel and sdist build: passed
 - full clean-install audit including optional live extra: passed
 
-The repository-wide Ruff format check is not green: it reports 56 files that would be
-reformatted, including older code outside 0082. The full test suite, Ruff lint, mypy,
-adversarial eval `--check`, and report-regeneration `--check` are green at transfer.
-Treat these as checkpoint evidence, not completion evidence, because final
-documentation, packaging reruns, and GitHub CI still remain.
+The final clean-install audit produced a 333474-byte wheel and 388290-byte sdist. Its
+installed no-key demo produced ordinary `PASS`/`PASS`, Faber Proof `BLOCK`/`PASS`, 51
+files, 232257 bytes, and zero privacy findings. Final performance evidence records
+6.258291 seconds, 232259 bytes, and zero privacy findings.
 
 Nix and `just` were unavailable on HB2. Run the repository's normal checks on HB3 when
 available; otherwise run the documented local equivalents and record the limitation.
 
 ## Work still required for 0082
 
-1. Inspect this checkpoint diff and run `git diff --check`.
-2. Add the concise product threat model, adversarial-eval guide, live-capture runbook,
-   packaging/development commands, and installed-demo provenance notes. The intended
-   files are:
-   - `docs/FABER_PROOF_THREAT_MODEL.md`
-   - `docs/BUILD_WEEK_EVALS.md`
-   - `docs/LIVE_GPT56_CAPTURE_RUNBOOK.md`
-   - `docs/DEVELOPMENT.md`
-   - `examples/build-week-proof/README.md`
-   - `examples/build-week-proof/expected/PROVENANCE.md`
-3. Document both judge paths in no more than five commands. The prepared paths are:
+Promote `codex/build-week/drafts/ci.yml` to `.github/workflows/ci.yml` using a non-FIDO
+credential that GitHub permits to modify workflow files. The HB2 repository deploy key
+authenticates correctly, but GitHub rejected a push containing the workflow path because
+the OAuth app that registered the key lacks `workflow` scope. Do not fall back to the
+FIDO key.
 
-   Linux/macOS:
-
-   ```bash
-   python3 -m venv .venv
-   . .venv/bin/activate
-   python -m pip install .
-   faber doctor
-   faber demo proof --mode replay --out-dir .faber/build-week-demo
-   ```
-
-   Windows PowerShell:
-
-   ```powershell
-   py -3.11 -m venv .venv
-   .\.venv\Scripts\python.exe -m pip install .
-   .\.venv\Scripts\faber.exe doctor
-   .\.venv\Scripts\faber.exe demo proof --mode replay --out-dir .faber\build-week-demo
-   ```
-
-4. Run repository-wide Ruff format. The transfer-time check reports 56 files, including
-   pre-existing formatting drift, so inspect that mechanical change separately.
-5. Promote `codex/build-week/drafts/ci.yml` to `.github/workflows/ci.yml` using a
-   non-FIDO credential that GitHub permits to modify workflow files. The HB2
-   repository deploy key authenticates correctly, but GitHub rejected a push containing
-   `.github/workflows/ci.yml` because the OAuth app that registered the key lacks
-   `workflow` scope. Do not fall back to the FIDO key.
-6. Run full pytest, Ruff lint and format, mypy, eval `--check`, report-regeneration
-   `--check`, final package build, final clean-install audit, performance measurement,
-   and artifact privacy audit.
-7. Update `codex/build-week/STATUS.md` and `docs/CODEX_SESSION_HANDOFF.md` with the
-   final exact 0082 baseline.
-8. Make the focused 0082 completion commit and push it.
-9. Watch Linux and Windows GitHub Actions to completion. Fix failures before marking
-   0082 complete.
+After promotion, observe both Linux and Windows jobs to completion and repair any
+platform failure. All machine work independent of that external authorization is
+complete, so 0083-M proceeds while this exact blocker remains recorded.
 
 ## Intended threat-model content
 

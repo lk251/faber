@@ -58,9 +58,7 @@ def test_router_dataset_record_includes_required_features_and_labels() -> None:
     assert record["features"]["task"]["task_source"] == "demo"
     assert record["features"]["worker"]["worker_id"] == "worker_demo"
     assert record["features"]["solver"]["harness_family"] == "faber-runner"
-    assert record["features"]["verifier_policy"]["verifier_ids"] == [
-        "verifier.local.unit-tests"
-    ]
+    assert record["features"]["verifier_policy"]["verifier_ids"] == ["verifier.local.unit-tests"]
     assert record["labels"]["selected_worker_id"] == "worker_demo"
     assert record["labels"]["selected_verifier_id"] == "verifier.local.unit-tests"
 

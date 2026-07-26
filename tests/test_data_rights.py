@@ -74,9 +74,7 @@ def test_training_ineligible_trajectory_is_excluded_from_training_export(
     )
 
     assert manifest.record_count == 1
-    assert [record["id"] for record in read_trajectory_jsonl(out_path)] == [
-        "trajectory_demo"
-    ]
+    assert [record["id"] for record in read_trajectory_jsonl(out_path)] == ["trajectory_demo"]
 
 
 def test_audit_only_record_remains_available_for_verification_history() -> None:

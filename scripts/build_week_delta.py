@@ -96,11 +96,7 @@ def _working_tree_is_dirty(repo: Path) -> bool:
 
 def _baseline_paths(repo: Path, baseline_sha: str) -> set[str]:
     result = _git(repo, "ls-tree", "-r", "-z", "--name-only", baseline_sha)
-    return {
-        _decode_git(path)
-        for path in result.stdout.split(b"\0")
-        if path
-    }
+    return {_decode_git(path) for path in result.stdout.split(b"\0") if path}
 
 
 def _commit_shas(repo: Path, baseline_sha: str, target_sha: str) -> list[str]:
@@ -158,9 +154,7 @@ def _date_warnings(commits: Sequence[dict[str, str]]) -> list[str]:
                 if parsed.tzinfo is None:
                     raise ValueError("date has no UTC offset")
             except ValueError:
-                warnings.append(
-                    f"Commit {commit['sha']} has an invalid {label}: {value!r}."
-                )
+                warnings.append(f"Commit {commit['sha']} has an invalid {label}: {value!r}.")
                 continue
             if parsed < SUBMISSION_PERIOD_START:
                 warnings.append(
@@ -197,8 +191,7 @@ def _purpose_groups(path: str, *, pre_existing: bool) -> list[str]:
         selected.add("tests")
 
     if lower.startswith("docs/") or (
-        "/" not in lower
-        and (filename.startswith("readme") or filename.endswith(".md"))
+        "/" not in lower and (filename.startswith("readme") or filename.endswith(".md"))
     ):
         selected.add("docs")
 
@@ -264,14 +257,10 @@ def _changed_files(
 
 def _file_summary(changed_files: Sequence[dict[str, Any]]) -> dict[str, Any]:
     additions = sum(
-        int(item["additions"])
-        for item in changed_files
-        if item["additions"] is not None
+        int(item["additions"]) for item in changed_files if item["additions"] is not None
     )
     deletions = sum(
-        int(item["deletions"])
-        for item in changed_files
-        if item["deletions"] is not None
+        int(item["deletions"]) for item in changed_files if item["deletions"] is not None
     )
     return {
         "additions": additions,
@@ -283,11 +272,7 @@ def _file_summary(changed_files: Sequence[dict[str, Any]]) -> dict[str, Any]:
 
 def _file_groups(changed_files: Sequence[dict[str, Any]]) -> dict[str, list[str]]:
     return {
-        group: sorted(
-            str(item["path"])
-            for item in changed_files
-            if group in item["groups"]
-        )
+        group: sorted(str(item["path"]) for item in changed_files if group in item["groups"])
         for group in GROUP_ORDER
     }
 
@@ -322,16 +307,13 @@ def build_report(repo: Path, baseline_ref: str, target_ref: str) -> dict[str, An
             check=False,
         )
         if ancestor.returncode == 1:
-            warnings.append(
-                f"Baseline {baseline_sha} is not an ancestor of target {target_sha}."
-            )
+            warnings.append(f"Baseline {baseline_sha} is not an ancestor of target {target_sha}.")
         elif ancestor.returncode != 0:
             detail = _decode_git(ancestor.stderr).strip() or str(ancestor.returncode)
             raise GitCommandError(f"Could not compare baseline and target ancestry: {detail}")
 
         commits = [
-            _commit_record(repo, sha)
-            for sha in _commit_shas(repo, baseline_sha, target_sha)
+            _commit_record(repo, sha) for sha in _commit_shas(repo, baseline_sha, target_sha)
         ]
         warnings.extend(_date_warnings(commits))
         changed_files = _changed_files(

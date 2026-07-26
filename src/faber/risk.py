@@ -222,9 +222,7 @@ class HumanReviewGate:
 
     @property
     def allows_agent_execution(self) -> bool:
-        return not self.required or (
-            self.approved and self.approved_for_agent_execution
-        )
+        return not self.required or (self.approved and self.approved_for_agent_execution)
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -516,9 +514,7 @@ def _human_review_gate(
     reviewer = reviewer_value if isinstance(reviewer_value, str) and reviewer_value else None
     reviewed_at_value = metadata.get("reviewed_at")
     reviewed_at = (
-        reviewed_at_value
-        if isinstance(reviewed_at_value, str) and reviewed_at_value
-        else None
+        reviewed_at_value if isinstance(reviewed_at_value, str) and reviewed_at_value else None
     )
     approved = (
         metadata.get("human_reviewed") is True
@@ -530,8 +526,7 @@ def _human_review_gate(
         task_contract_id=task_contract_id,
         required=required,
         approved=approved,
-        approved_for_funding=approved
-        and metadata.get("approved_for_funding", True) is True,
+        approved_for_funding=approved and metadata.get("approved_for_funding", True) is True,
         approved_for_agent_execution=approved
         and metadata.get("approved_for_agent_execution", True) is True,
         reviewer=reviewer,

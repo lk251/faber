@@ -46,9 +46,7 @@ def test_golden_payload_digests_match_manifest() -> None:
 def test_dataset_export_from_golden_corpus_is_stable(tmp_path: Path) -> None:
     fixtures = load_golden_fixture_corpus(FIXTURE_ROOT)
     trajectories = [
-        fixture.payload
-        for fixture in fixtures
-        if fixture.name in TRAJECTORY_FIXTURE_NAMES
+        fixture.payload for fixture in fixtures if fixture.name in TRAJECTORY_FIXTURE_NAMES
     ]
     expected = json.loads((FIXTURE_ROOT / "digests.json").read_text(encoding="utf-8"))
 

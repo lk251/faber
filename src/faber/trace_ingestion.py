@@ -338,8 +338,7 @@ def _required_string(
 
 def _event_id(attempt_id: str, sequence: int) -> str:
     safe_attempt_id = "".join(
-        character if character.isalnum() or character in "-_" else "_"
-        for character in attempt_id
+        character if character.isalnum() or character in "-_" else "_" for character in attempt_id
     )
     return f"trace-event_{safe_attempt_id}_{sequence:06d}"
 

@@ -498,8 +498,7 @@ def validate_trajectory_quality(
     )
     full_payout_tier = requirement_value.full_payout_minimum_tier
     full_payout_eligible = meets_requirement and (
-        full_payout_tier is None
-        or quality_rank(quality_tier) >= quality_rank(full_payout_tier)
+        full_payout_tier is None or quality_rank(quality_tier) >= quality_rank(full_payout_tier)
     )
     bonus_tier = requirement_value.bonus_minimum_tier
     bonus_eligible = (
@@ -735,8 +734,7 @@ def _process_evidence(
         for prefix in OBSERVATION_EVENT_PREFIXES
     )
     has_verifier_events = any(
-        "verifier" in event_type or "verification" in event_type
-        for event_type in included
+        "verifier" in event_type or "verification" in event_type for event_type in included
     )
     redacted = bool(trace_manifest.get("redaction_policy")) if trace_manifest else False
     trace_completeness = TraceCompleteness(
@@ -776,8 +774,7 @@ def _reward_signal(record: TrajectoryRecord, receipt: dict[str, object]) -> Rewa
         latency_metadata.get("total_seconds"),
     )
     outcome = str(
-        record.get("outcome")
-        or ("accepted" if receipt.get("accepted") is True else "rejected")
+        record.get("outcome") or ("accepted" if receipt.get("accepted") is True else "rejected")
     )
     present = reward_minor_units is not None
     return RewardSignal(

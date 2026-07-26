@@ -21,8 +21,7 @@ def test_all_cross_platform_fixtures_validate() -> None:
     }
     assert validate_cross_platform_harness_fixtures(fixtures) == []
     assert all(
-        validate_trajectory_quality(fixture.trajectory_record).is_rl_grade
-        for fixture in fixtures
+        validate_trajectory_quality(fixture.trajectory_record).is_rl_grade for fixture in fixtures
     )
 
 

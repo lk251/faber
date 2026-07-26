@@ -79,8 +79,7 @@ class WorkerScorecard:
             "created_at": self.created_at,
             "worker_id": self.worker_id,
             "task_families": {
-                name: scorecard.to_dict()
-                for name, scorecard in sorted(self.task_families.items())
+                name: scorecard.to_dict() for name, scorecard in sorted(self.task_families.items())
             },
             "sample_size": self.sample_size,
             "success_rate_milli": self.success_rate_milli,
@@ -131,11 +130,7 @@ class WorkerScorecardBuilder:
             raise ValidationError("trajectory worker_id does not match scorecard worker")
         contract = _mapping(trajectory.get("contract"))
         environment = _mapping(contract.get("environment"))
-        task_family = str(
-            environment.get("task_type")
-            or contract.get("task_source")
-            or "unknown"
-        )
+        task_family = str(environment.get("task_type") or contract.get("task_source") or "unknown")
         outcome = str(trajectory.get("outcome") or "unknown")
         manifest = _mapping(trajectory.get("attempt_manifest"))
         manifest_environment = _mapping(manifest.get("environment_metadata"))
@@ -152,9 +147,7 @@ class WorkerScorecardBuilder:
             _Observation(
                 task_family=task_family,
                 outcome=outcome,
-                cost_minor_units=_sum_minor_units(
-                    _mapping(trajectory.get("cost_metadata"))
-                ),
+                cost_minor_units=_sum_minor_units(_mapping(trajectory.get("cost_metadata"))),
                 reward_minor_units=_reward_minor_units(trajectory),
                 latency_seconds=_latency_seconds(trajectory),
                 review_friction_milli=_review_friction_milli(trajectory),
@@ -190,9 +183,7 @@ class WorkerScorecardBuilder:
             average_trace_quality_milli=_average(
                 [item.trace_quality_milli for item in self._observations]
             ),
-            value_per_euro_milli=(
-                total_reward * 1000 // max(total_cost, 1) if total else 0
-            ),
+            value_per_euro_milli=(total_reward * 1000 // max(total_cost, 1) if total else 0),
             uncertainty_milli=_uncertainty(total),
             observed_platforms=sorted(
                 {item.platform for item in self._observations if item.platform}
@@ -231,9 +222,7 @@ def _family_scorecard(
         average_review_friction_milli=_average(
             [item.review_friction_milli for item in observations]
         ),
-        average_trace_quality_milli=_average(
-            [item.trace_quality_milli for item in observations]
-        ),
+        average_trace_quality_milli=_average([item.trace_quality_milli for item in observations]),
         uncertainty_milli=_uncertainty(sample_size),
     )
 
@@ -266,9 +255,7 @@ def _sum_minor_units(metadata: dict[str, object]) -> int:
     return sum(
         value
         for key, value in metadata.items()
-        if key.endswith("_minor_units")
-        and isinstance(value, int)
-        and not isinstance(value, bool)
+        if key.endswith("_minor_units") and isinstance(value, int) and not isinstance(value, bool)
     )
 
 

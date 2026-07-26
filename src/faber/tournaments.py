@@ -154,9 +154,7 @@ def run_candidate_tournament(
     ):
         raise ValidationError("receipt must reference a tournament candidate")
     schedule = (
-        "full_round_robin"
-        if len(attempts) <= policy.full_round_robin_max_candidates
-        else "pivot"
+        "full_round_robin" if len(attempts) <= policy.full_round_robin_max_candidates else "pivot"
     )
     scheduled_pairs = _comparison_pairs(attempts, policy, schedule)
     comparisons: list[CandidateComparison] = []
@@ -214,8 +212,7 @@ def run_candidate_tournament(
             }
         )
     uncertainty = (
-        sum(comparison.uncertainty_milli for comparison in comparisons)
-        // len(comparisons)
+        sum(comparison.uncertainty_milli for comparison in comparisons) // len(comparisons)
         if comparisons
         else 1000
     )
@@ -269,11 +266,7 @@ def _comparison_pairs(
         for candidate in attempts:
             if candidate.id == pivot.id:
                 continue
-            key = (
-                (pivot.id, candidate.id)
-                if pivot.id < candidate.id
-                else (candidate.id, pivot.id)
-            )
+            key = (pivot.id, candidate.id) if pivot.id < candidate.id else (candidate.id, pivot.id)
             if key in seen:
                 continue
             seen.add(key)

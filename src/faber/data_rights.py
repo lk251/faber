@@ -108,9 +108,7 @@ class ConsentGrant:
         require_training_uses(self.allowed_uses, "allowed_uses")
         require_non_empty_string(self.granted_at, "granted_at")
         if self.provenance not in CONSENT_PROVENANCE:
-            raise ValidationError(
-                f"provenance must be one of {sorted(CONSENT_PROVENANCE)}"
-            )
+            raise ValidationError(f"provenance must be one of {sorted(CONSENT_PROVENANCE)}")
 
     def allows(self, use: str) -> bool:
         require_non_empty_string(use, "use")
@@ -238,8 +236,7 @@ class TrainingUsePolicy:
         unknown = sorted(set(parties) - CONSENT_PARTIES)
         if unknown:
             raise ValidationError(
-                "required_consent_parties contains unsupported parties: "
-                f"{unknown}"
+                f"required_consent_parties contains unsupported parties: {unknown}"
             )
         require_visibility(self.visibility)
         if not isinstance(self.audit_retention_allowed, bool):
@@ -252,9 +249,7 @@ class TrainingUsePolicy:
     def allows(self, use: str) -> bool:
         require_non_empty_string(use, "use")
         policy_allows = "all" in self.allowed_uses or use in self.allowed_uses
-        return policy_allows and (
-            self.data_license is None or self.data_license.allows(use)
-        )
+        return policy_allows and (self.data_license is None or self.data_license.allows(use))
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -323,9 +318,7 @@ class RetentionPolicy:
         require_non_empty_string(self.id, "id")
         require_non_empty_string(self.created_at, "created_at")
         if self.retention_class not in RETENTION_CLASSES:
-            raise ValidationError(
-                f"retention_class must be one of {sorted(RETENTION_CLASSES)}"
-            )
+            raise ValidationError(f"retention_class must be one of {sorted(RETENTION_CLASSES)}")
         if self.private_content_days is not None and (
             not isinstance(self.private_content_days, int)
             or isinstance(self.private_content_days, bool)
@@ -574,9 +567,7 @@ def resolve_training_use_policy(
         [repository_policy.visibility, task_policy.visibility],
         key=VISIBILITY_RANK.__getitem__,
     )
-    policy_digest = sha256_digest(
-        [repository_policy.digest(), task_policy.digest()]
-    )[-16:]
+    policy_digest = sha256_digest([repository_policy.digest(), task_policy.digest()])[-16:]
     return TrainingUsePolicy(
         id=f"training-use-policy_resolved_{policy_digest}",
         created_at=max(repository_policy.created_at, task_policy.created_at),
@@ -587,8 +578,7 @@ def resolve_training_use_policy(
         ),
         visibility=visibility,
         audit_retention_allowed=(
-            repository_policy.audit_retention_allowed
-            and task_policy.audit_retention_allowed
+            repository_policy.audit_retention_allowed and task_policy.audit_retention_allowed
         ),
         public_export_allowed=(
             repository_policy.public_export_allowed
@@ -676,9 +666,7 @@ def record_withdrawn_for(record: Mapping[str, object], purpose: str = "training"
         if withdrawal.get("trajectory_id") != record.get("id"):
             return False
         scopes = withdrawal.get("scopes", [])
-        if isinstance(scopes, list) and (
-            "training" in scopes or purpose in scopes
-        ):
+        if isinstance(scopes, list) and ("training" in scopes or purpose in scopes):
             return True
     deletion = record.get("deletion")
     if isinstance(deletion, Mapping):
@@ -774,9 +762,7 @@ def _policy_from_record(record: Mapping[str, object]) -> TrainingUsePolicy:
         if isinstance(repository_raw, Mapping)
         else _default_policy()
     )
-    task_policy = (
-        TrainingUsePolicy.from_dict(task_raw) if isinstance(task_raw, Mapping) else None
-    )
+    task_policy = TrainingUsePolicy.from_dict(task_raw) if isinstance(task_raw, Mapping) else None
     return resolve_training_use_policy(repository_policy, task_policy)
 
 
@@ -812,9 +798,7 @@ def _grant_allows(grant: object, party: str, purpose: str) -> bool:
 
 
 def _use_allowed(raw_uses: object, purpose: str) -> bool:
-    return isinstance(raw_uses, list) and (
-        "all" in raw_uses or purpose in raw_uses
-    )
+    return isinstance(raw_uses, list) and ("all" in raw_uses or purpose in raw_uses)
 
 
 def _required_string(payload: Mapping[str, object], field_name: str) -> str:

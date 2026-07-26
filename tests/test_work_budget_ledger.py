@@ -92,9 +92,7 @@ def _budget_and_allocation(*, bonus_policy: bool = False):
         _contract(),
         amount=Money("EUR", 8_000),
         purpose="solver_payout",
-        trace_quality_bonus_policy=(
-            {"minimum_quality_tier": "trace"} if bonus_policy else {}
-        ),
+        trace_quality_bonus_policy=({"minimum_quality_tier": "trace"} if bonus_policy else {}),
     )
     return budget, allocation
 

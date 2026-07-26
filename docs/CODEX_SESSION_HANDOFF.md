@@ -22,7 +22,7 @@ The machine-resume state is:
 codex/build-week/STATUS.md
 ```
 
-The active HB2-to-HB3 implementation checkpoint is:
+The detailed HB2 0082 implementation checkpoint is:
 
 ```text
 codex/build-week/0082_HB2_HANDOFF.md
@@ -60,18 +60,18 @@ private data as part of the Build Week queue.
   or committer dates; the offline control-plane commit brings the total to 41
 - Last completed machine slice: 0081 deterministic implementation and demo; its final
   live-reviewed replay provenance is deferred
-- Active implementation checkpoint: 0082 adversarial evals, privacy audit, packaging,
-  clean installation, deterministic evidence, guarded live capture, and CI are
-  substantially implemented in `codex/build-week/0082_HB2_HANDOFF.md`; 0082 is not yet
-  complete
+- Active implementation state: 0082 code, documentation, and all available local
+  release checks are complete; its exact Linux/Windows workflow is preserved at
+  `codex/build-week/drafts/ci.yml` pending a GitHub credential authorized to modify
+  workflow files; 0083-M is current
 - Last independent audit: A1 architecture/authority against `6d11e7a`, verdict
   `green`; `A1-P0-001` is independently verified
 - Snapshot date: 2026-07-26
 - Primary-session designation: this director thread is the primary Build Week
   implementation session; `/feedback` session ID
   `019f6d53-0a3d-71d3-abd7-749dc4a3784c` is recorded
-- Current local working-tree state: expected clean after the HB2 machine-transfer
-  checkpoint is committed and pushed;
+- Current local working-tree state: expected clean after the focused 0082 completion
+  commit is pushed;
   inspect it rather than relying on this file
 
 Confirm the checked-out state before changing anything:
@@ -259,27 +259,29 @@ The Build Week delta and README must distinguish it from the Faber Proof extensi
 
 ## Last recorded validation baseline
 
-The active work item 0082 checkpoint was prepared on HB2 with Python 3.11.15, pytest
+The work item 0082 local completion baseline was prepared on HB2 with Python 3.11.15, pytest
 9.0.2, Ruff 0.15.10, mypy 2.1.0, and build 1.5.0:
 
 - adversarial campaign passed 49/49 cases twice with zero unjustified passes
-- `python -m pytest -q` passed 697 tests with 1 guarded live skip in 90.49 seconds
+- `python -m pytest -q` passed 699 tests with 1 guarded live skip in 117.88 seconds
 - `python -m ruff check .` passed
+- `python -m ruff format --check .` passed across 189 files
 - planner-focused tests passed 88 tests with 1 guarded live skip
 - product-focused tests passed 14 tests; packaging tests passed 4 tests
 - deterministic report regeneration produced 4 byte-stable reports
 - the wheel, sdist, base clean install, no-key installed demo, artifact privacy audit,
   and optional live-extra installation all passed
 - the installed demo produced ordinary `PASS`/`PASS` and Faber Proof `BLOCK`/`PASS`
-- the complete clean-install demo contained 51 files, 232351 bytes, and zero privacy
+- the complete clean-install demo contained 51 files, 232257 bytes, and zero privacy
   findings
-- HB2 performance measurement completed in 8.890471 seconds with 232260 output bytes
+- HB2 performance measurement completed in 6.258291 seconds with 232259 output bytes
   and zero privacy findings
 - `python -m mypy src` passed across 93 source files; focused Ruff checks passed
 - fake guarded-live success, rollback, and no-callback preflight tests passed without a
   provider call
 - adversarial eval and report-regeneration `--check` commands passed
-- repository-wide Ruff format is not green and reports 56 files requiring formatting
+- development fixtures regenerate byte-identically and remain `fake-development`
+- a direct privacy audit passed across 58 generated/committed files and 274922 bytes
 - Nix and `just` were unavailable on HB2
 
 The complete commands, generated evidence, unfinished documentation, and exact next
@@ -328,18 +330,18 @@ in the ignored `.faber/dev-venv` environment and do not transfer through Git.
 
 ## Recommended next action
 
-On HB3, read and finish the machine-transfer checkpoint:
+On HB3, read the machine-transfer checkpoint for implementation history:
 
 ```text
 codex/build-week/0082_HB2_HANDOFF.md
 ```
 
-Complete the remaining 0082 documentation and repository-wide checks, make the focused
-0082 completion commit, promote `codex/build-week/drafts/ci.yml` with a non-FIDO
-credential authorized for workflow-file updates, and keep Linux and Windows GitHub CI
-green. The HB2 deploy key authenticated correctly but GitHub rejected the workflow
-path because the OAuth app that registered that key lacks `workflow` scope. Then
-continue directly through all machine-completable 0083 submission preparation under:
+Continue directly through all machine-completable 0083 submission preparation. In
+parallel when a human-authorized non-FIDO credential is available, promote
+`codex/build-week/drafts/ci.yml` and keep both Linux and Windows GitHub jobs green. The
+HB2 deploy key authenticated correctly, but GitHub rejected the workflow path because
+the OAuth app that registered that key lacks `workflow` scope. The exact offline queue
+is:
 
 ```text
 codex/build-week/OFFLINE_CONTINUATION.md

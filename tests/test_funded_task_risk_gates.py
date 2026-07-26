@@ -90,9 +90,10 @@ def test_structured_risk_flags_are_bound_into_contract_digest() -> None:
     )
 
     assert low.digest() != external_write.digest()
-    assert external_write.to_dict()["environment"]["risk"]["external_action"][
-        "external_writes"
-    ] is True
+    assert (
+        external_write.to_dict()["environment"]["risk"]["external_action"]["external_writes"]
+        is True
+    )
 
 
 def test_explicit_human_review_can_approve_high_risk_task() -> None:

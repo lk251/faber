@@ -18,9 +18,7 @@ CREATED_AT = "2026-07-09T00:00:00Z"
 
 def _record() -> dict[str, object]:
     fixture = next(
-        item
-        for item in cross_platform_harness_fixtures()
-        if item.platform_family == "windows"
+        item for item in cross_platform_harness_fixtures() if item.platform_family == "windows"
     )
     record = deepcopy(fixture.trajectory_record)
     contract = record["contract"]

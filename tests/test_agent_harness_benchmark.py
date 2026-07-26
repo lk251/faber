@@ -18,8 +18,7 @@ def test_benchmark_fixtures_validate() -> None:
     assert validate_agent_harness_benchmark(fixtures) == []
     assert benchmark_flake_exists()
     assert {
-        fixture.contract.environment["dev_environment"]["flake_path"]
-        for fixture in fixtures
+        fixture.contract.environment["dev_environment"]["flake_path"] for fixture in fixtures
     } == {"flake.nix"}
     assert all(fixture.contract.environment["external_services"] == [] for fixture in fixtures)
 

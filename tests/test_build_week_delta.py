@@ -185,9 +185,7 @@ def test_paths_with_spaces_remain_single_changed_file_records(tmp_path: Path) ->
     result, report = _json_report(repo)
 
     assert result.returncode == 0, result.stderr.decode("utf-8")
-    assert [item["path"] for item in report["changed_files"]] == [
-        "docs/notes with spaces.md"
-    ]
+    assert [item["path"] for item in report["changed_files"]] == ["docs/notes with spaces.md"]
     assert report["file_groups"]["docs"] == ["docs/notes with spaces.md"]
 
 

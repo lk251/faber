@@ -85,6 +85,4 @@ def test_deprecated_schema_returns_explicit_warning() -> None:
 
     assert report.compatible is True
     assert report.action == "read-with-deprecation-warning"
-    assert report.warnings == [
-        "Use faber.example.v2 after migration support lands."
-    ]
+    assert report.warnings == ["Use faber.example.v2 after migration support lands."]

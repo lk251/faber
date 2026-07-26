@@ -132,9 +132,7 @@ class BudgetSettlement:
             "reservation_id": self.reservation_id,
             "receipt_id": self.receipt_id,
             "receipt_digest": self.receipt_digest,
-            "splits": {
-                name: amount.to_dict() for name, amount in sorted(self.splits.items())
-            },
+            "splits": {name: amount.to_dict() for name, amount in sorted(self.splits.items())},
             "total_minor_units": self.total_minor_units,
             "idempotency_key": self.idempotency_key,
         }
@@ -309,9 +307,7 @@ class WorkBudgetLedger:
         idempotency_key: str,
         trajectory_quality: Mapping[str, object] | None = None,
     ) -> BudgetSettlement:
-        split_payload = {
-            name: amount.to_dict() for name, amount in sorted(splits.items())
-        }
+        split_payload = {name: amount.to_dict() for name, amount in sorted(splits.items())}
         payload = {
             "operation": "settle",
             "reservation_id": reservation.id,

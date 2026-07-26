@@ -33,9 +33,7 @@ def test_nix_verifier_spec_digests_are_stable() -> None:
     second = nix_reproducibility_verifier_pack()
 
     assert first.digest() == second.digest()
-    assert [spec.digest() for spec in first.specs] == [
-        spec.digest() for spec in second.specs
-    ]
+    assert [spec.digest() for spec in first.specs] == [spec.digest() for spec in second.specs]
     assert len(first.specs) == 6
 
 
@@ -74,9 +72,7 @@ def test_fake_nix_verifier_success_and_failure_are_digest_bound() -> None:
 
     assert success.passed is True
     assert success.metrics["execution_mode"] == "fake"
-    assert success.logs_digest == sha256_digest(
-        {"stdout": "all checks passed\n", "stderr": ""}
-    )
+    assert success.logs_digest == sha256_digest({"stdout": "all checks passed\n", "stderr": ""})
     assert failure.passed is False
     assert failure.failure_reasons == ["fake Nix verifier exited with code 1"]
     assert success.result_digest() != failure.result_digest()
@@ -84,9 +80,7 @@ def test_fake_nix_verifier_success_and_failure_are_digest_bound() -> None:
 
 def test_missing_lockfile_warns_or_fails_by_policy() -> None:
     pack = nix_reproducibility_verifier_pack()
-    lock_spec = next(
-        spec for spec in pack.specs if spec.verifier_id == NIX_LOCKFILE_VERIFIER_ID
-    )
+    lock_spec = next(spec for spec in pack.specs if spec.verifier_id == NIX_LOCKFILE_VERIFIER_ID)
 
     warning = evaluate_fake_nix_lockfile(lock_spec, lockfile_digest=None, policy="warning")
     failure = evaluate_fake_nix_lockfile(lock_spec, lockfile_digest=None, policy="failure")

@@ -9,7 +9,7 @@ No-key fake-development replay used only to verify deterministic layout, binding
 
 | Report | SHA-256 digest | Bytes |
 |---|---|---:|
-| `bad/report.html` | `sha256:284bed0ed7de4ec26e182f1cd48983ea1fa1a8ccc4c8e770dc9b99448ba1e0bd` | 23715 |
-| `bad/report.md` | `sha256:5c4d7aef50197ea81744e05696502c6a0df996d5a171e467978961b0d7d5dc1e` | 13735 |
-| `repaired/report.html` | `sha256:6256e8460a7fdbdc31123aa58add59ef2d831584870a7794458f778bef2aa3f1` | 18956 |
-| `repaired/report.md` | `sha256:3496137306b2f3cd6b7386824eb121ba17a6bb9fab15e90c410a630b860cc931` | 10814 |
+| `bad/report.html` | `sha256:23632f4f7dc0b63d927104c4358894efe6acec04fda38e6bc6f86a57e3b6b8cd` | 23715 |
+| `bad/report.md` | `sha256:31324824b26ab7016e57bbc706452581c99449d55eb8825a18d4b11a2ab472de` | 13735 |
+| `repaired/report.html` | `sha256:bdc4ecda331539beeaa06739af60ee0663e961a3ff256656e05f703d40f72f32` | 18956 |
+| `repaired/report.md` | `sha256:d00b4e590f230a21bc010c3a3cef73ba0a776c6c394ddfe298b14af09d7aec06` | 10814 |

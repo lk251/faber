@@ -46,22 +46,23 @@ Add `--json` for the canonical comparison object. The equivalent repository reci
 not real model output and not final submission evidence. Never describe them as a live
 GPT-5.6 result.
 
-The guarded human-gate sequence is:
+The guarded human-gate command is:
 
 ```bash
-python examples/build-week-proof/scripts/capture_live_replays.py --out-dir .faber/live-demo-replays
-python examples/build-week-proof/scripts/review_replays.py --candidate-dir .faber/live-demo-replays --reviewer Javier --reviewed-at <UTC timestamp>
-python examples/build-week-proof/scripts/review_replays.py --candidate-dir .faber/live-demo-replays --reviewer Javier --reviewed-at <UTC timestamp> --install
-python examples/build-week-proof/scripts/review_replays.py --require-live-reviewed
+python examples/build-week-proof/scripts/capture_live_reviewed_demo.py --reviewer "Javier"
 ```
 
-The first command requires a human-supplied API key and writes unreviewed captures
-outside the fixture. Inspect them, then run the non-installing validation command. The
-explicit `--install` pass revalidates the exact requests, model metadata, secrets,
-ordinary tests, bad `BLOCK`, repaired `PASS`, and portable reports before atomically
-replacing the fake bundles, pinning their digests, recording `live-reviewed`
-provenance, and creating committed sample-report candidates. The final command
-intentionally fails while provenance remains `fake-development`.
+It requires a human-supplied API key, the expected clean branch, and the optional live
+dependency. It captures both candidates into temporary staging, applies the strict
+parser and all request/catalog/prompt/schema/model bindings, validates ordinary tests,
+bad `BLOCK`, repaired `PASS`, portable reports, bundle digests, and artifact privacy,
+then atomically replaces the fixture and reruns the offline demo. Any failure leaves or
+restores the existing fixture. The complete preflight, review, and rollback procedure
+is in `docs/LIVE_GPT56_CAPTURE_RUNBOOK.md`.
+
+The lower-level `capture_live_replays.py` and `review_replays.py` utilities remain
+available for debugging, but they are not the recommended final transaction. The
+review command intentionally fails while provenance remains `fake-development`.
 
 ## Evidence-driven Codex repair path
 

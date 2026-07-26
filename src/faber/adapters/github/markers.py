@@ -143,9 +143,7 @@ def render_funded_issue_marker(
     if not isinstance(budget, WorkBudget):
         raise ValidationError("budget must be a WorkBudget")
     if budget.target_kind not in FUNDED_TARGET_KINDS:
-        raise ValidationError(
-            f"budget target_kind must be one of {sorted(FUNDED_TARGET_KINDS)}"
-        )
+        raise ValidationError(f"budget target_kind must be one of {sorted(FUNDED_TARGET_KINDS)}")
     if not funding_source_ref:
         raise ValidationError("funding_source_ref must be a non-empty string")
     verifier_spend = budget.purpose_allocations.get("verifier_spend")

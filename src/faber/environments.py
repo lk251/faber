@@ -164,11 +164,9 @@ def environment_satisfies_contract(
         _platform_requirement_satisfied(platform, evidence.platform)
         for platform in required_platforms
     )
-    reproducibility_match = (
-        minimum_level is None
-        or reproducibility_rank(evidence.reproducibility_level)
-        >= reproducibility_rank(minimum_level)
-    )
+    reproducibility_match = minimum_level is None or reproducibility_rank(
+        evidence.reproducibility_level
+    ) >= reproducibility_rank(minimum_level)
     reasons: list[str] = []
     if not platform_match:
         reasons.append("platform requirement not satisfied")

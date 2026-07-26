@@ -24,6 +24,7 @@ def test_ci_is_least_privilege_cross_platform_and_covers_0082_gates() -> None:
         "python -m pytest",
         "python -m build --wheel --sdist",
         "clean_install_audit.py",
+        "faber audit-proof-artifacts",
         "run_build_week_evals.py --check",
         "check_development_report_regeneration.py --check",
         "measure_proof_demo.py",

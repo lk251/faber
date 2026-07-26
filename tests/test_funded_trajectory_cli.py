@@ -65,10 +65,7 @@ def test_funded_demo_human_output_names_ids_digests_and_paths(
 def test_funded_demo_documented_command_matches_cli_and_justfile() -> None:
     quickstart = Path("docs/QUICKSTART.md").read_text(encoding="utf-8")
     justfile = Path("justfile").read_text(encoding="utf-8")
-    command = (
-        "python -m faber.cli demo-funded-trajectory "
-        "--out-dir .faber/funded-demo"
-    )
+    command = "python -m faber.cli demo-funded-trajectory --out-dir .faber/funded-demo"
 
     assert command in quickstart
     assert "demo-funded-trajectory:" in justfile

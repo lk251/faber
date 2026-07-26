@@ -43,9 +43,7 @@ class ReviewCriterion:
         require_schema(self.schema, schemas.REVIEW_CRITERION)
         require_non_empty_string(self.name, "name")
         if self.outcome not in CRITERION_OUTCOMES:
-            raise ValidationError(
-                f"criterion outcome must be one of {sorted(CRITERION_OUTCOMES)}"
-            )
+            raise ValidationError(f"criterion outcome must be one of {sorted(CRITERION_OUTCOMES)}")
         if (
             not isinstance(self.weight_milli, int)
             or isinstance(self.weight_milli, bool)

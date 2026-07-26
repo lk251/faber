@@ -154,8 +154,7 @@ class ProofArtifactPrivacyReport:
                 ]
             )
             lines.extend(
-                f"| {item.severity} | `{item.code}` | `{item.path}` | "
-                f"`{item.evidence_digest}` |"
+                f"| {item.severity} | `{item.code}` | `{item.path}` | `{item.evidence_digest}` |"
                 for item in self.findings
             )
         return "\n".join(lines) + "\n"

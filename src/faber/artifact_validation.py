@@ -141,8 +141,7 @@ def validate_trace_file(path: str | Path) -> ArtifactValidationResult:
         status="valid",
         summary="Trace is valid and ordered.",
         next_step=(
-            "Bind this trace digest into a TraceManifest and validate the normalized "
-            "trajectory."
+            "Bind this trace digest into a TraceManifest and validate the normalized trajectory."
         ),
         details={
             "attempt_id": events[0].attempt_id,
@@ -188,18 +187,12 @@ def validate_trajectory_file(
         created_at=str(payload.get("created_at", "1970-01-01T00:00:00Z")),
     )
     missing_fields = sorted(
-        {
-            str(issue.get("field"))
-            for issue in report.issues
-            if issue.get("severity") == "blocker"
-        }
+        {str(issue.get("field")) for issue in report.issues if issue.get("severity") == "blocker"}
     )
     redaction_status = "not_applicable"
     if report.quality_tier in {"trace", "episode"}:
         redaction_status = (
-            "redacted"
-            if report.process_evidence.trace_completeness.redacted
-            else "unredacted"
+            "redacted" if report.process_evidence.trace_completeness.redacted else "unredacted"
         )
     details: dict[str, object] = {
         "trajectory_id": report.trajectory_id,
@@ -211,10 +204,7 @@ def validate_trajectory_file(
         "training_consent": report.training_eligibility.eligible,
         "training_export_eligible": (
             report.training_eligibility.eligible
-            and (
-                report.usable_for_supervised_training
-                or report.usable_for_rl_training
-            )
+            and (report.usable_for_supervised_training or report.usable_for_rl_training)
         ),
         "redaction_status": redaction_status,
         "missing_fields": missing_fields,
@@ -253,9 +243,7 @@ def validate_trajectory_file(
             details=details,
             warnings=report.issues,
         )
-    warnings = [
-        issue for issue in report.issues if issue.get("severity") == "warning"
-    ]
+    warnings = [issue for issue in report.issues if issue.get("severity") == "warning"]
     return ArtifactValidationResult(
         artifact_type="trajectory",
         path=str(artifact_path),

@@ -165,9 +165,7 @@ def run_fake_github_funded_product_loop(
     )
     trace_events = _trace_events(attempt_manifest.attempt_id) if include_trace else []
     trace_manifest = (
-        _trace_manifest(attempt_manifest.attempt_id, trace_events)
-        if include_trace
-        else None
+        _trace_manifest(attempt_manifest.attempt_id, trace_events) if include_trace else None
     )
     pr_file_map, artifacts = _pr_artifacts(attempt_manifest, trace_events, trace_manifest)
     pr_payload = _pull_request_payload(pull_request)
@@ -294,9 +292,7 @@ def run_fake_github_funded_product_loop(
 
     if budget_settlement is not None:
         settlement_payload = budget_settlement.to_dict()
-        settlement_payload["amount"] = Money(
-            "EUR", budget_settlement.total_minor_units
-        ).to_dict()
+        settlement_payload["amount"] = Money("EUR", budget_settlement.total_minor_units).to_dict()
         settlement_payload["status"] = "settled_locally"
         trajectory_record["settlement"] = settlement_payload
     if budget_release is not None:

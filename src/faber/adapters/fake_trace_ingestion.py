@@ -29,9 +29,7 @@ class CodexLikeAdapter:
         for index, raw_event in enumerate(events):
             native = _event_mapping(raw_event, index)
             event_type = _required_string(native, "type", f"events[{index}].type")
-            timestamp = _required_string(
-                native, "timestamp", f"events[{index}].timestamp"
-            )
+            timestamp = _required_string(native, "timestamp", f"events[{index}].timestamp")
             data = _required_mapping(native, "data", f"events[{index}].data")
             converted.append(
                 builder.build(
@@ -63,12 +61,8 @@ class HermesLikeAdapter:
         for index, raw_event in enumerate(events):
             native = _event_mapping(raw_event, index)
             kind = _required_string(native, "kind", f"events[{index}].kind")
-            observed_at = _required_string(
-                native, "observed_at", f"events[{index}].observed_at"
-            )
-            event_payload = _required_mapping(
-                native, "payload", f"events[{index}].payload"
-            )
+            observed_at = _required_string(native, "observed_at", f"events[{index}].observed_at")
+            event_payload = _required_mapping(native, "payload", f"events[{index}].payload")
             converted.append(
                 builder.build(
                     self._event_types.get(kind, f"harness.{kind}"),
@@ -92,12 +86,8 @@ class GenericShellAdapter:
         converted: list[TraceEvent] = []
         for index, raw_command in enumerate(commands):
             command = _event_mapping(raw_command, index, collection="commands")
-            observed_at = _required_string(
-                command, "observed_at", f"commands[{index}].observed_at"
-            )
-            command_text = _required_string(
-                command, "command", f"commands[{index}].command"
-            )
+            observed_at = _required_string(command, "observed_at", f"commands[{index}].observed_at")
+            command_text = _required_string(command, "command", f"commands[{index}].command")
             exit_code = command.get("exit_code")
             if not isinstance(exit_code, int) or isinstance(exit_code, bool):
                 raise ValidationError(f"commands[{index}].exit_code must be an integer")

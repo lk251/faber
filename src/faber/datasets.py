@@ -166,8 +166,7 @@ def export_trajectories_jsonl(
     from faber.trajectory_quality import annotate_trajectory_record, filter_training_records
 
     records = [
-        annotate_trajectory_record(trajectory_record(trajectory))
-        for trajectory in trajectories
+        annotate_trajectory_record(trajectory_record(trajectory)) for trajectory in trajectories
     ]
     input_record_count = len(records)
     withdrawal_purpose = export_policy.purpose if export_policy is not None else "training"

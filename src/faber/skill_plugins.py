@@ -309,9 +309,7 @@ class SkillPluginScanResult:
             command=["faber", "scan-skill-plugin-manifest", self.manifest_id],
             passed=self.passed,
             metrics=issue_counts,
-            failure_reasons=[
-                issue.message for issue in self.issues if issue.severity == "error"
-            ],
+            failure_reasons=[issue.message for issue in self.issues if issue.severity == "error"],
             logs_digest=self.digest(),
             metadata={
                 "manifest_id": self.manifest_id,

@@ -159,9 +159,7 @@ class PrivateTraceEnvelope:
         require_non_empty_string(self.created_at, "created_at")
         require_digest(self.trace_digest, "trace_digest")
         if self.visibility not in TRACE_VISIBILITIES:
-            raise ValidationError(
-                f"visibility must be one of {sorted(TRACE_VISIBILITIES)}"
-            )
+            raise ValidationError(f"visibility must be one of {sorted(TRACE_VISIBILITIES)}")
         if not isinstance(self.redaction_required_for_export, bool):
             raise ValidationError("redaction_required_for_export must be a boolean")
         require_optional_digest(self.redaction_report_digest, "redaction_report_digest")
@@ -260,9 +258,7 @@ def redact_trace_events(
                 _replace_path(redacted_payload, field_path.split("."), policy.replacement)
                 redacted_paths.add(f"events[{index}].payload.{field_path}")
         for finding in findings:
-            all_findings.append(
-                {"event_index": index, "event_type": event.event_type, **finding}
-            )
+            all_findings.append({"event_index": index, "event_type": event.event_type, **finding})
         redacted_events.append(
             TraceEvent(
                 id=event.id,

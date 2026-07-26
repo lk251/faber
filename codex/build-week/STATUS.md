@@ -8,18 +8,17 @@ reports under `codex/build-week/audits/`.
 
 ## Current state
 
-- Phase: HB2-to-HB3 transfer in the offline P0 machine lane; 0081 machine
-  implementation is complete, its live provenance gate is deferred, and 0082 has a
-  substantial in-progress checkpoint
+- Phase: offline P0 machine lane; 0082 implementation and all available local release
+  checks are complete, remote CI activation is externally blocked, and 0083-M is
+  current
 - Canonical implementation branch: `build-week/faber-proof`
 - Branch starting commit: `c915523383dc58114bf748f7d7a64c1c398faaba`
 - Eligibility baseline: `64f775cfe2f622837bd9aaa40f6369aa22af1d80`, tagged by
   annotated `build-week-2026-baseline`
 - Eligible commit count: 28 at branch start; 40 before the offline control-plane
   commit, which makes the total 41
-- Current P0 item: `0082`; implementation details and exact remaining work are in
-  `codex/build-week/0082_HB2_HANDOFF.md`. 0081 live-reviewed provenance remains open
-  but does not block independent machine work
+- Current P0 item: `0083-M`; 0081 live-reviewed provenance and 0082 remote CI remain
+  open external gates but do not block machine-completable submission work
 - Current demo state: the original no-key command produces ordinary `PASS`/`PASS` and
   Faber Proof `BLOCK`/`PASS`; replay provenance is explicitly `fake-development`
 - Primary implementation session: this director thread (0076 onward)
@@ -45,13 +44,14 @@ reports under `codex/build-week/audits/`.
   - [x] Machine implementation and deterministic no-key demo
   - [ ] Guarded live capture and `live-reviewed` replay provenance
 - [ ] `0082` — Adversarial evals, packaging, clean-install path, and CI
-  - [x] HB2 implementation checkpoint pushed for machine transfer
-  - [ ] Promote the preserved CI draft with a non-FIDO credential authorized for
-    workflow updates
-  - [ ] Final documentation, formatting, focused completion commit, and green
-    Linux/Windows CI
+  - [x] Threat model, 49-case eval campaign, privacy audit, packaging, clean install,
+    judge paths, live-capture transaction, formatting, and full local checks
+  - [x] Least-privilege Linux/Windows workflow prepared and validated at
+    `codex/build-week/drafts/ci.yml`
+  - [ ] Promote the workflow with a non-FIDO credential authorized for workflow
+    updates, observe both remote jobs, and repair any failure
 - [ ] `0083` — Submission materials, video package, final audit, and freeze
-  - machine-completable work becomes eligible after 0082
+  - machine-completable work is current after the locally green 0082 implementation
   - live capture, repository sharing, video upload, Devpost entry, and final tag remain
     human/final gates
 
@@ -128,9 +128,9 @@ until all required audits are green and no P0 finding remains open.
 
 ### Reliability
 
-- [x] Full pytest suite passes after work item 0081 machine work — 675 passed and 1
+- [x] Full pytest suite passes after work item 0082 local work - 699 passed and 1
   guarded live test skipped
-- [x] Ruff passes
+- [x] Ruff format and lint pass
 - [x] mypy passes
 - [x] Nix check passes when Nix is available, or unavailability is documented
 - [x] Wheel and sdist build; the wheel installs and runs outside the checkout on HB2
@@ -174,8 +174,8 @@ until all required audits are green and no P0 finding remains open.
 | A1-P0-001 | Verified | `6d11e7a` | 2 audit regressions; 16-case binding matrix; 342 focused tests, 1 skip; 652 full tests, 1 skip; isolated import; Ruff; format; mypy | Primary fix; secondary verification | Selected outcomes require a complete executor-tagged proof binding; A1 is green |
 | 0080 | Complete | `c759ac4` | 11 focused product tests; 343 adjacent proof/planner/executor tests, 1 guarded live skip; 663 full tests, 1 skip; Ruff; format; mypy 90 files; editable console install and `faber doctor` | Primary | Local Git context, owner configuration, externally pinned replay, atomic portable bundle, Markdown/HTML report, exit codes, and console entrypoint |
 | 0081 | Machine complete; live gate deferred | `d74b967` | 12 focused demo/skill tests; 675 full tests, 1 guarded live skip; Ruff; 14-file format; mypy 91 files; deterministic fixture regeneration; two skill validators; installed no-key console demo | Primary | Original stdlib demo and `$faber-proof`; fake-development replay is honest; human live capture/review remains required; primary session `019f6d53-0a3d-71d3-abd7-749dc4a3784c` recorded |
-| 0082 | In progress; HB2 transfer checkpoint | checkpoint commit containing `0082_HB2_HANDOFF.md` | 697 passed, 1 skip; 49/49 adversarial cases twice; clean wheel/sdist and installed no-key demo; 0 privacy findings; 4 byte-stable reports; Ruff lint; mypy 93 files | Primary machine lane; A2 may run independently | Format, docs, CI-draft promotion, completion commit, and GitHub CI remain |
-| 0083 | Machine work pending 0082 | - | - | Primary machine lane; A5 later | Human/final gates remain separate |
+| 0082 | Local machine work complete; remote CI gate open | completion commit containing this update | 699 passed, 1 skip; Ruff format/lint; mypy 93 files; 49/49 evals; clean wheel/sdist/install; installed `BLOCK`/`PASS`; 0 privacy findings; 4 byte-stable reports | Primary machine lane; A2 may run independently | GitHub rejected `.github/workflows/ci.yml` because the OAuth app that registered the HB2 deploy key lacks `workflow` scope; exact workflow preserved as a draft |
+| 0083 | Machine work current | - | - | Primary machine lane; A5 later | Human/final gates remain separate |
 | 0084 | Blocked by P0 | - | - | Optional | - |
 
 ## Demo scorecard
@@ -191,33 +191,36 @@ Record exact values after each runnable milestone.
 | Failed obligations | 1 | 0 |
 | Missing obligations | 0 | 0 |
 | Concrete counterexamples | 1 | 0 |
-| Replay plan digest | `sha256:c29e1824d6538bbe1cd6681994eeabfe44068eaaa85dac7797467e46ca8e584c` | `sha256:b4278d88c8ef39a6eb16d5428512e00cc0e9a9acfba30a197facfd02753165d9` |
-| Decision digest | `sha256:ce082883282db2d1edc6276150e03b17ed415535368e33deb22656a753c43f11` | `sha256:5c6d29b5c61d41eb5d6e6fe6a09badbb63f2b1f310a4ff637fd6a45ca0bd3524` |
-| End-to-end runtime | 3.8 seconds total for both candidates | 3.8 seconds total for both candidates |
+| Replay plan digest | `sha256:08caa61675de72c35f59624c5ed575b08d2c5d8af72f16b3e6b29999cd1b02a1` | `sha256:25784e467a27a52bc4fae73f5edd1d7fdca35658952f12825dc472c2f2db2b0b` |
+| Decision digest | `sha256:c85766c5065fa521ca820f431da857072bc765177248ce50af9fe2805b1cbed5` | `sha256:4b3e9b17c89093e8d806b30e02c71324fac2d58301316dda76f6b74bc44082b8` |
+| End-to-end runtime | 6.258291 seconds total for both candidates | 6.258291 seconds total for both candidates |
+| Candidate bundle size | 120324 bytes | 108685 bytes |
 
 ## Validation baseline
 
-HB2 work item 0082 machine-transfer checkpoint:
+HB2 work item 0082 local completion baseline:
 
 - Python 3.11.15; pytest 9.0.2; Ruff 0.15.10; mypy 2.1.0; build 1.5.0
 - adversarial campaign passed 49/49 cases twice with zero unjustified passes; suite
   digest
   `sha256:eec59f8fcf20e546971010a466514841ffd5cdf60cbff978c9ddf43c1164c27c`
-- `python -m pytest -q`: 697 passed, 1 guarded live skip in 90.49 seconds
+- `python -m pytest -q`: 699 passed, 1 guarded live skip in 117.88 seconds
 - `python -m ruff check .`: passed
+- `python -m ruff format --check .`: 189 files already formatted
 - planner-focused suite: 88 passed, 1 guarded live skip
 - product-focused suite: 14 passed; packaging suite: 4 passed
 - deterministic report regeneration: 4 byte-stable reports
 - clean wheel/sdist build and full clean-install audit, including optional live extra,
-  passed outside the checkout
+  passed outside the checkout; wheel 333474 bytes and sdist 388290 bytes
 - installed demo: ordinary `PASS`/`PASS`, Faber Proof `BLOCK`/`PASS`, 51 files,
-  232351 bytes, and zero privacy findings
-- performance evidence: 8.890471 seconds, 232260 output bytes, zero privacy findings
+  232257 bytes, and zero privacy findings
+- performance evidence: 6.258291 seconds, 232259 output bytes, zero privacy findings
 - `python -m mypy src`: passed across 93 source files; focused Ruff checks passed
 - guarded live fake success, rollback, and preflight tests passed; no provider call was
   made
 - adversarial eval and deterministic report-regeneration `--check` commands passed
-- repository-wide Ruff format is not green and reports 56 files requiring formatting
+- development fixtures regenerate byte-identically with `fake-development` provenance
+- direct privacy audit passed across 58 generated and committed files, 274922 bytes
 - Nix and `just` were unavailable on HB2
 
 See `codex/build-week/0082_HB2_HANDOFF.md` for commands, generated artifacts, known
@@ -227,17 +230,16 @@ residual risks, and the ordered completion checklist.
 
 After each session, replace this section with current facts:
 
-- Last completed item or finding: work item 0081 deterministic machine work; 0082 has
-  an in-progress HB2 machine-transfer checkpoint
+- Last completed item or finding: work item 0082 local machine work; remote CI remains
+  an external credential gate
 - Last implementation commit audited: `d74b967`, the focused 0081 machine-work commit;
-  the new checkpoint is not yet an audited 0082 completion
-- Working tree state: expected clean after the HB2 checkpoint commit is pushed
-- Exact tests passed: full pytest 697 passed with 1 live skip; 49/49 adversarial cases
-  twice; 88 planner-focused tests with 1 live skip; 14 product tests; 4 packaging
-  tests; clean build/install/demo/privacy; four byte-stable reports; Ruff lint; mypy
-  across 93 files; fake guarded-live transaction and rollback
-- Exact tests unavailable or failed: Ruff format reports 56 files requiring
-  formatting; Nix/`just` unavailable on HB2; GitHub rejected workflow-path updates
+  0082 is locally complete but has not yet received an independent audit
+- Working tree state: expected clean after the focused 0082 completion commit is pushed
+- Exact tests passed: full pytest 699 passed with 1 live skip; 49/49 adversarial cases;
+  clean build/install/demo/privacy; four byte-stable reports; Ruff format and lint;
+  mypy across 93 files; fake guarded-live transaction and rollback
+- Exact tests unavailable or failed: Nix/`just` unavailable on HB2; GitHub rejected
+  workflow-path updates
   from the dedicated deploy key because its registering OAuth app lacks `workflow`
   scope, so the exact YAML is preserved under `codex/build-week/drafts/`
 - Bad-patch verdict: ordinary tests `PASS`; replay Faber Proof `BLOCK` with one exact
@@ -245,8 +247,8 @@ After each session, replace this section with current facts:
 - Repaired-patch verdict: ordinary tests `PASS`; replay Faber Proof `PASS` with complete
   required coverage
 - Open audit P0/P1 findings: none
-- Next P0 action: finish the ordered 0082 checklist in
-  `codex/build-week/0082_HB2_HANDOFF.md`, then begin 0083 machine work
+- Next P0 action: execute all machine-completable 0083 submission work while preserving
+  the exact 0082 workflow draft and external activation blocker
 - Next eligible independent audit: A2 now; audit eligibility does not pause machine work
 - Deferred human-only action: guarded live bad/repaired capture and review; do not ask
   for the key during the offline machine lane
@@ -255,4 +257,5 @@ After each session, replace this section with current facts:
 - Known risks: local executors do not provide OS, network, container, or descendant
   process isolation; production needs an immutable checkout and enforceable sandbox.
   Live GPT-5.6 capture requires a human-supplied API key; committed replays remain
-  `fake-development`, so A2 and final sample reports are not yet eligible
+  `fake-development`, so the final provenance addendum and final sample reports are not
+  yet eligible

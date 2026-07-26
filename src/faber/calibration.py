@@ -271,16 +271,12 @@ def calibrate_verifier(
         ),
         total_cost=total_cost,
         average_latency_ms=sum(item.latency_ms for item in predictions) // total,
-        average_uncertainty_milli=(
-            sum(item.uncertainty_milli for item in predictions) // total
-        ),
+        average_uncertainty_milli=(sum(item.uncertainty_milli for item in predictions) // total),
         tie_rate_milli=_ratio_milli(
             sum(item.tie or item.score_milli == 500 for item in predictions),
             total,
         ),
-        cost_adjusted_value_milli=(
-            agreement_milli * 1000 // max(total_cost_minor_units, 1)
-        ),
+        cost_adjusted_value_milli=(agreement_milli * 1000 // max(total_cost_minor_units, 1)),
     )
 
 
@@ -291,12 +287,7 @@ def _ratio_milli(numerator: int, denominator: int) -> int:
 
 
 def _require_milli(value: int, field_name: str) -> None:
-    if (
-        not isinstance(value, int)
-        or isinstance(value, bool)
-        or value < 0
-        or value > 1000
-    ):
+    if not isinstance(value, int) or isinstance(value, bool) or value < 0 or value > 1000:
         raise ValidationError(f"{field_name} must be an integer from 0 to 1000")
 
 

@@ -122,10 +122,7 @@ def save_records_batch(
     if not record_type:
         raise ValidationError("record_type must be a non-empty string")
     with _connect(path) as connection:
-        return [
-            _save_record_connection(connection, record_type, record)
-            for record in records
-        ]
+        return [_save_record_connection(connection, record_type, record) for record in records]
 
 
 def load_record(path: str | Path, record_type: str, record_id: str) -> dict[str, object] | None:

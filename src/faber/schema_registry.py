@@ -13,9 +13,7 @@ from faber.digests import sha256_digest
 from faber.errors import ProtocolVersionError, ValidationError
 from faber.validation import require_non_empty_string
 
-SCHEMA_PATTERN = re.compile(
-    r"^faber\.(?P<family>[a-z0-9_.]+)\.v(?P<version>[1-9][0-9]*)$"
-)
+SCHEMA_PATTERN = re.compile(r"^faber\.(?P<family>[a-z0-9_.]+)\.v(?P<version>[1-9][0-9]*)$")
 
 
 class CompatibilityPolicy(StrEnum):
@@ -131,9 +129,7 @@ class SchemaRegistry:
         family, version = parse_schema_id(schema_id)
         descriptor = self._descriptors.get(schema_id)
         if descriptor is not None:
-            warnings = (
-                [descriptor.deprecation_message] if descriptor.deprecated else []
-            )
+            warnings = [descriptor.deprecation_message] if descriptor.deprecated else []
             return SchemaCompatibilityReport(
                 schema_id=schema_id,
                 family=family,
@@ -141,17 +137,14 @@ class SchemaRegistry:
                 known=True,
                 compatible=True,
                 action=(
-                    "read-with-deprecation-warning"
-                    if descriptor.deprecated
-                    else "read-current"
+                    "read-with-deprecation-warning" if descriptor.deprecated else "read-current"
                 ),
                 warnings=warnings,
             )
         current = self._current_by_family.get(family)
         if current is not None and version > current.version:
             message = (
-                f"future schema version is unsupported: {schema_id}; "
-                f"current is {current.schema_id}"
+                f"future schema version is unsupported: {schema_id}; current is {current.schema_id}"
             )
         elif current is not None:
             message = (
@@ -248,9 +241,7 @@ def parse_schema_id(schema_id: str) -> tuple[str, int]:
     require_non_empty_string(schema_id, "schema_id")
     match = SCHEMA_PATTERN.fullmatch(schema_id)
     if match is None:
-        raise ProtocolVersionError(
-            "schema_id must match faber.<family>.v<positive-integer>"
-        )
+        raise ProtocolVersionError("schema_id must match faber.<family>.v<positive-integer>")
     return match.group("family"), int(match.group("version"))
 
 

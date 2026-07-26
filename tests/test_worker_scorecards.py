@@ -40,9 +40,11 @@ def _record(
 
 
 def test_scorecard_updates_from_accepted_trajectory() -> None:
-    scorecard = WorkerScorecardBuilder("worker_demo").update(
-        _record(record_id="trajectory_accepted", outcome="accepted", quality_tier="trace")
-    ).build()
+    scorecard = (
+        WorkerScorecardBuilder("worker_demo")
+        .update(_record(record_id="trajectory_accepted", outcome="accepted", quality_tier="trace"))
+        .build()
+    )
     family = scorecard.task_families["python-bugfix"]
 
     assert family.accepted_attempts == 1
@@ -67,21 +69,27 @@ def test_scorecard_updates_from_rejected_trajectory() -> None:
 
 
 def test_trace_quality_affects_scorecard_separately_from_success() -> None:
-    low = WorkerScorecardBuilder("worker_demo").update(
-        _record(record_id="trajectory_pr", outcome="accepted", quality_tier="pr_only")
-    ).build()
-    high = WorkerScorecardBuilder("worker_demo").update(
-        _record(record_id="trajectory_trace", outcome="accepted", quality_tier="trace")
-    ).build()
+    low = (
+        WorkerScorecardBuilder("worker_demo")
+        .update(_record(record_id="trajectory_pr", outcome="accepted", quality_tier="pr_only"))
+        .build()
+    )
+    high = (
+        WorkerScorecardBuilder("worker_demo")
+        .update(_record(record_id="trajectory_trace", outcome="accepted", quality_tier="trace"))
+        .build()
+    )
 
     assert low.success_rate_milli == high.success_rate_milli == 1000
     assert low.average_trace_quality_milli < high.average_trace_quality_milli
 
 
 def test_small_sample_size_and_uncertainty_are_represented() -> None:
-    one = WorkerScorecardBuilder("worker_demo").update(
-        _record(record_id="trajectory_one", outcome="accepted", quality_tier="trace")
-    ).build()
+    one = (
+        WorkerScorecardBuilder("worker_demo")
+        .update(_record(record_id="trajectory_one", outcome="accepted", quality_tier="trace"))
+        .build()
+    )
     builder = WorkerScorecardBuilder("worker_demo")
     for index in range(4):
         builder.update(

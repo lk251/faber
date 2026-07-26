@@ -79,9 +79,7 @@ class CompetitionPolicy:
     def __post_init__(self) -> None:
         require_schema(self.schema, schemas.COMPETITION_POLICY)
         if self.mode not in COMPETITION_MODES:
-            raise ValidationError(
-                f"competition mode must be one of {sorted(COMPETITION_MODES)}"
-            )
+            raise ValidationError(f"competition mode must be one of {sorted(COMPETITION_MODES)}")
         _require_positive_int(self.max_candidates, "max_candidates")
         if not isinstance(self.pay_winner_only, bool):
             raise ValidationError("pay_winner_only must be a boolean")
@@ -97,9 +95,7 @@ class CompetitionPolicy:
             "max_candidates": self.max_candidates,
             "pay_winner_only": self.pay_winner_only,
             "rejected_attempt_stipend": (
-                self.rejected_attempt_stipend.to_dict()
-                if self.rejected_attempt_stipend
-                else None
+                self.rejected_attempt_stipend.to_dict() if self.rejected_attempt_stipend else None
             ),
         }
 
@@ -297,8 +293,7 @@ class CandidatePool:
         if len(self._entries_by_attempt) >= self.competition_policy.max_candidates:
             raise ValidationError("competition candidate limit reached")
         active_count = sum(
-            entry.status in {"submitted", "selected"}
-            for entry in self._entries_by_attempt.values()
+            entry.status in {"submitted", "selected"} for entry in self._entries_by_attempt.values()
         )
         if active_count >= self.attempt_policy.max_active_attempts:
             raise ValidationError("active attempt limit reached")
@@ -325,10 +320,7 @@ class CandidatePool:
                 raise ValidationError("shadow attempt requires training consent")
         if verifier_cost.currency != self.selection_policy.verifier_budget_cap.currency:
             raise ValidationError("verifier cost currency must match selection budget")
-        spent = sum(
-            entry.verifier_cost.minor_units
-            for entry in self._entries_by_attempt.values()
-        )
+        spent = sum(entry.verifier_cost.minor_units for entry in self._entries_by_attempt.values())
         if (
             spent + verifier_cost.minor_units
             > self.selection_policy.verifier_budget_cap.minor_units

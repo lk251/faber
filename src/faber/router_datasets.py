@@ -50,9 +50,7 @@ def router_training_record(trajectory: object) -> dict[str, object]:
         record,
         report_id=f"trajectory-validation-report_{trajectory_id}",
         created_at=(
-            created_at
-            if isinstance(created_at, str) and created_at
-            else "1970-01-01T00:00:00Z"
+            created_at if isinstance(created_at, str) and created_at else "1970-01-01T00:00:00Z"
         ),
     )
     contract = _mapping(record.get("contract"))
@@ -77,8 +75,7 @@ def router_training_record(trajectory: object) -> dict[str, object]:
         else None
     )
     outcome = str(
-        record.get("outcome")
-        or ("accepted" if receipt.get("accepted") is True else "rejected")
+        record.get("outcome") or ("accepted" if receipt.get("accepted") is True else "rejected")
     )
     selected_worker_id = router.get("selected_worker_id") or attempt.get("worker_id")
     selected_verifier_id = receipt.get("verifier_id")
@@ -114,9 +111,9 @@ def router_training_record(trajectory: object) -> dict[str, object]:
                 "verifier_ids": _string_list(contract.get("verifier_ids")),
                 "human_review": verification_policy.get("human_review"),
                 "advisory_ranking": verification_policy.get("advisory_ranking"),
-                "minimum_trajectory_tier": _mapping(
-                    contract.get("trajectory_requirement")
-                ).get("minimum_quality_tier"),
+                "minimum_trajectory_tier": _mapping(contract.get("trajectory_requirement")).get(
+                    "minimum_quality_tier"
+                ),
             },
         },
         "labels": {
@@ -155,9 +152,7 @@ def export_router_training_jsonl(
         consent = _mapping(record.get("training_consent"))
         allowed_uses = _string_list(consent.get("allowed_uses"))
         consent_allowed = consent.get("eligible") is True and (
-            "all" in allowed_uses
-            or "router" in allowed_uses
-            or "supervised" in allowed_uses
+            "all" in allowed_uses or "router" in allowed_uses or "supervised" in allowed_uses
         )
         if require_training_consent and not consent_allowed:
             excluded_for_consent += 1
@@ -174,8 +169,7 @@ def export_router_training_jsonl(
     return RouterDatasetManifest(
         record_count=len(records),
         negative_count=sum(
-            _mapping(record.get("labels")).get("negative_example") is True
-            for record in records
+            _mapping(record.get("labels")).get("negative_example") is True for record in records
         ),
         excluded_for_consent_count=excluded_for_consent,
         jsonl_digest=sha256_digest(text.encode("utf-8")),
@@ -194,9 +188,7 @@ def _sum_minor_units(metadata: dict[str, object]) -> int:
     return sum(
         value
         for key, value in metadata.items()
-        if key.endswith("_minor_units")
-        and isinstance(value, int)
-        and not isinstance(value, bool)
+        if key.endswith("_minor_units") and isinstance(value, int) and not isinstance(value, bool)
     )
 
 

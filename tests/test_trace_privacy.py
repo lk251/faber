@@ -164,9 +164,7 @@ def test_redacted_private_trace_can_be_exported_inside_authorized_boundary(
 
 
 def test_obvious_secret_like_strings_are_flagged_without_storing_value() -> None:
-    findings = detect_sensitive_fields(
-        {"token": "ghp_abcdefghijklmnopqrstuvwxyz0123456789"}
-    )
+    findings = detect_sensitive_fields({"token": "ghp_abcdefghijklmnopqrstuvwxyz0123456789"})
 
     assert findings[0]["field_path"] == "token"
     assert findings[0]["pattern"] in {"github_token", "sensitive_key"}

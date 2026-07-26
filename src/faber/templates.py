@@ -40,9 +40,7 @@ class VerificationPolicy:
             allow_empty=False,
         )
         if self.human_review not in HUMAN_REVIEW_MODES:
-            raise ValidationError(
-                f"human_review must be one of {sorted(HUMAN_REVIEW_MODES)}"
-            )
+            raise ValidationError(f"human_review must be one of {sorted(HUMAN_REVIEW_MODES)}")
         if not isinstance(self.advisory_ranking, bool):
             raise ValidationError("advisory_ranking must be a boolean")
         if not isinstance(self.human_can_override_hard_failure, bool):
@@ -190,9 +188,7 @@ class BudgetPreset:
         if not isinstance(self.amount, Money):
             raise ValidationError("amount must be Money")
         require_mapping(self.purpose_allocations, "purpose_allocations")
-        allocated_minor_units = sum(
-            item.minor_units for item in self.purpose_allocations.values()
-        )
+        allocated_minor_units = sum(item.minor_units for item in self.purpose_allocations.values())
         if allocated_minor_units > self.amount.minor_units:
             raise ValidationError("purpose allocations cannot exceed preset amount")
         require_mapping(
@@ -253,8 +249,7 @@ class BudgetPreset:
             "name": self.name,
             "amount": self.amount.to_dict(),
             "purpose_allocations": {
-                name: amount.to_dict()
-                for name, amount in sorted(self.purpose_allocations.items())
+                name: amount.to_dict() for name, amount in sorted(self.purpose_allocations.items())
             },
             "trace_quality_bonus_policy": self.trace_quality_bonus_policy,
         }

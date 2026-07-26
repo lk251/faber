@@ -31,10 +31,7 @@ def render_receipt_publication_body(receipt: VerificationReceipt) -> str:
         [
             f"Faber verification result: {result}",
             _publication_summary(receipt),
-            (
-                "Authority: task-authorized verifier receipt. "
-                "Candidate CI remains signal only."
-            ),
+            ("Authority: task-authorized verifier receipt. Candidate CI remains signal only."),
             f"Receipt: {payload['receipt_id']}",
             f"Receipt digest: {payload['receipt_digest']}",
             f"Task contract: {payload['task_contract_id']}",

@@ -481,9 +481,7 @@ class TraceManifest:
             "trust_level": self.trust_level,
             "included_event_types": self.included_event_types,
             "excluded_event_types": self.excluded_event_types,
-            "redaction_policy": self.redaction_policy.to_dict()
-            if self.redaction_policy
-            else None,
+            "redaction_policy": self.redaction_policy.to_dict() if self.redaction_policy else None,
             "provenance": self.provenance,
             "privacy_notes": self.privacy_notes,
         }
@@ -573,9 +571,7 @@ class AttemptManifest:
             "budget_metadata": self.budget_metadata,
             "cost_metadata": self.cost_metadata,
             "latency_metadata": self.latency_metadata,
-            "training_consent": self.training_consent.to_dict()
-            if self.training_consent
-            else None,
+            "training_consent": self.training_consent.to_dict() if self.training_consent else None,
             "redaction_policy": self.redaction_policy.to_dict(),
             "trust_level": self.trust_level,
             "attestation": self.attestation.to_dict() if self.attestation else None,
@@ -692,8 +688,7 @@ def write_trace_jsonl(
     records = [
         (event.redacted(redaction_policy) if redaction_policy else event).to_dict()
         for event in events
-        if redaction_policy is None
-        or event.event_type not in redaction_policy.excluded_event_types
+        if redaction_policy is None or event.event_type not in redaction_policy.excluded_event_types
     ]
     text = "\n".join(canonical_json(record) for record in records)
     if records:

@@ -172,9 +172,10 @@ def test_manifest_and_trace_digests_are_stable(tmp_path: Path) -> None:
 
     assert left.digest() == right.digest()
     assert first_manifest.digest() == second_manifest.digest()
-    assert first_manifest.to_dict()["trace_jsonl_digest"] == second_manifest.to_dict()[
-        "trace_jsonl_digest"
-    ]
+    assert (
+        first_manifest.to_dict()["trace_jsonl_digest"]
+        == second_manifest.to_dict()["trace_jsonl_digest"]
+    )
 
 
 def test_richer_trace_produces_richer_trajectory_evidence(tmp_path: Path) -> None:

@@ -199,11 +199,7 @@ def write_golden_fixture_corpus(
         }
     dataset_path = Path(work_dir) / "golden-corpus-dataset.jsonl"
     dataset_manifest = export_trajectories_jsonl(
-        [
-            fixture.payload
-            for fixture in fixtures
-            if fixture.name in TRAJECTORY_FIXTURE_NAMES
-        ],
+        [fixture.payload for fixture in fixtures if fixture.name in TRAJECTORY_FIXTURE_NAMES],
         dataset_path,
         dataset_id="dataset_golden_fixture_corpus",
     )

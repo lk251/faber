@@ -124,9 +124,7 @@ def test_cost_adjusted_verifier_value_uses_integer_money() -> None:
 
 
 def test_calibration_report_exports_stable_json() -> None:
-    calibration_set = _set(
-        _predictions([True, True, False, False], verifier_id="verifier.stable")
-    )
+    calibration_set = _set(_predictions([True, True, False, False], verifier_id="verifier.stable"))
     left = calibrate_verifier(
         calibration_set,
         "verifier.stable",

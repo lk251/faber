@@ -51,6 +51,10 @@ jobs:
         run: python -m build --wheel --sdist --outdir dist
       - name: Audit a clean wheel install and no-key demo
         run: python scripts/clean_install_audit.py --skip-live-extra
+      - name: Generate no-key replay artifacts
+        run: faber demo proof --mode replay --out-dir .faber/ci-demo --json
+      - name: Audit replay artifacts
+        run: faber audit-proof-artifacts .faber/ci-demo docs/generated examples/build-week-proof/expected
       - name: Run adversarial eval campaign
         run: python scripts/run_build_week_evals.py --check
       - name: Check deterministic development reports

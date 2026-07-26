@@ -343,9 +343,7 @@ def pairwise_preference(
     created_at: str | None = None,
 ) -> PairwisePreference:
     difference = left.aggregate_score_milli - right.aggregate_score_milli
-    preferred = (
-        left.request.attempt_id if difference >= 0 else right.request.attempt_id
-    )
+    preferred = left.request.attempt_id if difference >= 0 else right.request.attempt_id
     probability = min(1000, 500 + abs(difference) // 2)
     return PairwisePreference(
         id=preference_id or new_id("pairwise-preference"),
@@ -425,10 +423,5 @@ def probabilistic_verification_receipt(
 
 
 def _require_milli(value: int, field_name: str) -> None:
-    if (
-        not isinstance(value, int)
-        or isinstance(value, bool)
-        or value < 0
-        or value > 1000
-    ):
+    if not isinstance(value, int) or isinstance(value, bool) or value < 0 or value > 1000:
         raise ValidationError(f"{field_name} must be an integer from 0 to 1000")
