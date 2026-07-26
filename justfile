@@ -37,4 +37,16 @@ demo-funded-trajectory:
 demo-proof:
     python -m faber.cli demo proof --mode replay --out-dir .faber/build-week-demo
 
+proof-evals:
+    python scripts/run_build_week_evals.py --check
+
+proof-report-regeneration:
+    python scripts/check_development_report_regeneration.py --check
+
+proof-performance:
+    python scripts/measure_proof_demo.py
+
+proof-clean-install:
+    python scripts/clean_install_audit.py
+
 check: format-check lint typecheck test smoke

@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import shutil
 import tempfile
+import time
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath, PureWindowsPath
@@ -77,16 +78,24 @@ class ProofRunOutcome:
 
     def human_lines(self) -> list[str]:
         verdict = "DRY RUN — NO VERDICT" if self.verdict is None else self.verdict.upper()
+        raw_counts = self.summary.get("obligation_counts")
+        if not isinstance(raw_counts, Mapping):
+            raise ProofProductError(
+                "invalid_bundle",
+                "the proof summary is incomplete",
+                why="Human output requires validated obligation counts.",
+                next_step="Validate or regenerate the proof bundle before rendering it.",
+            )
         lines = [
             f"Faber Proof: {verdict}",
             f"Task: {self.summary['task_title']}",
             f"Candidate: {str(self.summary['candidate_revision'])[:12]}",
             (
                 "Obligations: "
-                f"required {self.summary['obligation_counts']['required']}, "  # type: ignore[index]
-                f"passed {self.summary['obligation_counts']['passed']}, "  # type: ignore[index]
-                f"failed {self.summary['obligation_counts']['failed']}, "  # type: ignore[index]
-                f"missing {self.summary['obligation_counts']['missing']}"  # type: ignore[index]
+                f"required {raw_counts['required']}, "
+                f"passed {raw_counts['passed']}, "
+                f"failed {raw_counts['failed']}, "
+                f"missing {raw_counts['missing']}"
             ),
         ]
         failed_claim = self.summary.get("failed_claim")
@@ -315,12 +324,16 @@ def _write_bundle(
     critic_count: int,
     max_diff_bytes: int,
     dry_run: bool,
+    planning_seconds: float,
+    proof_execution_seconds: float,
+    product_started: float,
 ) -> dict[str, object]:
     from faber.contracts import TaskContract
     from faber.proof_planning import ProofPlanningRequest
 
     if not isinstance(task, TaskContract) or not isinstance(request, ProofPlanningRequest):
         raise AssertionError("bundle inputs must be validated records")
+    bundle_started = time.perf_counter()
     artifact_paths: dict[str, object] = {
         "task_contract": "task-contract.json",
         "attempt": "attempt.json",
@@ -364,7 +377,7 @@ def _write_bundle(
         core_artifacts.update(
             {
                 "proof-decision.json": workflow.decision.to_dict(),
-                "execution-policy.json": execution_policy.to_dict(),
+                "execution-policy.json": execution_policy.portable_dict(),
                 "workflow-result.json": workflow.to_dict(),
             }
         )
@@ -385,6 +398,9 @@ def _write_bundle(
         max_diff_bytes=max_diff_bytes,
         dry_run=dry_run,
     )
+    report_artifact_digests = {
+        path: digest for path, digest in artifact_digests.items() if path != "workflow-result.json"
+    }
     record_digests: dict[str, object] = {
         "task_contract": task.digest(),
         "attempt": attempt.digest(),
@@ -445,27 +461,36 @@ def _write_bundle(
         "reproduction_command": reproduction,
         "runtime_boundary": LOCAL_ISOLATION_DISCLOSURE,
     }
+    report_started = time.perf_counter()
     markdown = render_markdown_report(
         task_title=request.task_title,
         request=request,
         planning=planning,
         workflow=workflow,
         reproduction_command=reproduction,
-        artifact_digests=artifact_digests,
+        artifact_digests=report_artifact_digests,
     )
+    report_generation_seconds = time.perf_counter() - report_started
     html = render_html_report(
         task_title=request.task_title,
         request=request,
         planning=planning,
         workflow=workflow,
         reproduction_command=reproduction,
-        artifact_digests=artifact_digests,
+        artifact_digests=report_artifact_digests,
     )
     (stage / "report.md").write_text(markdown, encoding="utf-8", newline="\n")
     (stage / "report.html").write_text(html, encoding="utf-8", newline="\n")
     artifact_digests["report.md"] = sha256_digest((stage / "report.md").read_bytes())
     artifact_digests["report.html"] = sha256_digest((stage / "report.html").read_bytes())
     summary["artifact_digests"] = dict(sorted(artifact_digests.items()))
+    summary["performance_timings"] = {
+        "replay_planning_seconds": round(planning_seconds, 6),
+        "proof_execution_seconds": round(proof_execution_seconds, 6),
+        "report_generation_seconds": round(report_generation_seconds, 6),
+        "bundle_generation_seconds": round(time.perf_counter() - bundle_started, 6),
+        "candidate_total_seconds": round(time.perf_counter() - product_started, 6),
+    }
     _write_json(stage / "run-summary.json", summary)
     return summary
 
@@ -522,6 +547,7 @@ def validate_proof_bundle(path: str | Path) -> Mapping[str, object]:
         "validation_status",
         "reproduction_command",
         "runtime_boundary",
+        "performance_timings",
     }
     if set(summary) != required_summary_fields:
         raise ValidationError("run summary uses an unsupported field set")
@@ -529,6 +555,23 @@ def validate_proof_bundle(path: str | Path) -> Mapping[str, object]:
         raise ValidationError("run summary uses an unsupported schema")
     if summary.get("managed_by") != "faber-proof" or summary.get("validation_status") != "valid":
         raise ValidationError("run summary is not a validated Faber Proof artifact")
+    performance_timings = summary.get("performance_timings")
+    expected_timing_fields = {
+        "replay_planning_seconds",
+        "proof_execution_seconds",
+        "report_generation_seconds",
+        "bundle_generation_seconds",
+        "candidate_total_seconds",
+    }
+    if (
+        not isinstance(performance_timings, Mapping)
+        or set(performance_timings) != expected_timing_fields
+        or any(
+            isinstance(value, bool) or not isinstance(value, int | float) or value < 0
+            for value in performance_timings.values()
+        )
+    ):
+        raise ValidationError("performance_timings must contain non-negative stage timings")
     artifact_digests = summary.get("artifact_digests")
     if not isinstance(artifact_digests, Mapping):
         raise ValidationError("artifact_digests must be an object")
@@ -889,6 +932,7 @@ def run_proof_product(
                 "Use --critic-count 0; work item 0080 accepts the validated final replay plan."
             ),
         )
+    product_started = time.perf_counter()
     try:
         task = load_task_contract(task_path)
         configuration = load_proof_configuration(catalog_path)
@@ -920,6 +964,7 @@ def run_proof_product(
             mandatory_template_ids=configuration.proof_policy.mandatory_template_ids,
             max_diff_bytes=max_diff_bytes,
         )
+        planning_started = time.perf_counter()
         planning = plan_proof_request(
             mode=mode,
             replay_path=replay_path,
@@ -927,6 +972,7 @@ def run_proof_product(
             request=request,
             approved_replay_bundle_digests=(configuration.approved_replay_bundle_digests),
         )
+        planning_seconds = time.perf_counter() - planning_started
         context_manifest = context.manifest(
             redacted_diff_text=request.redacted_diff_text,
             redacted_diff_digest=request.redacted_diff_digest,
@@ -934,6 +980,7 @@ def run_proof_product(
         )
         workflow: ProofWorkflowResult | None = None
         execution_policy: ProofExecutionPolicy | None = None
+        proof_execution_seconds = 0.0
         if not dry_run:
             settings = configuration.execution
             execution_policy = ProofExecutionPolicy(
@@ -949,6 +996,7 @@ def run_proof_product(
                 max_output_bytes=settings.max_output_bytes,
                 allowed_environment_variables=settings.allowed_environment_variables,
             )
+            execution_started = time.perf_counter()
             workflow = run_proof_workflow(
                 task_contract=task,
                 attempt=attempt,
@@ -958,6 +1006,7 @@ def run_proof_product(
                 proof_policy=configuration.proof_policy,
                 execution_policy=execution_policy,
             )
+            proof_execution_seconds = time.perf_counter() - execution_started
         output.parent.mkdir(parents=True, exist_ok=True)
         stage = Path(
             tempfile.mkdtemp(prefix=f".{output.name}.faber-proof-stage-", dir=output.parent)
@@ -978,6 +1027,9 @@ def run_proof_product(
                 critic_count=critic_count,
                 max_diff_bytes=max_diff_bytes,
                 dry_run=dry_run,
+                planning_seconds=planning_seconds,
+                proof_execution_seconds=proof_execution_seconds,
+                product_started=product_started,
             )
             validate_proof_bundle(stage)
             _publish_stage(stage, output)

@@ -1593,7 +1593,7 @@ def test_passing_workflow_binds_evidence_runs_receipts_and_all_authority_context
     assert evidence.verifier_run_digest == run.digest()
     assert evidence.verification_receipt_digest == receipt.digest()
     assert run.metadata["workspace_digest"] == execution_policy.expected_workspace_digest
-    assert run.metadata["execution_policy_digest"] == execution_policy.digest()
+    assert run.metadata["execution_policy_digest"] == execution_policy.authority_digest()
     assert receipt.task_contract_id == task.id
     assert receipt.task_contract_digest == task.digest()
     assert receipt.attempt_id == attempt.id
@@ -1798,7 +1798,7 @@ def test_receipt_rejects_metadata_only_relabeling_to_another_plan(tmp_path: Path
         catalog_entry_version=second.version,
         family=second.family,
         capability_digest=second.capability_digest(),
-        execution_policy_digest=execution_policy.digest(),
+        execution_policy_digest=execution_policy.authority_digest(),
         workspace_digest=execution_policy.expected_workspace_digest,
         verifier_id=run.verifier_id,
         verifier_version=run.version,

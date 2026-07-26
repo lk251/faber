@@ -448,6 +448,45 @@ def test_tampered_artifact_fails_bundle_validation(tmp_path: Path) -> None:
         validate_proof_bundle(output)
 
 
+def test_partial_bundle_cannot_validate_as_complete(tmp_path: Path) -> None:
+    repository, base, candidate, task_path, catalog_path, replay_path = _fixture(
+        tmp_path,
+        candidate_text="good\n",
+    )
+    output = repository / ".faber" / "proof"
+    run_proof_product(
+        repository=repository,
+        task_path=task_path,
+        catalog_path=catalog_path,
+        base_revision=base,
+        candidate_revision=candidate,
+        mode="replay",
+        replay_path=replay_path,
+        output_directory=output,
+    )
+    evidence_path = next((output / "proof-evidence").glob("*.json"))
+    evidence_path.unlink()
+
+    with pytest.raises(ValidationError, match="declared artifact is unavailable"):
+        validate_proof_bundle(output)
+
+
+def test_critic_mode_is_disabled_fail_closed(tmp_path: Path) -> None:
+    with pytest.raises(ProofProductError, match="critic is not enabled") as error:
+        run_proof_product(
+            repository=tmp_path,
+            task_path=tmp_path / "task.json",
+            catalog_path=tmp_path / "catalog.json",
+            base_revision="base",
+            candidate_revision="candidate",
+            mode="replay",
+            replay_path=tmp_path / "replay.json",
+            critic_count=1,
+        )
+
+    assert error.value.category == "configuration_error"
+
+
 def test_operational_cli_error_uses_failure_significance_and_next_step(
     tmp_path: Path,
     capsys: pytest.CaptureFixture[str],

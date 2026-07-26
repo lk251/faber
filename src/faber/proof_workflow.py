@@ -7,7 +7,7 @@ import math
 import os
 import time
 from collections.abc import Callable, Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from types import MappingProxyType
 
@@ -343,6 +343,25 @@ class ProofExecutionPolicy:
 
     def digest(self) -> str:
         return sha256_digest(self.to_dict())
+
+    def authority_digest(self) -> str:
+        """Bind proof authority to policy semantics rather than a host-local path."""
+
+        payload = self.to_dict()
+        del payload["allowed_repository_root"]
+        return sha256_digest(
+            {
+                "schema": "faber.proof_execution_authority_policy.v1",
+                **payload,
+            }
+        )
+
+    def portable_dict(self) -> dict[str, object]:
+        """Serialize the selected repository root without a machine-specific path."""
+
+        payload = self.to_dict()
+        payload["allowed_repository_root"] = "."
+        return payload
 
 
 def _frozen_diagnostics(
@@ -796,6 +815,7 @@ def _evidence_from_execution(
     result: ProofExecutionResult,
     authoritative_receipts_required: bool,
     execution_policy_digest: str,
+    repository_root: str,
     workspace_digest: str,
 ) -> tuple[ProofEvidence, VerifierRun | None, VerificationReceipt | None]:
     policy = _entry_policy(prepared.entry)
@@ -831,6 +851,55 @@ def _evidence_from_execution(
             status = "error"
             run = None
     if run is not None:
+        raw_command = list(run.command)
+        root = Path(repository_root).resolve(strict=True)
+        portable_command: list[str] = []
+        for index, argument in enumerate(raw_command):
+            argument_path = Path(argument)
+            if not argument_path.is_absolute():
+                portable_command.append(argument)
+                continue
+            try:
+                relative = argument_path.resolve(strict=False).relative_to(root)
+            except ValueError:
+                label = argument_path.name or "runtime"
+                portable_command.append(label if index == 0 else f"<runtime>/{label}")
+            else:
+                portable_command.append(f"./{relative.as_posix()}")
+        run = replace(
+            run,
+            command=portable_command,
+            metadata={
+                **run.metadata,
+                "raw_command_digest": sha256_digest(raw_command),
+            },
+        )
+        if plan.model_run.mode == "replay":
+            replay_metadata = {
+                key: value
+                for key, value in run.metadata.items()
+                if key not in {"raw_verifier_run_digest", "raw_verifier_run_id"}
+            }
+            replay_identity = sha256_digest(
+                {
+                    "schema": "faber.proof_replay_verifier_run_identity.v1",
+                    "verifier_id": run.verifier_id,
+                    "name": run.name,
+                    "version": run.version,
+                    "command": run.command,
+                    "passed": run.passed,
+                    "metrics": run.metrics,
+                    "failure_reasons": run.failure_reasons,
+                    "logs_digest": run.logs_digest,
+                    "metadata": replay_metadata,
+                }
+            )
+            run = replace(
+                run,
+                id=f"verifier-run_replay-{replay_identity.removeprefix('sha256:')[:24]}",
+                created_at=attempt.created_at,
+                metadata=replay_metadata,
+            )
         raw_run = run
         raw_run_metadata = dict(raw_run.metadata)
         raw_authority_digest = raw_run_metadata.get(
@@ -890,6 +959,20 @@ def _evidence_from_execution(
     receipt: VerificationReceipt | None = None
     if authoritative_receipts_required and run is not None and status in {"passed", "failed"}:
         receipt = VerificationReceipt.from_verifier_run(task_contract, attempt, run)
+        if plan.model_run.mode == "replay":
+            receipt_identity = sha256_digest(
+                {
+                    "schema": "faber.proof_replay_receipt_identity.v1",
+                    "task_contract_digest": task_contract.digest(),
+                    "attempt_digest": attempt.digest(),
+                    "verifier_run_digest": run.digest(),
+                }
+            )
+            receipt = replace(
+                receipt,
+                id=(f"verification-receipt_replay-{receipt_identity.removeprefix('sha256:')[:24]}"),
+                created_at=attempt.created_at,
+            )
 
     reason_codes = [] if status == "passed" else list(result.reason_codes)
     if status == "failed" and not reason_codes:
@@ -959,7 +1042,7 @@ def run_proof_workflow(
         allow_shell=False,
     )
     effective_runner = runner
-    execution_policy_digest = execution_policy.digest()
+    execution_policy_digest = execution_policy.authority_digest()
 
     execution_started = time.perf_counter()
     evidence: list[ProofEvidence] = []
@@ -1071,6 +1154,7 @@ def run_proof_workflow(
                 result=result,
                 authoritative_receipts_required=(execution_policy.authoritative_receipts_required),
                 execution_policy_digest=execution_policy_digest,
+                repository_root=execution_policy.allowed_repository_root,
                 workspace_digest=execution_policy.expected_workspace_digest,
             )
             if run is not None:
@@ -1121,7 +1205,7 @@ def run_proof_workflow(
         catalog_digest=catalog.digest(),
         verifier_registry_digest=verifier_registry.digest(),
         proof_policy_digest=proof_policy.digest(),
-        execution_policy_digest=execution_policy.digest(),
+        execution_policy_digest=execution_policy.authority_digest(),
         workspace_digest=execution_policy.expected_workspace_digest,
         evidence=evidence,
         verifier_runs=runs,

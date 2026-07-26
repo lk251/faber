@@ -7,8 +7,9 @@ import os
 import shutil
 import subprocess
 import sys
+import sysconfig
 import tempfile
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from pathlib import Path
@@ -38,6 +39,7 @@ from faber.proof_configuration import (
 )
 from faber.proof_context import DEFAULT_MAX_DIFF_BYTES, collect_git_proof_context
 from faber.proof_planning import ProofPlanningRequest
+from faber.proof_privacy import ProofArtifactPrivacyReport, audit_proof_artifacts
 from faber.proof_product import (
     ProofProductError,
     _attempt_for_context,
@@ -107,6 +109,10 @@ class ProofDemoOutcome:
         ]
 
 
+PlanningReplayCapture = Callable[..., tuple[Mapping[str, object], str]]
+DemoRunner = Callable[..., ProofDemoOutcome]
+
+
 def _mapping(value: object, label: str) -> Mapping[str, object]:
     if not isinstance(value, Mapping):
         raise ProofDemoError(f"{label} must be an object")
@@ -134,7 +140,9 @@ def _read_json(path: Path) -> Mapping[str, object]:
 
 def resolve_demo_fixture_root(repository_root: str | Path = ".") -> Path:
     root = Path(repository_root).resolve(strict=True)
-    fixture = root / DEMO_FIXTURE_RELATIVE
+    source_fixture = root / DEMO_FIXTURE_RELATIVE
+    installed_fixture = Path(sysconfig.get_path("data")) / "share" / "faber" / DEMO_FIXTURE_RELATIVE
+    fixture = source_fixture if source_fixture.is_dir() else installed_fixture
     required = (
         fixture / "OWNERSHIP.md",
         fixture / "README.md",
@@ -147,7 +155,7 @@ def resolve_demo_fixture_root(repository_root: str | Path = ".") -> Path:
     )
     if not fixture.is_dir() or any(not path.is_file() for path in required):
         raise ProofDemoError(
-            "the Build Week proof fixture is unavailable; run the command from the Faber root"
+            "the Build Week proof fixture is unavailable from the checkout or installed wheel"
         )
     return fixture
 
@@ -379,7 +387,9 @@ def build_demo_records(
 ) -> tuple[TaskContract, ProofConfiguration]:
     """Build the owner-controlled task, capabilities, claims, and policy."""
 
-    harness_digest = sha256_digest((fixture_root / "proof_harness.py").read_bytes())
+    harness_digest = sha256_digest(
+        _normalized_fixture_text(fixture_root / "proof_harness.py").encode("utf-8")
+    )
     boundary_spec = _verifier(
         "boundary-report", "Exercise a bounded transcript at the exact final permitted turn."
     )
@@ -1011,6 +1021,8 @@ def run_proof_demo(
 def capture_live_demo_replays(
     fixture_root: Path,
     output_directory: Path,
+    *,
+    capture_record: PlanningReplayCapture = capture_live_planning_replay_record,
 ) -> Mapping[str, object]:
     """Capture exact live planner responses into an unreviewed external staging directory."""
 
@@ -1028,7 +1040,7 @@ def capture_live_demo_replays(
         bundles: dict[str, object] = {}
         for name in _REPLAY_NAMES:
             request = _planning_request(repository, revisions[name], task, configuration)
-            replay, digest = capture_live_planning_replay_record(
+            replay, digest = capture_record(
                 request,
                 model=DEMO_MODEL,
                 created_at=captured_at,
@@ -1053,24 +1065,186 @@ def capture_live_demo_replays(
     return manifest
 
 
+def _fixture_file_digests(fixture_root: Path) -> dict[str, str]:
+    return {
+        path.relative_to(fixture_root).as_posix(): sha256_digest(path.read_bytes())
+        for path in sorted(fixture_root.rglob("*"), key=lambda item: item.as_posix())
+        if path.is_file() and not path.is_symlink()
+    }
+
+
+def _preflight_live_demo_capture(
+    fixture_root: Path,
+    *,
+    expected_branch: str,
+) -> Mapping[str, object]:
+    if not os.environ.get("OPENAI_API_KEY", "").strip():
+        raise ProofDemoError("OPENAI_API_KEY is required for guarded live capture")
+    repository_root = fixture_root.parents[1].resolve(strict=True)
+    branch = _git(repository_root, "branch", "--show-current")
+    if branch != expected_branch:
+        raise ProofDemoError("live capture must run from the expected clean branch")
+    if _git(repository_root, "status", "--porcelain=v1", "--untracked-files=all"):
+        raise ProofDemoError("live capture requires a clean Git worktree")
+
+    committed_task = load_task_contract(fixture_root / "task-contract.json")
+    committed_configuration = load_proof_configuration(fixture_root / "proof-catalog.json")
+    task, configuration = build_demo_records(fixture_root)
+    if (
+        task.digest() != committed_task.digest()
+        or configuration.catalog.digest() != committed_configuration.catalog.digest()
+        or configuration.proof_policy.digest() != committed_configuration.proof_policy.digest()
+    ):
+        raise ProofDemoError("live capture authority does not match the committed demo definition")
+    replay_review = review_demo_replays(fixture_root)
+    return {
+        "schema": "faber.proof_demo_live_capture_preflight.v1",
+        "status": "pass",
+        "branch": branch,
+        "source_commit": _git(repository_root, "rev-parse", "HEAD"),
+        "task_contract_digest": task.digest(),
+        "catalog_digest": configuration.catalog.digest(),
+        "proof_policy_digest": configuration.proof_policy.digest(),
+        "replay_provenance": replay_review["provenance"],
+        "requested_model": DEMO_MODEL,
+    }
+
+
+def _restore_fixture_directory(fixture_root: Path, backup: Path) -> None:
+    failed = fixture_root.parent / f".{fixture_root.name}.failed-live-capture-{os.getpid()}"
+    try:
+        fixture_root.replace(failed)
+        backup.replace(fixture_root)
+    except OSError:
+        if failed.exists() and not fixture_root.exists():
+            failed.replace(fixture_root)
+        raise ProofDemoError("live capture failed and fixture rollback was unsuccessful") from None
+    shutil.rmtree(failed, ignore_errors=True)
+
+
+def run_guarded_live_demo_capture(
+    fixture_root: Path,
+    *,
+    reviewer: str,
+    reviewed_at: str | None = None,
+    expected_branch: str = "build-week/faber-proof",
+    review_manifest_path: Path | None = None,
+    capture_record: PlanningReplayCapture = capture_live_planning_replay_record,
+    demo_runner: DemoRunner = run_proof_demo,
+) -> Mapping[str, object]:
+    """Capture, review, install, replay, and audit both demo candidates transactionally."""
+
+    fixture = fixture_root.resolve(strict=True)
+    repository_root = fixture.parents[1].resolve(strict=True)
+    review_time = (reviewed_at or datetime.now(UTC).isoformat()).strip()
+    if not reviewer.strip() or not review_time:
+        raise ProofDemoError("reviewer identity and review time are required")
+    preflight = _preflight_live_demo_capture(
+        fixture,
+        expected_branch=expected_branch,
+    )
+    before = _fixture_file_digests(fixture)
+    key = os.environ["OPENAI_API_KEY"]
+    transaction = Path(
+        tempfile.mkdtemp(prefix=".faber-proof-live-transaction-", dir=fixture.parent)
+    )
+    backup = transaction / "fixture-backup"
+    shutil.copytree(fixture, backup)
+    installed = False
+    try:
+        capture_directory = transaction / "capture"
+        capture = capture_live_demo_replays(
+            fixture,
+            capture_directory,
+            capture_record=capture_record,
+        )
+        review = review_live_demo_capture(
+            fixture,
+            capture_directory,
+            reviewer=reviewer,
+            reviewed_at=review_time,
+            install=True,
+        )
+        installed = True
+        demo = demo_runner(
+            repository_root=repository_root,
+            mode="replay",
+            output_directory=transaction / "offline-demo",
+        )
+        bad = _mapping(demo.summary.get("bad"), "offline demo bad result")
+        repaired = _mapping(demo.summary.get("repaired"), "offline demo repaired result")
+        _validate_demo_contrast(bad, repaired)
+        privacy = audit_proof_artifacts(
+            [demo.output_directory, fixture / "expected"],
+            forbidden_literals=(key,),
+        )
+        if not privacy.passed:
+            raise ProofDemoError("post-install demo artifacts failed the privacy audit")
+
+        after = _fixture_file_digests(fixture)
+        changed = sorted(
+            path for path in set(before) | set(after) if before.get(path) != after.get(path)
+        )
+        manifest: dict[str, object] = {
+            "schema": "faber.proof_demo_live_capture_review_manifest.v1",
+            "status": "installed-live-reviewed",
+            "preflight": dict(preflight),
+            "reviewer": reviewer.strip(),
+            "reviewed_at": review_time,
+            "capture": dict(capture),
+            "review": dict(review),
+            "offline_demo": {
+                "bad": dict(bad),
+                "repaired": dict(repaired),
+            },
+            "privacy_audit": privacy.to_dict(),
+            "changed_paths": changed,
+            "before_digests": {path: before.get(path) for path in changed},
+            "after_digests": {path: after.get(path) for path in changed},
+        }
+        destination = review_manifest_path or (
+            repository_root / ".faber" / "live-gpt56-review-manifest.json"
+        )
+        _write_json(destination, manifest)
+        return manifest
+    except Exception:
+        if installed:
+            _restore_fixture_directory(fixture, backup)
+        raise
+    finally:
+        shutil.rmtree(transaction, ignore_errors=True)
+
+
 def _install_reviewed_demo_files(
     fixture_root: Path,
     files: Mapping[str, object],
-) -> None:
-    stage = Path(tempfile.mkdtemp(prefix=".faber-proof-reviewed-", dir=fixture_root.parent))
+    *,
+    forbidden_literals: Sequence[str] = (),
+) -> ProofArtifactPrivacyReport:
+    stage_parent = Path(tempfile.mkdtemp(prefix=".faber-proof-reviewed-", dir=fixture_root.parent))
+    stage = stage_parent / "candidate"
+    stage.mkdir()
     backup = Path(tempfile.mkdtemp(prefix=".faber-proof-backup-", dir=fixture_root.parent))
     installed: list[Path] = []
     moved: list[tuple[Path, Path]] = []
     try:
         for relative, value in files.items():
             path = stage / relative
-            if relative.endswith(".html"):
+            if relative.endswith((".html", ".md")):
                 if not isinstance(value, str):
-                    raise ProofDemoError("reviewed HTML report payload is invalid")
+                    raise ProofDemoError("reviewed text report payload is invalid")
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text(value, encoding="utf-8", newline="\n")
             else:
                 _write_json(path, value)
+        privacy = audit_proof_artifacts(
+            [stage],
+            forbidden_literals=forbidden_literals,
+        )
+        if not privacy.passed:
+            raise ProofDemoError(
+                "reviewed demo fixture candidate failed the artifact privacy audit"
+            )
         for relative in sorted(files):
             target = fixture_root / relative
             staged = stage / relative
@@ -1091,8 +1265,35 @@ def _install_reviewed_demo_files(
                 saved.replace(target)
         raise ProofDemoError("reviewed demo fixtures could not be installed atomically") from None
     finally:
-        shutil.rmtree(stage, ignore_errors=True)
+        shutil.rmtree(stage_parent, ignore_errors=True)
         shutil.rmtree(backup, ignore_errors=True)
+    return privacy
+
+
+def _audit_reviewed_demo_files(
+    parent: Path,
+    files: Mapping[str, object],
+    *,
+    forbidden_literals: Sequence[str] = (),
+) -> ProofArtifactPrivacyReport:
+    candidate = parent / "candidate"
+    candidate.mkdir(parents=True)
+    for relative, value in files.items():
+        path = candidate / relative
+        if relative.endswith((".html", ".md")):
+            if not isinstance(value, str):
+                raise ProofDemoError("reviewed text report payload is invalid")
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(value, encoding="utf-8", newline="\n")
+        else:
+            _write_json(path, value)
+    report = audit_proof_artifacts(
+        [candidate],
+        forbidden_literals=forbidden_literals,
+    )
+    if not report.passed:
+        raise ProofDemoError("reviewed demo fixture candidate failed the artifact privacy audit")
+    return report
 
 
 def review_live_demo_capture(
@@ -1238,21 +1439,33 @@ def review_live_demo_capture(
             },
             "determinism_note": (
                 "Semantic inputs, revisions, replay and decision bindings are deterministic; "
-                "recorded local executor elapsed times are runtime observations."
+                "runtime timing remains non-authoritative performance evidence."
             ),
         }
+        forbidden_literals = tuple(value for value in (os.environ.get("OPENAI_API_KEY"),) if value)
+        reviewed_files: dict[str, object] = {
+            "proof-catalog.json": reviewed_configuration.to_dict(),
+            "replays/bad.json": records["bad"],
+            "replays/repaired.json": records["repaired"],
+            "replays/provenance.json": provenance,
+            "expected/generation-manifest.json": generation_manifest,
+            "expected/blocked-report.html": reports["blocked"],
+            "expected/passing-report.html": reports["passing"],
+        }
+        privacy = _audit_reviewed_demo_files(
+            review_root / "privacy-review",
+            reviewed_files,
+            forbidden_literals=forbidden_literals,
+        )
+        generation_manifest["privacy_audit_digest"] = sha256_digest(privacy.to_dict())
+        reviewed_files["expected/generation-manifest.json"] = generation_manifest
+        reviewed_files["expected/privacy-audit.json"] = privacy.to_dict()
+        reviewed_files["expected/privacy-audit.md"] = privacy.markdown()
         if install:
             _install_reviewed_demo_files(
                 fixture_root,
-                {
-                    "proof-catalog.json": reviewed_configuration.to_dict(),
-                    "replays/bad.json": records["bad"],
-                    "replays/repaired.json": records["repaired"],
-                    "replays/provenance.json": provenance,
-                    "expected/generation-manifest.json": generation_manifest,
-                    "expected/blocked-report.html": reports["blocked"],
-                    "expected/passing-report.html": reports["passing"],
-                },
+                reviewed_files,
+                forbidden_literals=forbidden_literals,
             )
     return {
         "schema": "faber.proof_demo_live_review.v1",
@@ -1262,4 +1475,5 @@ def review_live_demo_capture(
         "bundles": metadata,
         "bad": bad,
         "repaired": repaired,
+        "privacy_audit": privacy.to_dict(),
     }

@@ -942,7 +942,6 @@ def _counterexample(
 def _process_observation(capture: ProcessCapture) -> dict[str, object]:
     return {
         "exit_code": capture.exit_code,
-        "elapsed_seconds": round(capture.elapsed_seconds, 6),
         "timed_out": capture.timed_out,
         "stdout_bytes": len(capture.stdout),
         "stderr_bytes": len(capture.stderr),
@@ -1000,6 +999,7 @@ def _make_internal_run(
     observed_summary: object,
     elapsed_seconds: float,
 ) -> VerifierRun:
+    del elapsed_seconds
     return VerifierRun(
         verifier_id=entry.capability.policy.verifier_id,
         name=f"Faber proof {entry.family}",
@@ -1007,7 +1007,6 @@ def _make_internal_run(
         command=["faber-proof", entry.family],
         passed=passed,
         metrics={
-            "elapsed_seconds": round(elapsed_seconds, 6),
             "observation_digest": sha256_digest(observed_summary),
         },
         failure_reasons=list(sorted(set(reason_codes))),

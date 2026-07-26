@@ -230,6 +230,12 @@ def build_planning_request(
         raw_diff = require_non_empty_string(diff_text, "diff_text")
     except ValidationError:
         raise ProofPlanningError("policy_error", "diff_text must be non-empty text") from None
+    raw_diff = raw_diff.replace("\r\n", "\n").replace("\r", "\n")
+    if sha256_digest(raw_diff) != attempt.patch_digest:
+        raise ProofPlanningError(
+            "policy_error",
+            "diff_text does not match the attempt patch digest",
+        )
     if (
         isinstance(max_diff_bytes, bool)
         or not isinstance(max_diff_bytes, int)

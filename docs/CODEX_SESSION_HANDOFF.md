@@ -22,6 +22,12 @@ The machine-resume state is:
 codex/build-week/STATUS.md
 ```
 
+The active HB2-to-HB3 implementation checkpoint is:
+
+```text
+codex/build-week/0082_HB2_HANDOFF.md
+```
+
 When available, invoke:
 
 ```text
@@ -53,15 +59,19 @@ private data as part of the Build Week queue.
 - Eligible history at the branch starting point: 28 commits with no pre-cutoff author
   or committer dates; the offline control-plane commit brings the total to 41
 - Last completed machine slice: 0081 deterministic implementation and demo; its final
-  live-reviewed replay provenance is deferred while 0082 proceeds
+  live-reviewed replay provenance is deferred
+- Active implementation checkpoint: 0082 adversarial evals, privacy audit, packaging,
+  clean installation, deterministic evidence, guarded live capture, and CI are
+  substantially implemented in `codex/build-week/0082_HB2_HANDOFF.md`; 0082 is not yet
+  complete
 - Last independent audit: A1 architecture/authority against `6d11e7a`, verdict
   `green`; `A1-P0-001` is independently verified
-- Snapshot date: 2026-07-18
+- Snapshot date: 2026-07-26
 - Primary-session designation: this director thread is the primary Build Week
   implementation session; `/feedback` session ID
   `019f6d53-0a3d-71d3-abd7-749dc4a3784c` is recorded
-- Current local working-tree state: expected clean after the offline control-plane
-  commit;
+- Current local working-tree state: expected clean after the HB2 machine-transfer
+  checkpoint is committed and pushed;
   inspect it rather than relying on this file
 
 Confirm the checked-out state before changing anything:
@@ -249,21 +259,32 @@ The Build Week delta and README must distinguish it from the Faber Proof extensi
 
 ## Last recorded validation baseline
 
-The work item 0081 machine-work baseline on HB3 uses Python 3.12.2, pytest 9.0.2,
-Ruff 0.15.10, and mypy 2.1.0:
+The active work item 0082 checkpoint was prepared on HB2 with Python 3.11.15, pytest
+9.0.2, Ruff 0.15.10, mypy 2.1.0, and build 1.5.0:
 
-- focused demo and skill tests: 12 passed in 14.32 seconds
-- `python -m pytest -q`: 675 passed; 1 guarded live test skipped in 40.18 seconds
-- `python -m ruff check .`: passed
-- all 14 changed Python files pass `python -m ruff format --check`
-- `python -m mypy src`: passed across 91 source files
-- deterministic fixture regeneration and two skill validators passed
-- installed no-key demo completed in 3.8 seconds with ordinary `PASS`/`PASS` and Faber
-  Proof `BLOCK`/`PASS`; the exact last-turn counterexample is visible above the fold
-- `nix develop --command just check`: unavailable because Nix and `just` are not
-  installed on HB3
+- adversarial campaign passed 49/49 cases twice with zero unjustified passes
+- `python -m pytest -q` passed 697 tests with 1 guarded live skip in 90.49 seconds
+- `python -m ruff check .` passed
+- planner-focused tests passed 88 tests with 1 guarded live skip
+- product-focused tests passed 14 tests; packaging tests passed 4 tests
+- deterministic report regeneration produced 4 byte-stable reports
+- the wheel, sdist, base clean install, no-key installed demo, artifact privacy audit,
+  and optional live-extra installation all passed
+- the installed demo produced ordinary `PASS`/`PASS` and Faber Proof `BLOCK`/`PASS`
+- the complete clean-install demo contained 51 files, 232351 bytes, and zero privacy
+  findings
+- HB2 performance measurement completed in 8.890471 seconds with 232260 output bytes
+  and zero privacy findings
+- `python -m mypy src` passed across 93 source files; focused Ruff checks passed
+- fake guarded-live success, rollback, and no-callback preflight tests passed without a
+  provider call
+- adversarial eval and report-regeneration `--check` commands passed
+- repository-wide Ruff format is not green and reports 56 files requiring formatting
+- Nix and `just` were unavailable on HB2
 
-The Python tools are installed in the ignored `.faber/dev-venv` workspace environment.
+The complete commands, generated evidence, unfinished documentation, and exact next
+checks are recorded in `codex/build-week/0082_HB2_HANDOFF.md`. The HB2 Python tools are
+in the ignored `.faber/dev-venv` environment and do not transfer through Git.
 
 ## Current code map
 
@@ -290,6 +311,9 @@ The Python tools are installed in the ignored `.faber/dev-venv` workspace enviro
 - `src/faber/proof_demo.py` and `examples/build-week-proof/`: deterministic original
   bad/repaired scheduler revisions, context-bound replay review, one-command comparison,
   live capture/install gate, and judge-facing documentation.
+- `src/faber/proof_evals.py`, `src/faber/proof_privacy.py`, and `scripts/`: the active
+  0082 adversarial campaign, release privacy audit, clean-install audit, deterministic
+  report regeneration, and performance evidence.
 - `.agents/skills/faber-proof/`: repository-scoped proof, evidence-driven repair, and
   stale-replay safety workflow with deterministic validation.
 - `src/faber/budgets.py`, `budget_ledger.py`, `market_policies.py`, and
@@ -304,8 +328,18 @@ The Python tools are installed in the ignored `.faber/dev-venv` workspace enviro
 
 ## Recommended next action
 
-Execute work item 0082, then continue directly through all machine-completable 0083
-submission preparation under:
+On HB3, read and finish the machine-transfer checkpoint:
+
+```text
+codex/build-week/0082_HB2_HANDOFF.md
+```
+
+Complete the remaining 0082 documentation and repository-wide checks, make the focused
+0082 completion commit, promote `codex/build-week/drafts/ci.yml` with a non-FIDO
+credential authorized for workflow-file updates, and keep Linux and Windows GitHub CI
+green. The HB2 deploy key authenticated correctly but GitHub rejected the workflow
+path because the OAuth app that registered that key lacks `workflow` scope. Then
+continue directly through all machine-completable 0083 submission preparation under:
 
 ```text
 codex/build-week/OFFLINE_CONTINUATION.md

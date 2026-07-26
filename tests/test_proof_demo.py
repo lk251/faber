@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import runpy
+import shutil
 import subprocess
 import sys
 from collections.abc import Iterator, Mapping
@@ -19,12 +20,16 @@ from faber.proof_demo import (
     DEMO_EXPECTED_FAILED_CLAIM,
     ProofDemoError,
     ProofDemoOutcome,
+    _install_reviewed_demo_files,
+    _structured_response,
     generate_development_fixture_payloads,
     materialize_demo_repository,
     review_demo_replays,
     review_live_demo_capture,
+    run_guarded_live_demo_capture,
     run_proof_demo,
 )
+from faber.proof_privacy import audit_proof_artifacts
 from faber.proof_product import ProofProductError, run_proof_product
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
@@ -42,6 +47,37 @@ def _git(repository: Path, *arguments: str) -> str:
         encoding="utf-8",
     )
     return result.stdout.strip()
+
+
+def _guarded_capture_repository(tmp_path: Path) -> tuple[Path, Path]:
+    repository = tmp_path / "repository"
+    fixture = repository / "examples" / "build-week-proof"
+    shutil.copytree(FIXTURE_ROOT, fixture)
+    _git(repository, "init", "-q")
+    _git(repository, "config", "user.name", "Faber test")
+    _git(repository, "config", "user.email", "faber-test@example.invalid")
+    _git(repository, "add", ".")
+    _git(repository, "commit", "-q", "-m", "fixture")
+    _git(repository, "branch", "-M", "build-week/faber-proof")
+    return repository, fixture
+
+
+def _fake_live_capture(configuration, calls: list[str]):
+    def capture(request, *, model: str, created_at: str):
+        calls.append(request.candidate_revision)
+        return faber.adapters.create_planning_replay_record(
+            request,
+            _structured_response(configuration),
+            created_at=created_at,
+            requested_model=model,
+            returned_model="gpt-5.6-test-fixture",
+            response_id=f"resp_test_{request.digest()[7:23]}",
+            input_tokens=200,
+            output_tokens=100,
+            latency_ms=25,
+        )
+
+    return capture
 
 
 @pytest.fixture(scope="module")
@@ -189,6 +225,31 @@ def test_one_command_demo_produces_memorable_authoritative_contrast(
     assert "PASS" in passing_html[:8_000]
 
 
+def test_repeated_replay_has_stable_plan_evidence_and_decision_digests(
+    demo_outcome: ProofDemoOutcome,
+    tmp_path: Path,
+    no_key: None,
+) -> None:
+    repeated = run_proof_demo(
+        repository_root=REPOSITORY_ROOT,
+        mode="replay",
+        output_directory=tmp_path / "repeated",
+    )
+    for candidate in ("bad", "repaired"):
+        first = json.loads(
+            (demo_outcome.output_directory / candidate / "run-summary.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        second = json.loads(
+            (repeated.output_directory / candidate / "run-summary.json").read_text(encoding="utf-8")
+        )
+        first_digests = first["record_digests"]
+        second_digests = second["record_digests"]
+        for record in ("proof_plan", "proof_evidence", "proof_decision"):
+            assert first_digests[record] == second_digests[record]
+
+
 def test_repair_preserves_incomplete_and_cancelled_failures() -> None:
     namespace = runpy.run_path(str(FIXTURE_ROOT / "revisions" / "repaired" / "scheduler.py"))
     run_conversation = namespace["run_conversation"]
@@ -264,6 +325,7 @@ def test_json_and_human_cli_comparisons_agree(
 def test_reports_are_portable_secret_safe_and_final_samples_wait_for_live_review(
     demo_outcome: ProofDemoOutcome,
 ) -> None:
+    assert audit_proof_artifacts([demo_outcome.output_directory]).passed
     for name in ("bad", "repaired"):
         report = (demo_outcome.output_directory / name / "report.html").read_text(encoding="utf-8")
         lowered = report.casefold()
@@ -325,3 +387,117 @@ def test_fake_development_bundles_cannot_be_installed_as_live_reviewed(
             reviewer="test reviewer",
             reviewed_at="2026-07-17T01:00:00+00:00",
         )
+
+
+def test_reviewed_fixture_privacy_failure_preserves_existing_files(tmp_path: Path) -> None:
+    fixture = tmp_path / "fixture"
+    fixture.mkdir()
+    existing = fixture / "replays" / "provenance.json"
+    existing.parent.mkdir()
+    existing.write_text('{"status":"existing"}\n', encoding="utf-8")
+    secret = "sk-proj-AAAAAAAAAAAAAAAAAAAAAAAA"
+
+    with pytest.raises(ProofDemoError, match="privacy audit"):
+        _install_reviewed_demo_files(
+            fixture,
+            {
+                "replays/provenance.json": {"status": "replacement"},
+                "expected/report.html": f"<p>{secret}</p>",
+            },
+            forbidden_literals=(secret,),
+        )
+
+    assert existing.read_text(encoding="utf-8") == '{"status":"existing"}\n'
+    assert not (fixture / "expected" / "report.html").exists()
+
+
+def test_guarded_live_capture_uses_fake_backend_and_completes_transaction(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repository, fixture = _guarded_capture_repository(tmp_path)
+    configuration = load_proof_configuration(fixture / "proof-catalog.json")
+    calls: list[str] = []
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-proj-CCCCCCCCCCCCCCCCCCCCCCCC")
+
+    result = run_guarded_live_demo_capture(
+        fixture,
+        reviewer="Faber test reviewer",
+        reviewed_at="2026-07-26T00:00:00+00:00",
+        review_manifest_path=repository / ".faber" / "review.json",
+        capture_record=_fake_live_capture(configuration, calls),
+    )
+
+    assert result["status"] == "installed-live-reviewed"
+    assert len(calls) == 2
+    assert len(set(calls)) == 2
+    assert result["offline_demo"]["bad"]["verdict"] == "block"  # type: ignore[index]
+    assert result["offline_demo"]["repaired"]["verdict"] == "pass"  # type: ignore[index]
+    assert result["privacy_audit"]["status"] == "pass"  # type: ignore[index]
+    provenance = json.loads((fixture / "replays" / "provenance.json").read_text(encoding="utf-8"))
+    assert provenance["status"] == "live-reviewed"
+    assert (fixture / "expected" / "blocked-report.html").is_file()
+    assert (fixture / "expected" / "passing-report.html").is_file()
+    assert (repository / ".faber" / "review.json").is_file()
+
+
+def test_guarded_live_capture_rolls_back_after_post_install_failure(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _, fixture = _guarded_capture_repository(tmp_path)
+    configuration = load_proof_configuration(fixture / "proof-catalog.json")
+    before = {
+        path.relative_to(fixture).as_posix(): path.read_bytes()
+        for path in fixture.rglob("*")
+        if path.is_file()
+    }
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-proj-DDDDDDDDDDDDDDDDDDDDDDDD")
+
+    def fail_demo(**_: object) -> ProofDemoOutcome:
+        raise ProofDemoError("injected post-install failure")
+
+    with pytest.raises(ProofDemoError, match="injected post-install failure"):
+        run_guarded_live_demo_capture(
+            fixture,
+            reviewer="Faber test reviewer",
+            reviewed_at="2026-07-26T00:00:00+00:00",
+            capture_record=_fake_live_capture(configuration, []),
+            demo_runner=fail_demo,
+        )
+
+    after = {
+        path.relative_to(fixture).as_posix(): path.read_bytes()
+        for path in fixture.rglob("*")
+        if path.is_file()
+    }
+    assert after == before
+
+
+def test_guarded_live_capture_preflight_never_calls_provider_without_key_or_clean_branch(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repository, fixture = _guarded_capture_repository(tmp_path)
+    configuration = load_proof_configuration(fixture / "proof-catalog.json")
+    calls: list[str] = []
+    capture = _fake_live_capture(configuration, calls)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+
+    with pytest.raises(ProofDemoError, match="OPENAI_API_KEY"):
+        run_guarded_live_demo_capture(
+            fixture,
+            reviewer="Faber test reviewer",
+            capture_record=capture,
+        )
+    assert calls == []
+
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-proj-EEEEEEEEEEEEEEEEEEEEEEEE")
+    (repository / "dirty.txt").write_text("dirty\n", encoding="utf-8")
+    with pytest.raises(ProofDemoError, match="clean Git worktree"):
+        run_guarded_live_demo_capture(
+            fixture,
+            reviewer="Faber test reviewer",
+            capture_record=capture,
+        )
+    assert calls == []

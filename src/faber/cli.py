@@ -37,6 +37,7 @@ from faber.golden import (
     submit_demo_attempt,
 )
 from faber.proof_demo import ProofDemoError, run_proof_demo
+from faber.proof_privacy import audit_proof_artifacts, write_privacy_report
 from faber.proof_product import ProofProductError, run_proof_product
 from faber.store import export_trajectory, init_local_store, list_records, store_summary
 from faber.trajectories import build_demo_trajectory
@@ -237,6 +238,19 @@ def build_parser() -> argparse.ArgumentParser:
         help="Ask the standard browser to open the generated local report.",
     )
 
+    privacy = subparsers.add_parser(
+        "audit-proof-artifacts",
+        help="Run bounded secret, path, and privacy checks on proof artifacts.",
+    )
+    privacy.add_argument("paths", nargs="+", help="Artifact file or directory to inspect.")
+    privacy.add_argument("--forbidden-literal", action="append", default=[])
+    privacy.add_argument("--forbidden-sha256", action="append", default=[])
+    privacy.add_argument("--home-directory")
+    privacy.add_argument("--temp-directory")
+    privacy.add_argument("--username")
+    privacy.add_argument("--json-out")
+    privacy.add_argument("--markdown-out")
+
     return parser
 
 
@@ -270,6 +284,31 @@ def main(argv: Sequence[str] | None = None) -> int:
         for line in doctor_lines():
             print(line)
         return 0
+
+    if args.command == "audit-proof-artifacts":
+        try:
+            privacy_report = audit_proof_artifacts(
+                args.paths,
+                forbidden_literals=args.forbidden_literal,
+                forbidden_hashes=args.forbidden_sha256,
+                home_directory=args.home_directory,
+                temp_directory=args.temp_directory,
+                username=args.username,
+            )
+            write_privacy_report(
+                privacy_report,
+                json_path=args.json_out,
+                markdown_path=args.markdown_out,
+            )
+        except (FaberError, OSError) as exc:
+            _print_cli_error(
+                f"artifact privacy audit failed: {exc}",
+                why="Uninspected proof artifacts cannot be accepted for replay or submission.",
+                next_step="Correct the named path or audit option and rerun the command.",
+            )
+            return 1
+        print(canonical_json(privacy_report.to_dict()))
+        return privacy_report.exit_code
 
     if args.command == "proof":
         try:

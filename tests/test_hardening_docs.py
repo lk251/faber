@@ -46,22 +46,27 @@ def test_hardening_docs_exist() -> None:
 def test_product_terms_are_aligned_in_main_docs() -> None:
     documents = {
         "README.md": _read("README.md"),
-        "AGENTS.md": _read("AGENTS.md"),
         "docs/NAMING.md": _read("docs/NAMING.md"),
     }
 
     for path, text in documents.items():
         for term in TERMS:
             assert term in text, f"{term} missing from {path}"
+    agents = _read("AGENTS.md")
+    for path in ("docs/ARCHITECTURE.md", "docs/GLOSSARY.md", "docs/PROTOCOL.md"):
+        assert path in agents
 
 
 def test_protocol_root_objects_are_aligned() -> None:
     protocol = _read("docs/PROTOCOL.md")
+    architecture = _read("docs/ARCHITECTURE.md")
     agents = _read("AGENTS.md")
 
     for object_name in ROOT_OBJECTS:
         assert f"`{object_name}`" in protocol
-        assert f"`{object_name}`" in agents
+    for object_name in ROOT_OBJECTS[:6]:
+        assert f"`{object_name}`" in architecture
+    assert "docs/PROTOCOL.md" in agents
     assert "SettlementEvent" not in protocol
 
 

@@ -7,6 +7,8 @@ __pycache__/
 .mypy_cache/
 .coverage
 htmlcov/
+build/
+dist/
 
 # Local Faber state
 .faber/

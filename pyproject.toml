@@ -5,18 +5,67 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "faber"
 version = "0.1.0"
-description = "Verifier-first work market protocol primitives."
+description = "Verifier-first proof-carrying patches and work-market protocol primitives."
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = []
+keywords = ["agents", "developer-tools", "verification"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
 
 [project.scripts]
 faber = "faber.cli:main"
 
 [project.optional-dependencies]
 live-openai = ["openai>=2.45.0,<3"]
+dev = [
+    "build==1.5.0",
+    "mypy==2.1.0",
+    "pytest==9.0.2",
+    "ruff==0.15.10",
+]
+
+[project.urls]
+Repository = "https://github.com/lk251/faber"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.data-files]
+"share/faber/examples/build-week-proof" = [
+    "examples/build-week-proof/*.json",
+    "examples/build-week-proof/*.md",
+    "examples/build-week-proof/*.py",
+]
+"share/faber/examples/build-week-proof/expected" = [
+    "examples/build-week-proof/expected/*.html",
+    "examples/build-week-proof/expected/*.json",
+    "examples/build-week-proof/expected/*.md",
+]
+"share/faber/examples/build-week-proof/ordinary-tests" = [
+    "examples/build-week-proof/ordinary-tests/*.py",
+]
+"share/faber/examples/build-week-proof/replays" = [
+    "examples/build-week-proof/replays/*.json",
+]
+"share/faber/examples/build-week-proof/revisions/bad" = [
+    "examples/build-week-proof/revisions/bad/*.py",
+]
+"share/faber/examples/build-week-proof/revisions/repaired" = [
+    "examples/build-week-proof/revisions/repaired/*.py",
+]
+"share/faber/examples/build-week-proof/scripts" = [
+    "examples/build-week-proof/scripts/*.py",
+]
+"share/faber/examples/build-week-proof/source" = [
+    "examples/build-week-proof/source/*.py",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

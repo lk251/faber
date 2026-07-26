@@ -42,6 +42,7 @@ def test_guarded_live_openai_planner_writes_replay_bundle() -> None:
             "rejection_criteria": ["Formatting empty input raises an exception."],
         },
     )
+    diff_text = "@@ -1 +1 @@\n-return None\n+return value\n"
     attempt = Attempt(
         id="attempt_live-openai-smoke",
         created_at="2026-07-17T00:00:00Z",
@@ -50,7 +51,7 @@ def test_guarded_live_openai_planner_writes_replay_bundle() -> None:
         base_revision="base-revision",
         candidate_revision="candidate-revision",
         summary="Preserve empty input.",
-        patch_digest=sha256_digest("tiny sanitized live smoke diff"),
+        patch_digest=sha256_digest(diff_text),
     )
     catalog_entry = PlannerCatalogEntryView(
         id="proof.python.empty-input",
@@ -74,7 +75,7 @@ def test_guarded_live_openai_planner_writes_replay_bundle() -> None:
     request = build_planning_request(
         contract,
         attempt,
-        diff_text="@@ -1 +1 @@\n-return None\n+return value\n",
+        diff_text=diff_text,
         catalog_entries=[catalog_entry],
     )
 
