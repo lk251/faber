@@ -59,8 +59,12 @@ jobs:
         run: python scripts/run_build_week_evals.py --check
       - name: Check deterministic development reports
         run: python scripts/check_development_report_regeneration.py --check
+      - name: Check demo narration budget
+        run: python scripts/check_demo_script.py
       - name: Check generous performance budget
         run: python scripts/measure_proof_demo.py
+      - name: Run final machine submission audit
+        run: python scripts/final_submission_audit.py --run-machine-checks --require machine
 
   optional-openai-extra:
     name: Optional OpenAI extra / no provider call

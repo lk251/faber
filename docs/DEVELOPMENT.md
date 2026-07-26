@@ -180,6 +180,35 @@ Live capture is a separate human gate. Read `docs/LIVE_GPT56_CAPTURE_RUNBOOK.md`
 use its one-command transaction. Ordinary development and CI must not call a provider
 or relabel the current `fake-development` fixtures.
 
+## Submission checks
+
+Check that the marked narration remains inside the recording budget:
+
+```bash
+python scripts/check_demo_script.py
+```
+
+Run every machine-completable final check and write the durable report:
+
+```bash
+python scripts/final_submission_audit.py --run-machine-checks --require machine \
+  --json-out docs/generated/FINAL_SUBMISSION_AUDIT.json \
+  --markdown-out docs/generated/FINAL_SUBMISSION_AUDIT.md
+```
+
+`--require machine` succeeds only when the deterministic machine lane passes. The
+report still records unresolved human actions without treating them as machine
+failures. Use `--require submission` only after the human-gate state is backed by real
+evidence and bound to the audited commit.
+
+Write the exact competition delta in both formats from one repository snapshot:
+
+```bash
+python scripts/build_week_delta.py --target HEAD \
+  --json-out docs/generated/BUILD_WEEK_DELTA.json \
+  --markdown-out docs/generated/BUILD_WEEK_DELTA.md
+```
+
 ## Troubleshooting
 
 - If `faber` is not found, invoke the executable from the active environment or use

@@ -468,6 +468,12 @@ def _write_utf8(stream: Any, value: str) -> None:
         stream.flush()
 
 
+def _write_report(path: Path, value: str) -> None:
+    path = path.expanduser()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(value, encoding="utf-8", newline="\n")
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
@@ -504,6 +510,16 @@ def _parser() -> argparse.ArgumentParser:
         dest="output_format",
         help="shortcut for --format markdown",
     )
+    parser.add_argument(
+        "--json-out",
+        type=Path,
+        help="also write the deterministic JSON report to this path",
+    )
+    parser.add_argument(
+        "--markdown-out",
+        type=Path,
+        help="also write the deterministic Markdown report to this path",
+    )
     parser.set_defaults(output_format="markdown")
     return parser
 
@@ -521,7 +537,18 @@ def main(argv: Sequence[str] | None = None) -> int:
         _write_utf8(sys.stderr, f"build_week_delta: error: {exc}\n")
         return 2
 
-    rendered = render_json(report) if args.output_format == "json" else render_markdown(report)
+    json_report = render_json(report)
+    markdown_report = render_markdown(report)
+    try:
+        if args.json_out is not None:
+            _write_report(args.json_out, json_report)
+        if args.markdown_out is not None:
+            _write_report(args.markdown_out, markdown_report)
+    except OSError as exc:
+        _write_utf8(sys.stderr, f"build_week_delta: error: {exc}\n")
+        return 2
+
+    rendered = json_report if args.output_format == "json" else markdown_report
     _write_utf8(sys.stdout, rendered)
     return 0
 

@@ -1,0 +1,98 @@
+{
+  "gates": [
+    {
+      "evidence": {
+        "recorded_in": [
+          "codex/build-week/STATUS.md",
+          "docs/CODEX_SESSION_HANDOFF.md"
+        ],
+        "session_id": "019f6d53-0a3d-71d3-abd7-749dc4a3784c"
+      },
+      "id": "feedback_session",
+      "status": "complete"
+    },
+    {
+      "evidence": {
+        "organizer_authorized_modification": false,
+        "organizer_evidence": null,
+        "submission_period_ended": "2026-07-21T17:00:00-07:00",
+        "timely_submission_confirmed": false,
+        "timely_submission_url": null
+      },
+      "id": "deadline_status",
+      "status": "incomplete"
+    },
+    {
+      "evidence": {
+        "capture_command": "python examples/build-week-proof/scripts/capture_live_reviewed_demo.py --reviewer \"Javier\"",
+        "provenance": "fake-development",
+        "review_manifest": null,
+        "reviewer": null
+      },
+      "id": "live_provenance",
+      "status": "incomplete"
+    },
+    {
+      "evidence": {
+        "completed_audits": [
+          "A1"
+        ],
+        "open_p0_findings": [],
+        "required_audits": [
+          "A1",
+          "A2",
+          "A3",
+          "A4",
+          "A5"
+        ]
+      },
+      "id": "independent_audits",
+      "status": "incomplete"
+    },
+    {
+      "evidence": {
+        "addresses": [
+          "testing@devpost.com",
+          "build-week-event@openai.com"
+        ],
+        "attested": false,
+        "verified_from_clean_context": false
+      },
+      "id": "judge_repository_access",
+      "status": "incomplete"
+    },
+    {
+      "evidence": {
+        "audio_attested": false,
+        "duration_seconds": null,
+        "public_attested": false,
+        "url": null,
+        "verified_signed_out": false
+      },
+      "id": "public_video",
+      "status": "incomplete"
+    },
+    {
+      "evidence": {
+        "authorized_post_deadline": false,
+        "final_commit": null,
+        "preview_attested": false,
+        "submitted_at": null,
+        "url": null
+      },
+      "id": "devpost",
+      "status": "incomplete"
+    },
+    {
+      "evidence": {
+        "audit_report_digest": null,
+        "commit": null,
+        "tag": "build-week-2026-submission"
+      },
+      "id": "final_tag",
+      "status": "incomplete"
+    }
+  ],
+  "schema": "faber.build_week_submission_human_gates.v1",
+  "verification_date": "2026-07-26"
+}

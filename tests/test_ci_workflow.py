@@ -6,9 +6,9 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_ci_is_least_privilege_cross_platform_and_covers_0082_gates() -> None:
-    workflow = (REPOSITORY_ROOT / "codex" / "build-week" / "drafts" / "ci.yml").read_text(
-        encoding="utf-8"
-    )
+    active = REPOSITORY_ROOT / ".github" / "workflows" / "ci.yml"
+    draft = REPOSITORY_ROOT / "codex" / "build-week" / "drafts" / "ci.yml"
+    workflow = (active if active.is_file() else draft).read_text(encoding="utf-8")
 
     assert "permissions:\n  contents: read" in workflow
     assert "persist-credentials: false" in workflow
@@ -28,6 +28,8 @@ def test_ci_is_least_privilege_cross_platform_and_covers_0082_gates() -> None:
         "run_build_week_evals.py --check",
         "check_development_report_regeneration.py --check",
         "measure_proof_demo.py",
+        "check_demo_script.py",
+        "final_submission_audit.py --run-machine-checks --require machine",
         "find_spec('openai') is None",
         "find_spec('openai') is not None",
     ):

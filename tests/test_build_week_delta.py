@@ -235,3 +235,28 @@ def test_markdown_output_contains_the_same_boundary_data(tmp_path: Path) -> None
     assert baseline_sha in output
     assert target_sha in output
     assert "Markdown report" in output
+
+
+def test_output_files_are_written_from_one_report_snapshot(tmp_path: Path) -> None:
+    repo = _init_repo(tmp_path / "output-files")
+    _seed_baseline(repo)
+    (repo / "change.txt").write_text("change\n", encoding="utf-8")
+    target_sha = _commit(repo, "Write reports", AFTER_PERIOD)
+    json_path = tmp_path / "reports" / "delta.json"
+    markdown_path = tmp_path / "reports" / "delta.md"
+
+    result = _run_delta(
+        repo,
+        "--json",
+        "--json-out",
+        os.fspath(json_path),
+        "--markdown-out",
+        os.fspath(markdown_path),
+    )
+
+    assert result.returncode == 0, result.stderr.decode("utf-8")
+    assert json_path.read_bytes() == result.stdout
+    report = json.loads(json_path.read_text(encoding="utf-8"))
+    assert report["target"]["sha"] == target_sha
+    assert report["working_tree"] == {"dirty": False}
+    assert target_sha in markdown_path.read_text(encoding="utf-8")

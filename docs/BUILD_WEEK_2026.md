@@ -56,14 +56,19 @@ Do not rewrite or squash eligible history before submission.
 - Annotated boundary tag: `build-week-2026-baseline`, verified locally at that commit.
 - Build Week implementation branch starting commit:
   `c915523383dc58114bf748f7d7a64c1c398faaba`.
-- Eligible commits before the focused 0076 completion commit: 28. The completion
-  commit makes the baseline-to-branch range 29 commits.
+- Historical checkpoint: 28 commits were eligible before the focused 0076 completion
+  commit, and that completion made the baseline-to-branch range 29 commits. Do not use
+  that historical count as the final total. Generate the current exact commit and file
+  boundary with `python scripts/build_week_delta.py`; the submission snapshot is
+  committed under `docs/generated/BUILD_WEEK_DELTA.md` and
+  `docs/generated/BUILD_WEEK_DELTA.json`.
 
 The immediately older commits are work items 0074 and 0073, dated July 9. The first
 commit after the baseline is `6d8c84b46daffc234b56238b28da903358f749c6`
 (`Add machine transfer handoff`), authored and committed `2026-07-16T05:04:08Z`.
 The local delta report is generated without network access by
-`python scripts/build_week_delta.py`.
+`python scripts/build_week_delta.py`. Use `--json-out` and `--markdown-out` to write
+both formats from the same Git snapshot.
 
 ## Required submission artifacts
 
