@@ -63,22 +63,23 @@ private data as part of the Build Week queue.
 - Eligibility tag: annotated `build-week-2026-baseline`, verified locally at the
   baseline commit
 - Eligible history at the branch starting point: 28 commits with no pre-cutoff author
-  or committer dates; the completed 0082 checkpoint has 43 baseline-to-head commits
-- Last completed machine slice: 0082 local implementation and release validation at
-  `c61ac4607b5f9b1c3f4fb6088ee37209365ccebf`; its remote workflow gate remains open
-- Active implementation state: 0082 code, documentation, and all available local
-  release checks are complete; its exact Linux/Windows workflow is preserved at
-  `codex/build-week/drafts/ci.yml` pending a GitHub credential authorized to modify
-  workflow files; 0083-M is current
+  or committer dates; the 0083 source snapshot has 45 baseline-to-target commits and
+  166 changed files
+- Last completed machine slice: 0083 submission package and final machine audit at
+  source commit `f2518bd96ebc90f3d6fc7ba6097f1ffb1d6595da`
+- Active implementation state: all machine-completable 0083 artifacts and checks are
+  complete; the final audit is `machine_pass` and `human_incomplete`. The exact
+  Linux/Windows workflow remains at `codex/build-week/drafts/ci.yml` pending a GitHub
+  credential authorized to modify workflow files
 - Last independent audit: A1 architecture/authority against `6d11e7a`, verdict
   `green`; `A1-P0-001` is independently verified
 - Snapshot date: 2026-07-26
 - Primary-session designation: this director thread is the primary Build Week
   implementation session; `/feedback` session ID
   `019f6d53-0a3d-71d3-abd7-749dc4a3784c` is recorded
-- Current transfer state after a fresh fetch: clean and even with
-  `origin/build-week/faber-proof` at `c61ac4607b5f9b1c3f4fb6088ee37209365ccebf`;
-  the remote has only `master` and `build-week/faber-proof`, with no `main`
+- Current transfer target: the pushed `build-week/faber-proof` branch containing
+  source commit `f2518bd` plus this handoff/evidence commit; the remote has only
+  `master` and `build-week/faber-proof`, with no `main`
 
 Confirm the checked-out state before changing anything:
 
@@ -179,9 +180,10 @@ than parallel redesigns of the core protocol.
 Codex must complete deterministic local work without waiting. These actions remain
 human-only, but they block only work that actually depends on them:
 
+- confirming a timely Devpost submission exists or obtaining organizer authorization
+  for a post-deadline modification;
 - supplying an OpenAI API key for a guarded live run;
 - requesting or redeeming competition credits;
-- running `/feedback` and copying the returned session ID;
 - sharing the private repository with the official judging addresses;
 - recording spoken narration and uploading a public YouTube video;
 - completing and submitting the Devpost form;
@@ -189,8 +191,9 @@ human-only, but they block only work that actually depends on them:
   credential use, or private-data collection.
 
 Do not mark one of these gates complete without the real value or explicit human
-attestation. During the offline lane, do not ask again for an API key or `/feedback`;
-preserve those gates and continue 0082 and 0083 machine work.
+attestation. `/feedback` is already complete with session ID
+`019f6d53-0a3d-71d3-abd7-749dc4a3784c`. The official submission deadline has passed,
+so do not modify Devpost until the first gate above is established.
 
 ## Start on another machine
 
@@ -265,34 +268,47 @@ The Build Week delta and README must distinguish it from the Faber Proof extensi
 
 ## Last recorded validation baseline
 
-The work item 0082 local completion baseline was prepared on HB2 with Python 3.11.15, pytest
-9.0.2, Ruff 0.15.10, mypy 2.1.0, and build 1.5.0:
+The work item 0083 source snapshot `f2518bd` was validated on HB2 with Python 3.11.15,
+pytest 9.0.2, Ruff 0.15.10, mypy 2.1.0, and build 1.5.0:
 
-- adversarial campaign passed 49/49 cases twice with zero unjustified passes
-- `python -m pytest -q` passed 699 tests with 1 guarded live skip in 117.88 seconds
-- `python -m ruff check .` passed
-- `python -m ruff format --check .` passed across 189 files
-- planner-focused tests passed 88 tests with 1 guarded live skip
-- product-focused tests passed 14 tests; packaging tests passed 4 tests
+- `python -m pytest -q`: 710 passed, 1 guarded live skip in 105.99 seconds
+- focused submission/docs/audit/delta tests: 26 passed in 12.07 seconds
+- Ruff lint passed; Ruff format passed across 193 files
+- mypy passed across 93 source files
+- adversarial campaign passed 49/49 cases with zero unjustified passes
 - deterministic report regeneration produced 4 byte-stable reports
-- the wheel, sdist, base clean install, no-key installed demo, artifact privacy audit,
-  and optional live-extra installation all passed
-- the installed demo produced ordinary `PASS`/`PASS` and Faber Proof `BLOCK`/`PASS`
-- the complete clean-install demo contained 51 files, 232257 bytes, and zero privacy
-  findings
-- HB2 performance measurement completed in 6.258291 seconds with 232259 output bytes
-  and zero privacy findings
-- `python -m mypy src` passed across 93 source files; focused Ruff checks passed
-- fake guarded-live success, rollback, and no-callback preflight tests passed without a
-  provider call
-- adversarial eval and report-regeneration `--check` commands passed
-- development fixtures regenerate byte-identically and remain `fake-development`
-- a direct privacy audit passed across 58 generated/committed files and 274922 bytes
+- full clean-install audit passed outside the checkout, including the optional
+  `live-openai` extra without a provider call; wheel 336891 bytes, sdist 398045 bytes,
+  51 demo files, 232261 bytes, and zero privacy findings
+- direct replay produced ordinary `PASS`/`PASS` and Faber Proof `BLOCK`/`PASS`, with
+  `fake-development` provenance stated throughout
+- latest performance measurement completed in 12.207419 seconds with 232258 output
+  bytes and zero privacy findings
+- narration check passed at 391 words, mechanically estimated at 156.4-167.6 seconds;
+  a human timed rehearsal remains required
+- final aggregate audit passed every runnable machine check in one sequence and
+  reported `MACHINE PASS; HUMAN INCOMPLETE`; its machine-snapshot JSON digest is
+  `sha256:df9a108bc1b5f39e5cc3c2178beb7b3d9d30bc73217c3c58522dda6362bdf050`
+- Build Week delta is warning-free at 45 commits and 166 changed files against
+  baseline `64f775c`
 - Nix and `just` were unavailable on HB2
 
-The complete commands, generated evidence, unfinished documentation, and exact next
-checks are recorded in `codex/build-week/0082_HB2_HANDOFF.md`. The HB2 Python tools are
-in the ignored `.faber/dev-venv` environment and do not transfer through Git.
+The durable machine evidence is:
+
+```text
+docs/generated/FINAL_SUBMISSION_AUDIT.json
+docs/generated/FINAL_SUBMISSION_AUDIT.md
+docs/generated/BUILD_WEEK_DELTA.json
+docs/generated/BUILD_WEEK_DELTA.md
+docs/generated/DEMO_NARRATION_ANALYSIS.json
+```
+
+Two aggregate attempts before the passing report encountered non-reproducible Windows
+infrastructure failures: one eval child exited once and then passed identically; one
+temporary `venv` `ensurepip` bootstrap failed once and the complete standalone
+clean-install audit then passed. Neither failed report is committed. The final
+aggregate report passed from a clean source commit. HB2's ignored
+`.faber/dev-venv` environment and disposable run outputs do not transfer through Git.
 
 ## Current code map
 
@@ -321,7 +337,11 @@ in the ignored `.faber/dev-venv` environment and do not transfer through Git.
   live capture/install gate, and judge-facing documentation.
 - `src/faber/proof_evals.py`, `src/faber/proof_privacy.py`, and `scripts/`: the active
   0082 adversarial campaign, release privacy audit, clean-install audit, deterministic
-  report regeneration, and performance evidence.
+  report regeneration, performance evidence, 0083 narration check, Build Week delta,
+  and final submission audit.
+- `docs/JUDGE_QUICKSTART.md`, `docs/DEVPOST_SUBMISSION.md`, `docs/DEMO_*`,
+  `docs/SUBMISSION_IMAGES.md`, and `docs/submission-assets/`: the complete 0083
+  judge, recording, submission, and original-image package.
 - `.agents/skills/faber-proof/`: repository-scoped proof, evidence-driven repair, and
   stale-replay safety workflow with deterministic validation.
 - `src/faber/budgets.py`, `budget_ledger.py`, `market_policies.py`, and
@@ -336,43 +356,63 @@ in the ignored `.faber/dev-venv` environment and do not transfer through Git.
 
 ## Recommended next action
 
-On HB3, read the machine-transfer checkpoint for implementation history:
+On HB3, first read:
 
 ```text
-codex/build-week/0082_HB2_HANDOFF.md
+AGENTS.md
+docs/CODEX_SESSION_HANDOFF.md
+codex/build-week/STATUS.md
 codex/build-week/HB2_TO_HB3_HANDOFF_2026-07-26.md
+docs/generated/FINAL_SUBMISSION_AUDIT.md
 ```
 
-Continue directly through all machine-completable 0083 submission preparation. In
-parallel when a human-authorized non-FIDO credential is available, promote
-`codex/build-week/drafts/ci.yml` and keep both Linux and Windows GitHub jobs green. The
-HB2 deploy key authenticated correctly, but GitHub rejected the workflow path because
-the OAuth app that registered that key lacks `workflow` scope. The exact offline queue
-is:
+Do not redo 0083 merely because `.faber/` outputs are absent; those are intentionally
+ignored. Confirm the branch contains source commit `f2518bd`, install a local
+development environment, and run a focused smoke check. If source or submission
+artifacts change, rerun the complete final audit before relying on its report.
 
-```text
-codex/build-week/OFFLINE_CONTINUATION.md
-```
+The next machine-actionable work is independent review:
 
-The no-key original demo is complete and green, and its committed planner fixtures
-remain honestly labeled `fake-development`. Guarded live capture remains required for
-final provenance, final tagging, and submission completion, but it does not block the
-offline machine lane. The primary `/feedback` session ID is recorded. The prior A1
-evidence remains in:
+1. Run A2 adversarial security from a fresh audit session.
+2. Run A3 clean-room installation from a separate fresh context.
+3. Run A4 judge comprehension without relying on implementation-session memory.
+4. Run the machine portion of A5, then repeat/finalize A5 after human evidence and the
+   candidate tag exist.
+5. Resolve every accepted P0 finding before final tagging.
+
+Use `$build-week-auditor` and the queue in
+`codex/build-week/AUDIT_QUEUE.md`. Existing A1 evidence is:
 
 ```text
 codex/build-week/audits/A1-architecture-and-authority-report.md
 ```
 
-A2 is eligible now against the current security and replay implementation. A provenance
-addendum must inspect the final live-reviewed bundles after capture. Record audit
-eligibility without pausing the 0082/0083 machine lane; open P0 findings still take
-priority and block final tagging.
+Remote CI remains a precise external authorization gate. Promote
+`codex/build-week/drafts/ci.yml` to `.github/workflows/ci.yml` only with a non-FIDO
+credential authorized for workflow updates, then observe and repair both Linux and
+Windows jobs. HB2's repository deploy key works for normal Git traffic, but GitHub
+rejected workflow-path changes because the OAuth app that registered it lacks
+`workflow` scope.
 
-The official submission deadline has passed as of this transfer. Continue useful 0083
-machine work, but do not claim submission eligibility or perform a Devpost modification
-until a human verifies that a timely submission exists or that the organizers permit a
-post-deadline change.
+The ordered human/final sequence is:
+
+1. Establish that a timely Devpost submission exists or obtain organizer authorization
+   for a post-deadline modification.
+2. Run the guarded live capture in `docs/LIVE_GPT56_CAPTURE_RUNBOOK.md`, review it, and
+   obtain the required provenance audit addendum.
+3. Share and independently verify repository access for both judging addresses.
+4. Perform a timed narration rehearsal, record the under-three-minute video, upload it
+   publicly, and verify it while signed out.
+5. Update `codex/build-week/submission-human-gates.json` only with real evidence.
+6. Run the full final audit, complete A5, create
+   `build-week-2026-submission`, rerun the audit against the tag, and record the digest.
+7. Update or submit Devpost only when step 1 permits it, and bind the record to the
+   audited tag.
+
+The no-key demo is complete and green, but committed replay fixtures remain honestly
+`fake-development`. Do not claim `live-reviewed` provenance, green remote CI,
+independent audit completion, submission eligibility, or final submission until each
+has real evidence.
 
 ## Invariants to preserve
 

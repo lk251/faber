@@ -17,84 +17,75 @@ Read in this order on HB3:
 When the repository skill is available, the intended resume instruction is:
 
 ```text
-Use $build-week-director and continue Issue #7 from work item 0083-M. Preserve the
-recorded workflow authorization blocker and complete every independent machine gate.
+Read AGENTS.md and docs/CODEX_SESSION_HANDOFF.md, verify source commit f2518bd is in
+the fetched build-week/faber-proof branch, then use $build-week-auditor for A2. Preserve
+the recorded workflow authorization blocker and do not invent human-gate evidence.
 ```
 
 ## Transfer snapshot
 
-The following was verified on HB2 after `git fetch --prune --tags origin`:
+The final HB2 source and machine-evidence snapshot is:
 
 - Repository: `lk251/faber`
 - Remote: `git@github.com:lk251/faber.git`
 - Active branch: `build-week/faber-proof`
-- Source checkpoint: `c61ac4607b5f9b1c3f4fb6088ee37209365ccebf`
-  (`Complete work item 0082 evals packaging and release checks`)
-- Branch state at the source checkpoint: clean and even with
-  `origin/build-week/faber-proof` (`0 0`)
-- Remote branch heads:
-  - `build-week/faber-proof` at `c61ac4607b5f9b1c3f4fb6088ee37209365ccebf`
-  - `master` at `c915523383dc58114bf748f7d7a64c1c398faaba`
+- 0083 source checkpoint: `f2518bd96ebc90f3d6fc7ba6097f1ffb1d6595da`
+  (`Implement work item 0083 submission package`)
+- The transfer/evidence commit follows that source checkpoint and contains the
+  generated reports plus the updated resume state.
 - `master` is the canonical long-lived branch. Remote `main` is absent and was
   intentionally deleted.
 - Eligibility baseline tag: annotated `build-week-2026-baseline`
 - Baseline target:
   `64f775cfe2f622837bd9aaa40f6369aa22af1d80`
   (`Implement work item 0075 roadmap synthesis`, 2026-07-09T21:45:20Z)
-- Measured baseline-to-checkpoint delta: 43 commits, 152 changed files, 32,721
-  additions, and 450 deletions. Generate current values with:
+- Warning-free baseline-to-source delta: 45 commits, 166 changed files, 35,949
+  additions, 528 deletions, and zero binary files. The exact report is committed at:
 
-  ```powershell
-  python scripts/build_week_delta.py --json
+  ```text
+  docs/generated/BUILD_WEEK_DELTA.json
+  docs/generated/BUILD_WEEK_DELTA.md
   ```
 
-The commit containing this handoff file will be newer than the source checkpoint.
-Treat `c61ac46` as the completed product checkpoint and inspect the fetched branch head
-for the transfer-document commit.
+After cloning, run `git fetch --prune --tags`, check out
+`build-week/faber-proof`, and verify `git merge-base --is-ancestor f2518bd HEAD`.
+The push verification recorded at the end of this packet is authoritative for the
+final remote head.
 
 ## Active objective
 
 GitHub Issue
 [#7](https://github.com/lk251/faber/issues/7), "0082-0083-M: Execute the autonomous
-offline Faber Proof completion campaign," was open when this packet was written.
+offline Faber Proof completion campaign," is machine-complete through 0083-M at
+`f2518bd`. Do not redo it by default.
 
-Work item 0082 is locally machine-complete at `c61ac46`:
+0083 now contains:
 
-- product-specific threat model;
-- 49/49 deterministic adversarial cases with zero unjustified passes;
-- privacy and secret audit;
-- wheel and sdist packaging;
-- isolated base and optional-extra installation;
-- installed no-key bad/repaired demo;
-- deterministic report regeneration;
-- guarded, atomic live-capture preparation tested with fake clients;
-- performance and bundle-size evidence;
-- full local test, format, lint, and type checks.
+- the judge-facing README and five-command no-key path;
+- `docs/JUDGE_QUICKSTART.md` and copy-ready `docs/DEVPOST_SUBMISSION.md`;
+- a 391-word script, shot list, recording checklist, and deterministic narration
+  checker;
+- original 1600x900 comparison and trust-boundary SVG assets plus an image plan;
+- explicit, validated human-gate state;
+- a deterministic final audit with JSON and Markdown outputs;
+- a warning-free exact Build Week delta;
+- tests for narration bounds, final-audit failure modes, delta outputs, and CI content.
 
-The only remaining 0082 gate is remote workflow activation and observation. It does not
-block independent 0083 machine work.
+The final audit result is:
 
-Work item 0083-M has not been implemented. It is the next product change. Complete:
+```text
+MACHINE PASS; HUMAN INCOMPLETE; OVERALL HUMAN_INCOMPLETE
+```
 
-- the judge-facing top-level README, beginning with `Faber Proof` and
-  `Codex can write the patch. Faber makes the patch prove itself.`;
-- `docs/JUDGE_QUICKSTART.md`;
-- copy-ready `docs/DEVPOST_SUBMISSION.md`;
-- `docs/DEMO_SCRIPT.md`, mechanically constrained to a 2:35-2:50 narration budget;
-- `docs/DEMO_SHOT_LIST.md`;
-- `docs/DEMO_RECORDING_CHECKLIST.md`;
-- `docs/SUBMISSION_IMAGES.md` and deterministic original source assets;
-- a deterministic narration checker;
-- a deterministic final-submission audit tool with JSON and Markdown reports;
-- the exact pre-existing versus Build Week delta;
-- factual technical decisions, security limits, business path, and adoption path;
-- an explicit human-gate state file or equivalent structured input;
-- tests and full local validation.
+The remaining 0082 machine/external gate is GitHub workflow activation and observation.
+The exact Linux/Windows workflow is at `codex/build-week/drafts/ci.yml`. The HB2
+repository deploy key authenticated for normal Git, but GitHub rejected workflow-path
+updates because the OAuth app that registered it lacks `workflow` scope. This is a
+precise external authorization blocker, not green CI.
 
-The final audit must distinguish `machine_pass` from unresolved human gates. Do not
-make a live provider call, relabel `fake-development` fixtures, share repository access,
-upload a video, submit Devpost, contact maintainers, or create the final submission tag
-as part of 0083-M.
+The next machine-actionable queue is independent A2, A3, A4, then the machine portion
+of A5. Use fresh audit contexts; accepted P0 findings block the final tag. A5 must be
+repeated or finalized after real human evidence and a candidate tag exist.
 
 ## Deadline status
 
@@ -122,7 +113,8 @@ For the expected HB3 key path:
 
 ```powershell
 $key = "$env:USERPROFILE/.ssh/faber_github_deploy_ed25519"
-$ssh = 'C:/Windows/System32/OpenSSH/ssh.exe -i "' + $key + '" -o IdentitiesOnly=yes -o AddKeysToAgent=no'
+$sshExe = Join-Path $env:WINDIR "System32/OpenSSH/ssh.exe"
+$ssh = '"' + $sshExe + '" -i "' + $key + '" -o IdentitiesOnly=yes -o AddKeysToAgent=no'
 Test-Path $key
 ssh-keygen -lf "$key.pub"
 $env:GIT_SSH_COMMAND = $ssh
@@ -146,11 +138,8 @@ Get-Content "$key.pub"
 Constrain Git with the same `core.sshCommand` after registration. Never fall back to a
 FIDO-backed identity for this repository.
 
-The HB2 repository used:
-
-```text
-C:/Windows/System32/OpenSSH/ssh.exe -i C:/Users/javie/.ssh/faber_github_deploy_ed25519 -o IdentitiesOnly=yes -o AddKeysToAgent=no
-```
+HB2 used the same constrained command shape with its machine-local
+`$env:USERPROFILE/.ssh/faber_github_deploy_ed25519` key.
 
 An additional HB2 workflow key was generated during diagnosis but was never registered.
 It is not a usable repository credential and does not transfer.
@@ -186,25 +175,45 @@ Do not weaken the workflow and do not use the FIDO identity as a shortcut.
 
 ## Validation baseline
 
-The completed HB2 0082 run used Python 3.11.15, pytest 9.0.2, Ruff 0.15.10, mypy
-2.1.0, and build 1.5.0:
+The completed HB2 0083 run at `f2518bd` used Python 3.11.15, pytest 9.0.2, Ruff
+0.15.10, mypy 2.1.0, and build 1.5.0:
 
-- `python -m pytest -q`: 699 passed, 1 guarded live skip in 117.88 seconds;
-- `python -m ruff format --check .`: 189 files already formatted;
+- `python -m pytest -q`: 710 passed, 1 guarded live skip in 105.99 seconds;
+- focused submission/docs/audit/delta suite: 26 passed in 12.07 seconds;
+- `python -m ruff format --check .`: 193 files already formatted;
 - `python -m ruff check .`: passed;
 - `python -m mypy src`: passed across 93 source files;
-- adversarial campaign: 49/49 passed twice, zero unjustified passes;
+- adversarial campaign: 49/49 passed, zero unjustified passes;
 - campaign digest:
   `sha256:eec59f8fcf20e546971010a466514841ffd5cdf60cbff978c9ddf43c1164c27c`;
-- clean wheel/sdist and isolated install audit: passed;
-- wheel: 333,474 bytes; sdist: 388,290 bytes;
+- full clean wheel/sdist and isolated install audit, including optional extra: passed;
+- wheel: 336,891 bytes; sdist: 398,045 bytes;
 - installed demo: ordinary `PASS`/`PASS`, Faber Proof `BLOCK`/`PASS`;
-- installed demo package: 51 files, 232,257 bytes, zero privacy findings;
-- measured demo: 6.258291 seconds, 232,259 output bytes;
-- direct committed/generated artifact audit: 58 files, 274,922 bytes, zero findings;
+- installed demo package: 51 files, 232,261 bytes, zero privacy findings;
+- measured demo: 12.207419 seconds, 232,258 output bytes;
+- submission-artifact privacy audit: zero findings;
 - deterministic report regeneration: four byte-identical reports;
-- fake guarded-live success, rollback, and no-callback preflight tests: passed;
+- narration: 391 words, 156.4-167.6 seconds mechanically estimated;
+- warning-free delta: 45 commits, 166 files, +35,949/-528;
+- final aggregate audit: `MACHINE PASS; HUMAN INCOMPLETE`, JSON digest
+  `sha256:df9a108bc1b5f39e5cc3c2178beb7b3d9d30bc73217c3c58522dda6362bdf050`;
 - no real provider call was made.
+
+Committed evidence:
+
+```text
+docs/generated/FINAL_SUBMISSION_AUDIT.json
+docs/generated/FINAL_SUBMISSION_AUDIT.md
+docs/generated/BUILD_WEEK_DELTA.json
+docs/generated/BUILD_WEEK_DELTA.md
+docs/generated/DEMO_NARRATION_ANALYSIS.json
+```
+
+Before the passing aggregate report, one eval child and one Windows temporary-venv
+`ensurepip` bootstrap each failed once and then passed in standalone reproduction.
+Those failed reports were discarded. The final aggregate sequence passed from the
+clean source commit; this history is recorded so HB3 does not misdiagnose a repeat
+Windows bootstrap transient as a deterministic Faber failure.
 
 The committed replay fixtures remain `fake-development`. The exact commands and
 residual risks are in `codex/build-week/0082_HB2_HANDOFF.md`. The ignored
@@ -242,8 +251,9 @@ Repaired candidate:
 - A1 architecture and authority is green. `A1-P0-001` is independently verified.
 - No open P0/P1 audit finding was recorded at transfer.
 - A2 adversarial security is eligible now.
-- A3 clean installation and A4 judge comprehension are eligible after 0082.
-- A5 final compliance becomes eligible after 0083-M.
+- A3 clean installation and A4 judge comprehension are eligible now.
+- A5 can inspect the machine package now, but final-green status requires the later
+  human-complete candidate and tag.
 - Audit eligibility does not pause the primary machine lane. A recorded P0 finding does.
 
 The primary `/feedback` session ID is already recorded:
@@ -257,12 +267,15 @@ Do not request it again. Remaining human or live gates are:
 1. establish post-deadline submission status or organizer authorization;
 2. supply `OPENAI_API_KEY` locally and run the guarded live bad/repaired capture;
 3. review, sanitize, and accept the staged bundles as `live-reviewed`;
-4. run the independent audit wave and any live-provenance addendum;
-5. grant and verify judge repository access;
-6. record a human narration and upload a public sub-three-minute YouTube video;
-7. complete or amend Devpost only if deadline status permits;
-8. create the immutable final tag only after every machine, audit, and permitted human
+4. grant and verify judge repository access;
+5. record a human narration and upload a public sub-three-minute YouTube video;
+6. complete or amend Devpost only if deadline status permits;
+7. create the immutable final tag only after every machine, audit, and permitted human
    gate is complete.
+
+The independent audit wave is machine-actionable on HB3 rather than a human
+attestation. Run A2-A4 from fresh contexts now and add the live-provenance review to
+the final audit evidence after capture.
 
 The prepared one-command live gate is:
 
@@ -321,6 +334,8 @@ git rev-list -n 1 build-week-2026-baseline
 Expected values are a clean `build-week/faber-proof`, no local/remote divergence, a
 repository-specific non-FIDO SSH command, and baseline target `64f775c`.
 
-Then continue 0083-M. Preserve provider neutrality, fail-closed authority, stable
-digests, no-key replay, honest `fake-development` provenance, integer money, and the
-separation between machine completion and human submission completion.
+Then verify `f2518bd` is an ancestor of `HEAD`, inspect the committed final-audit
+report, and begin A2 in a fresh audit session. Preserve provider neutrality,
+fail-closed authority, stable digests, no-key replay, honest `fake-development`
+provenance, integer money, and the separation between machine completion and human
+submission completion.

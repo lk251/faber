@@ -4,9 +4,19 @@ This file is a user-authorized queue override for the period when `OPENAI_API_KE
 not available. Its purpose is to maximize useful Build Week work without weakening,
 faking, or prematurely claiming live GPT-5.6 provenance.
 
+## Completion notice
+
+This directive has been executed through all machine-completable 0082 and 0083 work.
+The 0083 source snapshot is `f2518bd96ebc90f3d6fc7ba6097f1ffb1d6595da`;
+`docs/generated/FINAL_SUBMISSION_AUDIT.md` records `MACHINE PASS; HUMAN INCOMPLETE`.
+Do not reimplement the workstreams below on a fresh machine. Resume from
+`docs/CODEX_SESSION_HANDOFF.md` and `codex/build-week/STATUS.md`: run the independent
+audit queue, resolve the external workflow-authorization gate when an authorized
+non-FIDO credential exists, and preserve the remaining human/live gates.
+
 ## Invocation
 
-Javier should need to provide only this instruction:
+The historical execution instruction was:
 
 ```text
 Read codex/build-week/OFFLINE_CONTINUATION.md and execute it end-to-end. Do not stop at the missing OPENAI_API_KEY gate; continue all independent machine-completable P0 work.

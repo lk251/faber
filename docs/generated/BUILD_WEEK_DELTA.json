@@ -1,0 +1,2266 @@
+{
+  "baseline": {
+    "ref": "build-week-2026-baseline",
+    "sha": "64f775cfe2f622837bd9aaa40f6369aa22af1d80"
+  },
+  "changed_files": [
+    {
+      "additions": 39,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": ".agents/skills/build-week-auditor/SKILL.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 58,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": ".agents/skills/build-week-director/SKILL.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 51,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": ".agents/skills/faber-proof/SKILL.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 7,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": ".agents/skills/faber-proof/agents/openai.yaml",
+      "pre_existing": false
+    },
+    {
+      "additions": 23,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": ".agents/skills/faber-proof/references/artifact-contract.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 97,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": ".agents/skills/faber-proof/scripts/validate_skill.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 11,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "build-week-core"
+      ],
+      "path": ".gitattributes",
+      "pre_existing": false
+    },
+    {
+      "additions": 2,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "pre-existing"
+      ],
+      "path": ".gitignore",
+      "pre_existing": true
+    },
+    {
+      "additions": 53,
+      "binary": false,
+      "deletions": 89,
+      "groups": [
+        "pre-existing",
+        "docs"
+      ],
+      "path": "AGENTS.md",
+      "pre_existing": true
+    },
+    {
+      "additions": 255,
+      "binary": false,
+      "deletions": 78,
+      "groups": [
+        "pre-existing",
+        "docs",
+        "submission-support"
+      ],
+      "path": "README.md",
+      "pre_existing": true
+    },
+    {
+      "additions": 196,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": "codex/BUILD_WEEK_START_HERE.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 137,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": "codex/audits/A1-architecture-and-authority.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 177,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": "codex/audits/A2-adversarial-security.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 156,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": "codex/audits/A3-clean-room-installation.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 185,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": "codex/audits/A4-judge-comprehension.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 231,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": "codex/audits/A5-final-compliance.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 254,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": "codex/build-week/0082_HB2_HANDOFF.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 112,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": "codex/build-week/AUDIT_QUEUE.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 326,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": "codex/build-week/HB2_TO_HB3_HANDOFF_2026-07-26.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 234,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": "codex/build-week/OFFLINE_CONTINUATION.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 147,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": "codex/build-week/RESET_STRATEGY.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 271,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": "codex/build-week/STATUS.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 257,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": "codex/build-week/audits/A1-architecture-and-authority-report.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 88,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": "codex/build-week/drafts/ci.yml",
+      "pre_existing": false
+    },
+    {
+      "additions": 98,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": "codex/build-week/submission-human-gates.json",
+      "pre_existing": false
+    },
+    {
+      "additions": 158,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": "codex/future/0076-build-week-control-plane.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 276,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": "codex/future/0077-proof-protocol-and-policy.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 332,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": "codex/future/0078-gpt56-proof-planner.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 265,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": "codex/future/0079-proof-template-executors.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 381,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": "codex/future/0080-faber-proof-cli-and-report.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 364,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": "codex/future/0081-codex-skill-and-winning-demo.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 284,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": "codex/future/0082-evals-packaging-and-ci.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 482,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": "codex/future/0083-submission-and-final-audit.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 154,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": "codex/future/0084-stretch-proof-arena.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 247,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "docs"
+      ],
+      "path": "docs/BUILD_WEEK_2026.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 112,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "docs"
+      ],
+      "path": "docs/BUILD_WEEK_EVALS.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 420,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "docs"
+      ],
+      "path": "docs/CODEX_SESSION_HANDOFF.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 107,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "docs"
+      ],
+      "path": "docs/DEMO_RECORDING_CHECKLIST.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 69,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "docs"
+      ],
+      "path": "docs/DEMO_SCRIPT.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 92,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "docs"
+      ],
+      "path": "docs/DEMO_SHOT_LIST.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 184,
+      "binary": false,
+      "deletions": 24,
+      "groups": [
+        "pre-existing",
+        "docs"
+      ],
+      "path": "docs/DEVELOPMENT.md",
+      "pre_existing": true
+    },
+    {
+      "additions": 238,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "docs"
+      ],
+      "path": "docs/DEVPOST_SUBMISSION.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 475,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "docs"
+      ],
+      "path": "docs/FABER_PROOF_PRODUCT.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 216,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "docs"
+      ],
+      "path": "docs/FABER_PROOF_THREAT_MODEL.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 232,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "docs"
+      ],
+      "path": "docs/JUDGE_QUICKSTART.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 138,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "docs"
+      ],
+      "path": "docs/LIVE_GPT56_CAPTURE_RUNBOOK.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 53,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "docs"
+      ],
+      "path": "docs/OPENAI_PROOF_PLANNER.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 116,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "docs"
+      ],
+      "path": "docs/SUBMISSION_IMAGES.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 1,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "docs"
+      ],
+      "path": "docs/generated/BUILD_WEEK_EVAL_RESULTS.json",
+      "pre_existing": false
+    },
+    {
+      "additions": 60,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "docs"
+      ],
+      "path": "docs/generated/BUILD_WEEK_EVAL_RESULTS.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 1,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "docs"
+      ],
+      "path": "docs/generated/BUILD_WEEK_PERFORMANCE_HB2.json",
+      "pre_existing": false
+    },
+    {
+      "additions": 19,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "docs"
+      ],
+      "path": "docs/generated/BUILD_WEEK_PERFORMANCE_HB2.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 1,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "docs"
+      ],
+      "path": "docs/generated/DEVELOPMENT_REPORT_REGENERATION.json",
+      "pre_existing": false
+    },
+    {
+      "additions": 15,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "docs"
+      ],
+      "path": "docs/generated/DEVELOPMENT_REPORT_REGENERATION.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 48,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "docs"
+      ],
+      "path": "docs/submission-assets/demo-comparison.svg",
+      "pre_existing": false
+    },
+    {
+      "additions": 48,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "docs"
+      ],
+      "path": "docs/submission-assets/trust-boundary.svg",
+      "pre_existing": false
+    },
+    {
+      "additions": 9,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "demo"
+      ],
+      "path": "examples/build-week-proof/OWNERSHIP.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 95,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "demo"
+      ],
+      "path": "examples/build-week-proof/README.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 17,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "demo"
+      ],
+      "path": "examples/build-week-proof/expected/PROVENANCE.md",
+      "pre_existing": false
+    },
+    {
+      "additions": 34,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "demo",
+        "tests"
+      ],
+      "path": "examples/build-week-proof/ordinary-tests/test_scheduler.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 1,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "demo"
+      ],
+      "path": "examples/build-week-proof/proof-catalog.json",
+      "pre_existing": false
+    },
+    {
+      "additions": 57,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "demo"
+      ],
+      "path": "examples/build-week-proof/proof_harness.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 1,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "demo"
+      ],
+      "path": "examples/build-week-proof/replays/bad.json",
+      "pre_existing": false
+    },
+    {
+      "additions": 1,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "demo"
+      ],
+      "path": "examples/build-week-proof/replays/provenance.json",
+      "pre_existing": false
+    },
+    {
+      "additions": 1,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "demo"
+      ],
+      "path": "examples/build-week-proof/replays/repaired.json",
+      "pre_existing": false
+    },
+    {
+      "additions": 26,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "demo"
+      ],
+      "path": "examples/build-week-proof/revisions/bad/scheduler.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 26,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "demo"
+      ],
+      "path": "examples/build-week-proof/revisions/repaired/scheduler.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 34,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "demo"
+      ],
+      "path": "examples/build-week-proof/scripts/capture_live_replays.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 42,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "demo"
+      ],
+      "path": "examples/build-week-proof/scripts/capture_live_reviewed_demo.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 69,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "demo"
+      ],
+      "path": "examples/build-week-proof/scripts/generate_development_fixtures.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 55,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "demo"
+      ],
+      "path": "examples/build-week-proof/scripts/review_replays.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 1,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "demo"
+      ],
+      "path": "examples/build-week-proof/source/__init__.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 24,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "demo"
+      ],
+      "path": "examples/build-week-proof/source/scheduler.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 1,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "demo"
+      ],
+      "path": "examples/build-week-proof/task-contract.json",
+      "pre_existing": false
+    },
+    {
+      "additions": 15,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "justfile",
+      "pre_existing": true
+    },
+    {
+      "additions": 63,
+      "binary": false,
+      "deletions": 1,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "pyproject.toml",
+      "pre_existing": true
+    },
+    {
+      "additions": 557,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": "scripts/build_week_delta.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 129,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "demo",
+        "submission-support"
+      ],
+      "path": "scripts/check_demo_script.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 137,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": "scripts/check_development_report_regeneration.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 294,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": "scripts/clean_install_audit.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 1103,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": "scripts/final_submission_audit.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 177,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "demo",
+        "submission-support"
+      ],
+      "path": "scripts/measure_proof_demo.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 61,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "submission-support"
+      ],
+      "path": "scripts/run_build_week_evals.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 130,
+      "binary": false,
+      "deletions": 1,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "src/faber/adapters/__init__.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 5,
+      "binary": false,
+      "deletions": 15,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "src/faber/adapters/fake_trace_ingestion.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 2,
+      "binary": false,
+      "deletions": 6,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "src/faber/adapters/github/funded_product_loop.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 1,
+      "binary": false,
+      "deletions": 3,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "src/faber/adapters/github/markers.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 1,
+      "binary": false,
+      "deletions": 4,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "src/faber/adapters/github/publisher.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 17,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "build-week-core"
+      ],
+      "path": "src/faber/adapters/openai/__init__.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 53,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "build-week-core"
+      ],
+      "path": "src/faber/adapters/openai/prompt.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 948,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "build-week-core"
+      ],
+      "path": "src/faber/adapters/openai/proof_planner.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 491,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "build-week-core"
+      ],
+      "path": "src/faber/adapters/openai/replay.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 194,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "build-week-core"
+      ],
+      "path": "src/faber/adapters/openai/schemas.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 5,
+      "binary": false,
+      "deletions": 17,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "src/faber/artifact_validation.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 2,
+      "binary": false,
+      "deletions": 6,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "src/faber/budget_ledger.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 3,
+      "binary": false,
+      "deletions": 12,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "src/faber/calibration.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 146,
+      "binary": false,
+      "deletions": 1,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "src/faber/cli.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 9,
+      "binary": false,
+      "deletions": 25,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "src/faber/data_rights.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 1,
+      "binary": false,
+      "deletions": 2,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "src/faber/datasets.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 3,
+      "binary": false,
+      "deletions": 5,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "src/faber/environments.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 1,
+      "binary": false,
+      "deletions": 3,
+      "groups": [
+        "pre-existing",
+        "build-week-core",
+        "demo"
+      ],
+      "path": "src/faber/funded_demo.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 1,
+      "binary": false,
+      "deletions": 5,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "src/faber/golden_fixtures.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 4,
+      "binary": false,
+      "deletions": 12,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "src/faber/market_policies.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 2,
+      "binary": false,
+      "deletions": 6,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "src/faber/performance.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 2,
+      "binary": false,
+      "deletions": 9,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "src/faber/probabilistic.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 945,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "build-week-core"
+      ],
+      "path": "src/faber/proof_catalog.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 686,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "build-week-core"
+      ],
+      "path": "src/faber/proof_configuration.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 425,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "build-week-core"
+      ],
+      "path": "src/faber/proof_context.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 1479,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "build-week-core",
+        "demo"
+      ],
+      "path": "src/faber/proof_demo.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 630,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "build-week-core"
+      ],
+      "path": "src/faber/proof_evals.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 2144,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "build-week-core"
+      ],
+      "path": "src/faber/proof_executors.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 1304,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "build-week-core"
+      ],
+      "path": "src/faber/proof_planning.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 467,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "build-week-core"
+      ],
+      "path": "src/faber/proof_privacy.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 1090,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "build-week-core"
+      ],
+      "path": "src/faber/proof_product.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 424,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "build-week-core"
+      ],
+      "path": "src/faber/proof_reports.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 807,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "build-week-core"
+      ],
+      "path": "src/faber/proof_runtime_helper.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 1222,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "build-week-core"
+      ],
+      "path": "src/faber/proof_workflow.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 1691,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "build-week-core"
+      ],
+      "path": "src/faber/proofs.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 2,
+      "binary": false,
+      "deletions": 6,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "src/faber/redaction.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 1,
+      "binary": false,
+      "deletions": 3,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "src/faber/reviews.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 3,
+      "binary": false,
+      "deletions": 8,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "src/faber/risk.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 8,
+      "binary": false,
+      "deletions": 16,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "src/faber/router_datasets.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 265,
+      "binary": false,
+      "deletions": 32,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "src/faber/runner/local.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 5,
+      "binary": false,
+      "deletions": 14,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "src/faber/schema_registry.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 11,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "src/faber/schemas.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 6,
+      "binary": false,
+      "deletions": 19,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "src/faber/scorecards.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 1,
+      "binary": false,
+      "deletions": 3,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "src/faber/skill_plugins.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 1,
+      "binary": false,
+      "deletions": 4,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "src/faber/store.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 3,
+      "binary": false,
+      "deletions": 8,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "src/faber/templates.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 3,
+      "binary": false,
+      "deletions": 10,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "src/faber/tournaments.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 1,
+      "binary": false,
+      "deletions": 2,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "src/faber/trace_ingestion.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 3,
+      "binary": false,
+      "deletions": 8,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "src/faber/traces.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 3,
+      "binary": false,
+      "deletions": 6,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "src/faber/trajectory_quality.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 13,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "src/faber/verifiers.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 1,
+      "binary": false,
+      "deletions": 3,
+      "groups": [
+        "pre-existing",
+        "build-week-core"
+      ],
+      "path": "src/faber/workers.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 44,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "tests"
+      ],
+      "path": "tests/test_0082_docs.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 1,
+      "binary": false,
+      "deletions": 2,
+      "groups": [
+        "pre-existing",
+        "tests"
+      ],
+      "path": "tests/test_agent_harness_benchmark.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 262,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "tests"
+      ],
+      "path": "tests/test_build_week_delta.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 38,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "tests"
+      ],
+      "path": "tests/test_ci_workflow.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 1,
+      "binary": false,
+      "deletions": 2,
+      "groups": [
+        "pre-existing",
+        "tests"
+      ],
+      "path": "tests/test_cross_platform_harness_fixtures.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 1,
+      "binary": false,
+      "deletions": 3,
+      "groups": [
+        "pre-existing",
+        "tests"
+      ],
+      "path": "tests/test_data_retention_lifecycle.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 1,
+      "binary": false,
+      "deletions": 3,
+      "groups": [
+        "pre-existing",
+        "tests"
+      ],
+      "path": "tests/test_data_rights.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 67,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "demo",
+        "tests"
+      ],
+      "path": "tests/test_demo_script.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 198,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "tests"
+      ],
+      "path": "tests/test_final_submission_audit.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 4,
+      "binary": false,
+      "deletions": 3,
+      "groups": [
+        "pre-existing",
+        "tests"
+      ],
+      "path": "tests/test_funded_task_risk_gates.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 1,
+      "binary": false,
+      "deletions": 4,
+      "groups": [
+        "pre-existing",
+        "tests"
+      ],
+      "path": "tests/test_funded_trajectory_cli.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 1,
+      "binary": false,
+      "deletions": 3,
+      "groups": [
+        "pre-existing",
+        "tests"
+      ],
+      "path": "tests/test_golden_fixture_corpus.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 7,
+      "binary": false,
+      "deletions": 2,
+      "groups": [
+        "pre-existing",
+        "tests"
+      ],
+      "path": "tests/test_hardening_docs.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 3,
+      "binary": false,
+      "deletions": 9,
+      "groups": [
+        "pre-existing",
+        "tests"
+      ],
+      "path": "tests/test_nix_verifier_pack.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 1272,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "tests"
+      ],
+      "path": "tests/test_openai_proof_planner.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 101,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "tests"
+      ],
+      "path": "tests/test_openai_proof_planner_live.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 69,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "tests"
+      ],
+      "path": "tests/test_packaging_audit.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 503,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "demo",
+        "tests"
+      ],
+      "path": "tests/test_proof_demo.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 67,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "tests"
+      ],
+      "path": "tests/test_proof_evals.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 2845,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "tests"
+      ],
+      "path": "tests/test_proof_executors.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 108,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "tests"
+      ],
+      "path": "tests/test_proof_privacy.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 622,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "tests"
+      ],
+      "path": "tests/test_proof_product.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 1773,
+      "binary": false,
+      "deletions": 0,
+      "groups": [
+        "tests"
+      ],
+      "path": "tests/test_proofs.py",
+      "pre_existing": false
+    },
+    {
+      "additions": 1,
+      "binary": false,
+      "deletions": 3,
+      "groups": [
+        "pre-existing",
+        "tests"
+      ],
+      "path": "tests/test_router_training_dataset.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 1,
+      "binary": false,
+      "deletions": 3,
+      "groups": [
+        "pre-existing",
+        "tests"
+      ],
+      "path": "tests/test_schema_versioning.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 1,
+      "binary": false,
+      "deletions": 3,
+      "groups": [
+        "pre-existing",
+        "tests"
+      ],
+      "path": "tests/test_trace_privacy.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 4,
+      "binary": false,
+      "deletions": 3,
+      "groups": [
+        "pre-existing",
+        "tests"
+      ],
+      "path": "tests/test_traces_protocol.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 1,
+      "binary": false,
+      "deletions": 3,
+      "groups": [
+        "pre-existing",
+        "tests"
+      ],
+      "path": "tests/test_verifier_calibration.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 183,
+      "binary": false,
+      "deletions": 1,
+      "groups": [
+        "pre-existing",
+        "tests"
+      ],
+      "path": "tests/test_verifier_registry_runner.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 1,
+      "binary": false,
+      "deletions": 3,
+      "groups": [
+        "pre-existing",
+        "tests"
+      ],
+      "path": "tests/test_work_budget_ledger.py",
+      "pre_existing": true
+    },
+    {
+      "additions": 20,
+      "binary": false,
+      "deletions": 12,
+      "groups": [
+        "pre-existing",
+        "tests"
+      ],
+      "path": "tests/test_worker_scorecards.py",
+      "pre_existing": true
+    }
+  ],
+  "commit_count": 45,
+  "commits": [
+    {
+      "author_date": "2026-07-16T05:04:08+00:00",
+      "committer_date": "2026-07-16T05:04:08+00:00",
+      "sha": "6d8c84b46daffc234b56238b28da903358f749c6",
+      "subject": "Add machine transfer handoff"
+    },
+    {
+      "author_date": "2026-07-16T23:24:30+00:00",
+      "committer_date": "2026-07-16T23:24:30+00:00",
+      "sha": "3d3477c3cb1bfc687f68d607fd72a3256a7bcf03",
+      "subject": "Add Build Week execution entrypoint"
+    },
+    {
+      "author_date": "2026-07-16T23:24:50+00:00",
+      "committer_date": "2026-07-16T23:24:50+00:00",
+      "sha": "7b8567a57298a20c3adc33cf7682ccde4f139248",
+      "subject": "Add autonomous Build Week director skill"
+    },
+    {
+      "author_date": "2026-07-16T23:25:24+00:00",
+      "committer_date": "2026-07-16T23:25:24+00:00",
+      "sha": "d3d64e42ff480fa3ee68577602175b38b62170a3",
+      "subject": "Document Build Week rules and winning strategy"
+    },
+    {
+      "author_date": "2026-07-16T23:26:11+00:00",
+      "committer_date": "2026-07-16T23:26:11+00:00",
+      "sha": "6326836e606851016110fa21060e8619e6bfa7dd",
+      "subject": "Define the Faber Proof winning product"
+    },
+    {
+      "author_date": "2026-07-16T23:26:33+00:00",
+      "committer_date": "2026-07-16T23:26:33+00:00",
+      "sha": "04c60a27d35257f79970b2cf867551b153c7ea2b",
+      "subject": "Add Build Week execution status"
+    },
+    {
+      "author_date": "2026-07-16T23:27:00+00:00",
+      "committer_date": "2026-07-16T23:27:00+00:00",
+      "sha": "3543614c704fae6e947b96ed207af101154d610a",
+      "subject": "Add work item 0076 Build Week control plane"
+    },
+    {
+      "author_date": "2026-07-16T23:27:36+00:00",
+      "committer_date": "2026-07-16T23:27:36+00:00",
+      "sha": "efa2f21303d44cb8e428316612da0441ef2853a5",
+      "subject": "Add work item 0077 proof protocol"
+    },
+    {
+      "author_date": "2026-07-16T23:29:15+00:00",
+      "committer_date": "2026-07-16T23:29:15+00:00",
+      "sha": "537fe8c0ce525260a7247bdfae1ed9a78fd085b1",
+      "subject": "Add work item 0078 GPT-5.6 proof planner"
+    },
+    {
+      "author_date": "2026-07-16T23:30:31+00:00",
+      "committer_date": "2026-07-16T23:30:31+00:00",
+      "sha": "7289fb66ed6a78d11af8d8bd24eb0c0754e92a5c",
+      "subject": "Add work item 0079 proof executors"
+    },
+    {
+      "author_date": "2026-07-16T23:31:20+00:00",
+      "committer_date": "2026-07-16T23:31:20+00:00",
+      "sha": "074784aec381dea14e50389328c7ab7eae07227e",
+      "subject": "Add work item 0080 proof CLI and report"
+    },
+    {
+      "author_date": "2026-07-16T23:32:32+00:00",
+      "committer_date": "2026-07-16T23:32:32+00:00",
+      "sha": "f83a0651f516c4071ef1b28d0760490ee726e2a7",
+      "subject": "Add work item 0081 Codex skill and winning demo"
+    },
+    {
+      "author_date": "2026-07-16T23:33:20+00:00",
+      "committer_date": "2026-07-16T23:33:20+00:00",
+      "sha": "a36c2aac32cb763d35f3621cd93b9bf6042cf485",
+      "subject": "Add work item 0082 evals packaging and CI"
+    },
+    {
+      "author_date": "2026-07-16T23:34:41+00:00",
+      "committer_date": "2026-07-16T23:34:41+00:00",
+      "sha": "26a352a4d12eacc5bd2955812effa04e7233cf69",
+      "subject": "Add work item 0083 submission and final audit"
+    },
+    {
+      "author_date": "2026-07-16T23:35:07+00:00",
+      "committer_date": "2026-07-16T23:35:07+00:00",
+      "sha": "336e1ce9d1811f22f45049e47c7a3ea6f7468256",
+      "subject": "Add optional work item 0084 proof arena"
+    },
+    {
+      "author_date": "2026-07-16T23:35:35+00:00",
+      "committer_date": "2026-07-16T23:35:35+00:00",
+      "sha": "7eca5d5e552e89e2857a201b9d0aa477d296f7a1",
+      "subject": "Route Codex through the Build Week queue"
+    },
+    {
+      "author_date": "2026-07-16T23:36:28+00:00",
+      "committer_date": "2026-07-16T23:36:28+00:00",
+      "sha": "3542c21ea30bf759b1b4f7829ced0557da7f445c",
+      "subject": "Make Faber Proof the active Codex handoff"
+    },
+    {
+      "author_date": "2026-07-16T23:37:35+00:00",
+      "committer_date": "2026-07-16T23:37:35+00:00",
+      "sha": "d90833bc71cf09e8ec74338fc8e36d30686b4c24",
+      "subject": "Add Build Week reset strategy"
+    },
+    {
+      "author_date": "2026-07-16T23:37:52+00:00",
+      "committer_date": "2026-07-16T23:37:52+00:00",
+      "sha": "50655295292fb295d728f17770426cfc5a7875c3",
+      "subject": "Add Build Week audit queue"
+    },
+    {
+      "author_date": "2026-07-16T23:38:12+00:00",
+      "committer_date": "2026-07-16T23:38:12+00:00",
+      "sha": "e0c4569de43197fdf1b4862b8b8d44f2754e951c",
+      "subject": "Add independent Build Week auditor skill"
+    },
+    {
+      "author_date": "2026-07-16T23:38:34+00:00",
+      "committer_date": "2026-07-16T23:38:34+00:00",
+      "sha": "3c85784f88a70362e47e179ff924d164e73f2ee3",
+      "subject": "Add architecture audit prompt"
+    },
+    {
+      "author_date": "2026-07-16T23:38:59+00:00",
+      "committer_date": "2026-07-16T23:38:59+00:00",
+      "sha": "85a50995bc656c155f14bd7495bd0fe110cefe29",
+      "subject": "Add adversarial security audit prompt"
+    },
+    {
+      "author_date": "2026-07-16T23:39:22+00:00",
+      "committer_date": "2026-07-16T23:39:22+00:00",
+      "sha": "e973177c8ebf52fa652caea5c643acbb622e7950",
+      "subject": "Add clean-room installation audit prompt"
+    },
+    {
+      "author_date": "2026-07-16T23:39:52+00:00",
+      "committer_date": "2026-07-16T23:39:52+00:00",
+      "sha": "7d2298af6e46b0ebd1cff0d109e21bd0dc11dcfe",
+      "subject": "Add judge comprehension audit prompt"
+    },
+    {
+      "author_date": "2026-07-16T23:40:21+00:00",
+      "committer_date": "2026-07-16T23:40:21+00:00",
+      "sha": "1b17c710f955b7f1d409fcae5403b1be4dbfcef3",
+      "subject": "Add final compliance audit prompt"
+    },
+    {
+      "author_date": "2026-07-16T23:40:53+00:00",
+      "committer_date": "2026-07-16T23:40:53+00:00",
+      "sha": "7dec3a3863f8fa4a1fd906c2ff69a3ef37c2b084",
+      "subject": "Integrate independent audits into Build Week director"
+    },
+    {
+      "author_date": "2026-07-16T23:41:16+00:00",
+      "committer_date": "2026-07-16T23:41:16+00:00",
+      "sha": "c675d2f627be6e891cedc232d5423b2f9c051496",
+      "subject": "Add reset audit lane to Build Week entrypoint"
+    },
+    {
+      "author_date": "2026-07-16T23:41:40+00:00",
+      "committer_date": "2026-07-16T23:41:40+00:00",
+      "sha": "c915523383dc58114bf748f7d7a64c1c398faaba",
+      "subject": "Track independent Build Week audits"
+    },
+    {
+      "author_date": "2026-07-16T23:58:33+00:00",
+      "committer_date": "2026-07-16T23:58:33+00:00",
+      "sha": "ab9edd693e7ddf42cccd337e70c9adbdfcfad1b6",
+      "subject": "Implement work item 0076 Build Week control plane"
+    },
+    {
+      "author_date": "2026-07-17T01:18:58+00:00",
+      "committer_date": "2026-07-17T01:18:58+00:00",
+      "sha": "5b714fe9f3a6e35ff651de58adffde69d0c27f31",
+      "subject": "Implement work item 0077 proof protocol and policy"
+    },
+    {
+      "author_date": "2026-07-17T02:31:23+00:00",
+      "committer_date": "2026-07-17T02:31:23+00:00",
+      "sha": "2a2eaa29a3c62fa0407067e0f82f43189693d344",
+      "subject": "Implement work item 0078 GPT-5.6 proof planner"
+    },
+    {
+      "author_date": "2026-07-17T04:49:16+00:00",
+      "committer_date": "2026-07-17T04:49:16+00:00",
+      "sha": "9314ddb51962aa194989e97a619a8dbedc19f04a",
+      "subject": "Implement work item 0079 bounded proof executors"
+    },
+    {
+      "author_date": "2026-07-17T05:10:26+00:00",
+      "committer_date": "2026-07-17T05:10:26+00:00",
+      "sha": "c4c461a87051e6534ada5d118c15592fd19c41c0",
+      "subject": "Audit Faber Proof architecture authority"
+    },
+    {
+      "author_date": "2026-07-17T05:22:03+00:00",
+      "committer_date": "2026-07-17T05:22:03+00:00",
+      "sha": "6d11e7a76a8b3f235a026c877d4bf6710bda4925",
+      "subject": "Fix A1-P0-001 proof authority binding"
+    },
+    {
+      "author_date": "2026-07-17T07:58:54+00:00",
+      "committer_date": "2026-07-17T07:58:54+00:00",
+      "sha": "fa34fdb4e95192ee0cd69fe446b0d272325a1098",
+      "subject": "Verify A1 proof authority fix"
+    },
+    {
+      "author_date": "2026-07-17T21:16:40+00:00",
+      "committer_date": "2026-07-17T21:16:40+00:00",
+      "sha": "c759ac4bebbf7616ff2d10dd3d8dcefce6b5a15a",
+      "subject": "Implement work item 0080 Faber Proof CLI and report"
+    },
+    {
+      "author_date": "2026-07-17T21:54:28+00:00",
+      "committer_date": "2026-07-17T21:54:28+00:00",
+      "sha": "d74b9676a83ebc4986a0d703fddf2a5cc061039b",
+      "subject": "Implement work item 0081 Faber Proof skill and replay demo"
+    },
+    {
+      "author_date": "2026-07-18T00:00:28+00:00",
+      "committer_date": "2026-07-18T00:00:28+00:00",
+      "sha": "c16ccbc33e83ccf40811360dadf59b9bd7ed1ac6",
+      "subject": "Record primary Build Week Codex session"
+    },
+    {
+      "author_date": "2026-07-18T03:06:08+00:00",
+      "committer_date": "2026-07-18T03:06:08+00:00",
+      "sha": "c1417892145524312e47e49a79de0d8030deaad2",
+      "subject": "Slim repository agent guidance"
+    },
+    {
+      "author_date": "2026-07-18T06:05:20+00:00",
+      "committer_date": "2026-07-18T06:05:20+00:00",
+      "sha": "2f78487020b9b3f03a7d200658b043290123e6f8",
+      "subject": "Add offline Build Week continuation directive"
+    },
+    {
+      "author_date": "2026-07-18T09:18:37+00:00",
+      "committer_date": "2026-07-18T09:18:37+00:00",
+      "sha": "e69552e1316a77361075a8d321f1c3fb7d7be54f",
+      "subject": "Allow offline Build Week continuation"
+    },
+    {
+      "author_date": "2026-07-26T16:39:12+00:00",
+      "committer_date": "2026-07-26T16:41:18+00:00",
+      "sha": "381b1a386ba040db103dee0536016342b8b68c35",
+      "subject": "Checkpoint 0082 hardening for HB3 handoff"
+    },
+    {
+      "author_date": "2026-07-26T17:00:32+00:00",
+      "committer_date": "2026-07-26T17:00:32+00:00",
+      "sha": "c61ac4607b5f9b1c3f4fb6088ee37209365ccebf",
+      "subject": "Complete work item 0082 evals packaging and release checks"
+    },
+    {
+      "author_date": "2026-07-26T17:09:46+00:00",
+      "committer_date": "2026-07-26T17:09:46+00:00",
+      "sha": "a9ce71f565763446b0531aecb17e0e329448d710",
+      "subject": "Add HB2 to HB3 Faber handoff"
+    },
+    {
+      "author_date": "2026-07-26T17:36:55+00:00",
+      "committer_date": "2026-07-26T17:36:55+00:00",
+      "sha": "f2518bd96ebc90f3d6fc7ba6097f1ffb1d6595da",
+      "subject": "Implement work item 0083 submission package"
+    }
+  ],
+  "file_groups": {
+    "build-week-core": [
+      ".gitattributes",
+      "justfile",
+      "pyproject.toml",
+      "src/faber/adapters/__init__.py",
+      "src/faber/adapters/fake_trace_ingestion.py",
+      "src/faber/adapters/github/funded_product_loop.py",
+      "src/faber/adapters/github/markers.py",
+      "src/faber/adapters/github/publisher.py",
+      "src/faber/adapters/openai/__init__.py",
+      "src/faber/adapters/openai/prompt.py",
+      "src/faber/adapters/openai/proof_planner.py",
+      "src/faber/adapters/openai/replay.py",
+      "src/faber/adapters/openai/schemas.py",
+      "src/faber/artifact_validation.py",
+      "src/faber/budget_ledger.py",
+      "src/faber/calibration.py",
+      "src/faber/cli.py",
+      "src/faber/data_rights.py",
+      "src/faber/datasets.py",
+      "src/faber/environments.py",
+      "src/faber/funded_demo.py",
+      "src/faber/golden_fixtures.py",
+      "src/faber/market_policies.py",
+      "src/faber/performance.py",
+      "src/faber/probabilistic.py",
+      "src/faber/proof_catalog.py",
+      "src/faber/proof_configuration.py",
+      "src/faber/proof_context.py",
+      "src/faber/proof_demo.py",
+      "src/faber/proof_evals.py",
+      "src/faber/proof_executors.py",
+      "src/faber/proof_planning.py",
+      "src/faber/proof_privacy.py",
+      "src/faber/proof_product.py",
+      "src/faber/proof_reports.py",
+      "src/faber/proof_runtime_helper.py",
+      "src/faber/proof_workflow.py",
+      "src/faber/proofs.py",
+      "src/faber/redaction.py",
+      "src/faber/reviews.py",
+      "src/faber/risk.py",
+      "src/faber/router_datasets.py",
+      "src/faber/runner/local.py",
+      "src/faber/schema_registry.py",
+      "src/faber/schemas.py",
+      "src/faber/scorecards.py",
+      "src/faber/skill_plugins.py",
+      "src/faber/store.py",
+      "src/faber/templates.py",
+      "src/faber/tournaments.py",
+      "src/faber/trace_ingestion.py",
+      "src/faber/traces.py",
+      "src/faber/trajectory_quality.py",
+      "src/faber/verifiers.py",
+      "src/faber/workers.py"
+    ],
+    "demo": [
+      "examples/build-week-proof/OWNERSHIP.md",
+      "examples/build-week-proof/README.md",
+      "examples/build-week-proof/expected/PROVENANCE.md",
+      "examples/build-week-proof/ordinary-tests/test_scheduler.py",
+      "examples/build-week-proof/proof-catalog.json",
+      "examples/build-week-proof/proof_harness.py",
+      "examples/build-week-proof/replays/bad.json",
+      "examples/build-week-proof/replays/provenance.json",
+      "examples/build-week-proof/replays/repaired.json",
+      "examples/build-week-proof/revisions/bad/scheduler.py",
+      "examples/build-week-proof/revisions/repaired/scheduler.py",
+      "examples/build-week-proof/scripts/capture_live_replays.py",
+      "examples/build-week-proof/scripts/capture_live_reviewed_demo.py",
+      "examples/build-week-proof/scripts/generate_development_fixtures.py",
+      "examples/build-week-proof/scripts/review_replays.py",
+      "examples/build-week-proof/source/__init__.py",
+      "examples/build-week-proof/source/scheduler.py",
+      "examples/build-week-proof/task-contract.json",
+      "scripts/check_demo_script.py",
+      "scripts/measure_proof_demo.py",
+      "src/faber/funded_demo.py",
+      "src/faber/proof_demo.py",
+      "tests/test_demo_script.py",
+      "tests/test_proof_demo.py"
+    ],
+    "docs": [
+      "AGENTS.md",
+      "README.md",
+      "docs/BUILD_WEEK_2026.md",
+      "docs/BUILD_WEEK_EVALS.md",
+      "docs/CODEX_SESSION_HANDOFF.md",
+      "docs/DEMO_RECORDING_CHECKLIST.md",
+      "docs/DEMO_SCRIPT.md",
+      "docs/DEMO_SHOT_LIST.md",
+      "docs/DEVELOPMENT.md",
+      "docs/DEVPOST_SUBMISSION.md",
+      "docs/FABER_PROOF_PRODUCT.md",
+      "docs/FABER_PROOF_THREAT_MODEL.md",
+      "docs/JUDGE_QUICKSTART.md",
+      "docs/LIVE_GPT56_CAPTURE_RUNBOOK.md",
+      "docs/OPENAI_PROOF_PLANNER.md",
+      "docs/SUBMISSION_IMAGES.md",
+      "docs/generated/BUILD_WEEK_EVAL_RESULTS.json",
+      "docs/generated/BUILD_WEEK_EVAL_RESULTS.md",
+      "docs/generated/BUILD_WEEK_PERFORMANCE_HB2.json",
+      "docs/generated/BUILD_WEEK_PERFORMANCE_HB2.md",
+      "docs/generated/DEVELOPMENT_REPORT_REGENERATION.json",
+      "docs/generated/DEVELOPMENT_REPORT_REGENERATION.md",
+      "docs/submission-assets/demo-comparison.svg",
+      "docs/submission-assets/trust-boundary.svg"
+    ],
+    "pre-existing": [
+      ".gitignore",
+      "AGENTS.md",
+      "README.md",
+      "docs/DEVELOPMENT.md",
+      "justfile",
+      "pyproject.toml",
+      "src/faber/adapters/__init__.py",
+      "src/faber/adapters/fake_trace_ingestion.py",
+      "src/faber/adapters/github/funded_product_loop.py",
+      "src/faber/adapters/github/markers.py",
+      "src/faber/adapters/github/publisher.py",
+      "src/faber/artifact_validation.py",
+      "src/faber/budget_ledger.py",
+      "src/faber/calibration.py",
+      "src/faber/cli.py",
+      "src/faber/data_rights.py",
+      "src/faber/datasets.py",
+      "src/faber/environments.py",
+      "src/faber/funded_demo.py",
+      "src/faber/golden_fixtures.py",
+      "src/faber/market_policies.py",
+      "src/faber/performance.py",
+      "src/faber/probabilistic.py",
+      "src/faber/redaction.py",
+      "src/faber/reviews.py",
+      "src/faber/risk.py",
+      "src/faber/router_datasets.py",
+      "src/faber/runner/local.py",
+      "src/faber/schema_registry.py",
+      "src/faber/schemas.py",
+      "src/faber/scorecards.py",
+      "src/faber/skill_plugins.py",
+      "src/faber/store.py",
+      "src/faber/templates.py",
+      "src/faber/tournaments.py",
+      "src/faber/trace_ingestion.py",
+      "src/faber/traces.py",
+      "src/faber/trajectory_quality.py",
+      "src/faber/verifiers.py",
+      "src/faber/workers.py",
+      "tests/test_agent_harness_benchmark.py",
+      "tests/test_cross_platform_harness_fixtures.py",
+      "tests/test_data_retention_lifecycle.py",
+      "tests/test_data_rights.py",
+      "tests/test_funded_task_risk_gates.py",
+      "tests/test_funded_trajectory_cli.py",
+      "tests/test_golden_fixture_corpus.py",
+      "tests/test_hardening_docs.py",
+      "tests/test_nix_verifier_pack.py",
+      "tests/test_router_training_dataset.py",
+      "tests/test_schema_versioning.py",
+      "tests/test_trace_privacy.py",
+      "tests/test_traces_protocol.py",
+      "tests/test_verifier_calibration.py",
+      "tests/test_verifier_registry_runner.py",
+      "tests/test_work_budget_ledger.py",
+      "tests/test_worker_scorecards.py"
+    ],
+    "submission-support": [
+      ".agents/skills/build-week-auditor/SKILL.md",
+      ".agents/skills/build-week-director/SKILL.md",
+      ".agents/skills/faber-proof/SKILL.md",
+      ".agents/skills/faber-proof/agents/openai.yaml",
+      ".agents/skills/faber-proof/references/artifact-contract.md",
+      ".agents/skills/faber-proof/scripts/validate_skill.py",
+      "README.md",
+      "codex/BUILD_WEEK_START_HERE.md",
+      "codex/audits/A1-architecture-and-authority.md",
+      "codex/audits/A2-adversarial-security.md",
+      "codex/audits/A3-clean-room-installation.md",
+      "codex/audits/A4-judge-comprehension.md",
+      "codex/audits/A5-final-compliance.md",
+      "codex/build-week/0082_HB2_HANDOFF.md",
+      "codex/build-week/AUDIT_QUEUE.md",
+      "codex/build-week/HB2_TO_HB3_HANDOFF_2026-07-26.md",
+      "codex/build-week/OFFLINE_CONTINUATION.md",
+      "codex/build-week/RESET_STRATEGY.md",
+      "codex/build-week/STATUS.md",
+      "codex/build-week/audits/A1-architecture-and-authority-report.md",
+      "codex/build-week/drafts/ci.yml",
+      "codex/build-week/submission-human-gates.json",
+      "codex/future/0076-build-week-control-plane.md",
+      "codex/future/0077-proof-protocol-and-policy.md",
+      "codex/future/0078-gpt56-proof-planner.md",
+      "codex/future/0079-proof-template-executors.md",
+      "codex/future/0080-faber-proof-cli-and-report.md",
+      "codex/future/0081-codex-skill-and-winning-demo.md",
+      "codex/future/0082-evals-packaging-and-ci.md",
+      "codex/future/0083-submission-and-final-audit.md",
+      "codex/future/0084-stretch-proof-arena.md",
+      "scripts/build_week_delta.py",
+      "scripts/check_demo_script.py",
+      "scripts/check_development_report_regeneration.py",
+      "scripts/clean_install_audit.py",
+      "scripts/final_submission_audit.py",
+      "scripts/measure_proof_demo.py",
+      "scripts/run_build_week_evals.py"
+    ],
+    "tests": [
+      "examples/build-week-proof/ordinary-tests/test_scheduler.py",
+      "tests/test_0082_docs.py",
+      "tests/test_agent_harness_benchmark.py",
+      "tests/test_build_week_delta.py",
+      "tests/test_ci_workflow.py",
+      "tests/test_cross_platform_harness_fixtures.py",
+      "tests/test_data_retention_lifecycle.py",
+      "tests/test_data_rights.py",
+      "tests/test_demo_script.py",
+      "tests/test_final_submission_audit.py",
+      "tests/test_funded_task_risk_gates.py",
+      "tests/test_funded_trajectory_cli.py",
+      "tests/test_golden_fixture_corpus.py",
+      "tests/test_hardening_docs.py",
+      "tests/test_nix_verifier_pack.py",
+      "tests/test_openai_proof_planner.py",
+      "tests/test_openai_proof_planner_live.py",
+      "tests/test_packaging_audit.py",
+      "tests/test_proof_demo.py",
+      "tests/test_proof_evals.py",
+      "tests/test_proof_executors.py",
+      "tests/test_proof_privacy.py",
+      "tests/test_proof_product.py",
+      "tests/test_proofs.py",
+      "tests/test_router_training_dataset.py",
+      "tests/test_schema_versioning.py",
+      "tests/test_trace_privacy.py",
+      "tests/test_traces_protocol.py",
+      "tests/test_verifier_calibration.py",
+      "tests/test_verifier_registry_runner.py",
+      "tests/test_work_budget_ledger.py",
+      "tests/test_worker_scorecards.py"
+    ]
+  },
+  "file_totals": {
+    "additions": 35949,
+    "binary_files": 0,
+    "deletions": 528,
+    "files": 166
+  },
+  "grouping_note": "File groups are non-exclusive; pre-existing means the path existed in the baseline tree.",
+  "schema": "faber.build-week-delta.v1",
+  "submission_period_start": "2026-07-13T09:00:00-07:00",
+  "target": {
+    "ref": "HEAD",
+    "sha": "f2518bd96ebc90f3d6fc7ba6097f1ffb1d6595da"
+  },
+  "warnings": [],
+  "working_tree": {
+    "dirty": false
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "estimated_seconds_at_140_wpm": 167.6,
+  "estimated_seconds_at_150_wpm": 156.4,
+  "maximum_words": 396,
+  "minimum_words": 388,
+  "note": "Mechanical word-count estimate only; the human speaker must complete a timed rehearsal.",
+  "schema": "faber.demo_narration_analysis.v1",
+  "status": "pass",
+  "target_seconds_maximum": 170,
+  "target_seconds_minimum": 155,
+  "word_count": 391
+}
