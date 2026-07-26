@@ -43,7 +43,13 @@ from faber.proofs import (
 )
 from faber.receipts import VerificationReceipt
 from faber.runner.local import LocalVerifierRunner, RunnerPolicy
-from faber.validation import require_digest, require_non_empty_string, require_schema
+from faber.validation import (
+    require_digest,
+    require_mapping,
+    require_non_empty_string,
+    require_schema,
+    require_sequence,
+)
 from faber.verifiers import VerifierRegistry, VerifierRun
 
 PROOF_EXECUTION_POLICY_SCHEMA = "faber.proof_execution_policy.v1"
@@ -547,6 +553,96 @@ class ProofWorkflowResult:
 
     def digest(self) -> str:
         return sha256_digest(self.to_dict())
+
+    @classmethod
+    def from_dict(cls, payload: Mapping[str, object]) -> ProofWorkflowResult:
+        fields = {
+            "schema",
+            "plan",
+            "catalog_digest",
+            "verifier_registry_digest",
+            "proof_policy_digest",
+            "execution_policy_digest",
+            "workspace_digest",
+            "evidence",
+            "verifier_runs",
+            "verification_receipts",
+            "decision",
+            "execution_order",
+            "timings",
+            "diagnostics",
+            "short_circuited",
+        }
+        if set(payload) != fields:
+            raise ValidationError("ProofWorkflowResult must use the exact supported field set")
+        plan = ProofPlan.from_dict(require_mapping(payload.get("plan"), "plan"))
+        decision = ProofDecision.from_dict(require_mapping(payload.get("decision"), "decision"))
+        evidence = [
+            ProofEvidence.from_dict(require_mapping(item, f"evidence[{index}]"))
+            for index, item in enumerate(require_sequence(payload.get("evidence"), "evidence"))
+        ]
+        verifier_runs = [
+            VerifierRun.from_dict(require_mapping(item, f"verifier_runs[{index}]"))
+            for index, item in enumerate(
+                require_sequence(payload.get("verifier_runs"), "verifier_runs")
+            )
+        ]
+        receipts = [
+            VerificationReceipt.from_dict(require_mapping(item, f"verification_receipts[{index}]"))
+            for index, item in enumerate(
+                require_sequence(
+                    payload.get("verification_receipts"),
+                    "verification_receipts",
+                )
+            )
+        ]
+        timings: dict[str, float] = {}
+        for key, value in require_mapping(payload.get("timings"), "timings").items():
+            if isinstance(value, bool) or not isinstance(value, int | float):
+                raise ValidationError("timings values must be finite non-negative numbers")
+            timings[key] = float(value)
+        diagnostics = [
+            dict(require_mapping(item, f"diagnostics[{index}]"))
+            for index, item in enumerate(
+                require_sequence(payload.get("diagnostics"), "diagnostics")
+            )
+        ]
+        short_circuited = payload.get("short_circuited")
+        if not isinstance(short_circuited, bool):
+            raise ValidationError("short_circuited must be a boolean")
+        result = cls(
+            schema=require_non_empty_string(payload.get("schema"), "schema"),
+            plan=plan,
+            catalog_digest=require_digest(payload.get("catalog_digest"), "catalog_digest"),
+            verifier_registry_digest=require_digest(
+                payload.get("verifier_registry_digest"),
+                "verifier_registry_digest",
+            ),
+            proof_policy_digest=require_digest(
+                payload.get("proof_policy_digest"), "proof_policy_digest"
+            ),
+            execution_policy_digest=require_digest(
+                payload.get("execution_policy_digest"),
+                "execution_policy_digest",
+            ),
+            workspace_digest=require_digest(payload.get("workspace_digest"), "workspace_digest"),
+            evidence=evidence,
+            verifier_runs=verifier_runs,
+            verification_receipts=receipts,
+            decision=decision,
+            execution_order=[
+                require_digest(item, f"execution_order[{index}]")
+                for index, item in enumerate(
+                    require_sequence(payload.get("execution_order"), "execution_order")
+                )
+            ],
+            timings=timings,
+            diagnostics=diagnostics,
+            short_circuited=short_circuited,
+        )
+        if result.to_dict() != dict(payload):
+            raise ValidationError("ProofWorkflowResult fields do not round-trip exactly")
+        return result
 
 
 @dataclass(frozen=True)

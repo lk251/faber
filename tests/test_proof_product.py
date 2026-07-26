@@ -15,6 +15,7 @@ from faber.adapters.openai.replay import create_replay_bundle, write_replay_bund
 from faber.canonical_json import canonical_json
 from faber.cli import main
 from faber.contracts import TaskContract
+from faber.digests import sha256_digest
 from faber.errors import ValidationError
 from faber.proof_catalog import (
     FileInvariantCapability,
@@ -157,7 +158,13 @@ def _records(repository: Path) -> tuple[TaskContract, ProofConfiguration]:
 
 def _write_json(path: Path, value: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(canonical_json(value) + "\n", encoding="utf-8")
+    path.write_bytes((canonical_json(value) + "\n").encode("utf-8"))
+
+
+def _refresh_artifact_digest(output: Path, summary: dict[str, object], relative: str) -> None:
+    artifact_digests = summary["artifact_digests"]
+    assert isinstance(artifact_digests, dict)
+    artifact_digests[relative] = sha256_digest((output / relative).read_bytes())
 
 
 def _fixture(
@@ -468,6 +475,73 @@ def test_partial_bundle_cannot_validate_as_complete(tmp_path: Path) -> None:
     evidence_path.unlink()
 
     with pytest.raises(ValidationError, match="declared artifact is unavailable"):
+        validate_proof_bundle(output)
+
+
+def test_coherent_declared_pass_cannot_override_failed_authoritative_evidence(
+    tmp_path: Path,
+) -> None:
+    repository, base, candidate, task_path, catalog_path, replay_path = _fixture(
+        tmp_path,
+        candidate_text="bad\n",
+    )
+    output = repository / ".faber" / "proof"
+    run_proof_product(
+        repository=repository,
+        task_path=task_path,
+        catalog_path=catalog_path,
+        base_revision=base,
+        candidate_revision=candidate,
+        mode="replay",
+        replay_path=replay_path,
+        output_directory=output,
+    )
+
+    evidence_payloads = [
+        json.loads(path.read_text(encoding="utf-8"))
+        for path in sorted((output / "proof-evidence").glob("*.json"))
+    ]
+    assert [payload["status"] for payload in evidence_payloads] == ["failed"]
+    original_workflow = (output / "workflow-result.json").read_bytes()
+
+    decision_path = output / "proof-decision.json"
+    decision = json.loads(decision_path.read_text(encoding="utf-8"))
+    failed_claim = decision["failed_claim_ids"][0]
+    decision["verdict"] = "pass"
+    decision["reason_codes"] = ["proof_passed"]
+    decision["passed_claim_ids"] = [failed_claim]
+    decision["failed_claim_ids"] = []
+    _write_json(decision_path, decision)
+
+    summary_path = output / "run-summary.json"
+    summary = json.loads(summary_path.read_text(encoding="utf-8"))
+    summary["verdict"] = "pass"
+    summary["reason_codes"] = ["proof_passed"]
+    summary["failed_claim_ids"] = []
+    summary["failed_claim"] = None
+    summary["counterexample"] = None
+    counts = summary["obligation_counts"]
+    assert isinstance(counts, dict)
+    counts["passed"] = 1
+    counts["failed"] = 0
+    record_digests = summary["record_digests"]
+    assert isinstance(record_digests, dict)
+    record_digests["proof_decision"] = sha256_digest(decision)
+    _refresh_artifact_digest(output, summary, "proof-decision.json")
+
+    for relative in ("report.md", "report.html"):
+        report_path = output / relative
+        report_path.write_text(
+            report_path.read_text(encoding="utf-8").replace("BLOCK", "PASS"),
+            encoding="utf-8",
+            newline="\n",
+        )
+        _refresh_artifact_digest(output, summary, relative)
+    _write_json(summary_path, summary)
+
+    assert (output / "workflow-result.json").read_bytes() == original_workflow
+    assert [payload["status"] for payload in evidence_payloads] == ["failed"]
+    with pytest.raises(ValidationError, match="deterministic proof decision"):
         validate_proof_bundle(output)
 
 

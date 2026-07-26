@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 
 from faber import schemas
@@ -16,6 +17,7 @@ from faber.validation import (
     require_non_empty_string,
     require_schema,
     require_sequence,
+    require_string_list,
 )
 from faber.verifiers import VerifierRun
 
@@ -103,3 +105,56 @@ class VerificationReceipt:
 
     def digest(self) -> str:
         return sha256_digest(self.to_dict())
+
+    @classmethod
+    def from_dict(cls, payload: Mapping[str, object]) -> VerificationReceipt:
+        fields = {
+            "schema",
+            "id",
+            "created_at",
+            "task_contract_id",
+            "task_contract_digest",
+            "attempt_id",
+            "worker_id",
+            "verifier_id",
+            "verifier_digest",
+            "base_revision",
+            "candidate_revision",
+            "accepted",
+            "metrics",
+            "failure_reasons",
+            "result_digest",
+        }
+        if set(payload) != fields:
+            raise ValidationError("VerificationReceipt must use the exact supported field set")
+        accepted = payload.get("accepted")
+        if not isinstance(accepted, bool):
+            raise ValidationError("accepted must be a boolean")
+        receipt = cls(
+            schema=require_non_empty_string(payload.get("schema"), "schema"),
+            id=require_non_empty_string(payload.get("id"), "id"),
+            created_at=require_non_empty_string(payload.get("created_at"), "created_at"),
+            task_contract_id=require_non_empty_string(
+                payload.get("task_contract_id"), "task_contract_id"
+            ),
+            task_contract_digest=require_digest(
+                payload.get("task_contract_digest"), "task_contract_digest"
+            ),
+            attempt_id=require_non_empty_string(payload.get("attempt_id"), "attempt_id"),
+            worker_id=require_non_empty_string(payload.get("worker_id"), "worker_id"),
+            verifier_id=require_non_empty_string(payload.get("verifier_id"), "verifier_id"),
+            verifier_digest=require_digest(payload.get("verifier_digest"), "verifier_digest"),
+            base_revision=require_non_empty_string(payload.get("base_revision"), "base_revision"),
+            candidate_revision=require_non_empty_string(
+                payload.get("candidate_revision"), "candidate_revision"
+            ),
+            accepted=accepted,
+            metrics=dict(require_mapping(payload.get("metrics"), "metrics")),
+            failure_reasons=list(
+                require_string_list(payload.get("failure_reasons"), "failure_reasons")
+            ),
+            result_digest=require_digest(payload.get("result_digest"), "result_digest"),
+        )
+        if receipt.to_dict() != dict(payload):
+            raise ValidationError("VerificationReceipt fields do not round-trip exactly")
+        return receipt

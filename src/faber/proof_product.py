@@ -38,8 +38,17 @@ from faber.proof_workflow import (
     run_proof_workflow,
     workspace_snapshot_digest,
 )
-from faber.proofs import ModelRunEvidence, ProofDecision, ProofEvidence, ProofPlan
+from faber.proofs import (
+    ModelRunEvidence,
+    ProofDecision,
+    ProofEvidence,
+    ProofPlan,
+    ProofPolicy,
+    decide_proof,
+)
+from faber.receipts import VerificationReceipt
 from faber.validation import require_digest, require_non_empty_string
+from faber.verifiers import VerifierRun
 
 PROOF_RUN_SUMMARY_SCHEMA = "faber.proof_run_summary.v1"
 PROOF_REDACTION_REPORT_SCHEMA = "faber.proof_redaction_report.v1"
@@ -511,6 +520,148 @@ def _read_artifact(root: Path, relative_path: str) -> Mapping[str, object]:
     return value
 
 
+def _path_sequence(value: object, field: str) -> list[str]:
+    if not isinstance(value, Sequence) or isinstance(value, str | bytes | bytearray):
+        raise ValidationError(f"{field} must be a sequence")
+    return [_portable_relative_path(item, f"{field}[{index}]") for index, item in enumerate(value)]
+
+
+def _portable_execution_policy(
+    root: Path,
+    payload: Mapping[str, object],
+) -> ProofExecutionPolicy:
+    fields = {
+        "schema",
+        "allowed_repository_root",
+        "allowed_catalog_digest",
+        "verifier_registry_digest",
+        "expected_attempt_digest",
+        "expected_workspace_digest",
+        "maximum_obligations",
+        "per_obligation_timeout_seconds",
+        "total_timeout_seconds",
+        "max_input_bytes",
+        "max_output_bytes",
+        "allowed_environment_variables",
+        "allow_shell",
+        "reject_symlink_escape",
+        "isolation_disclosure",
+        "authoritative_receipts_required",
+    }
+    if set(payload) != fields or payload.get("allowed_repository_root") != ".":
+        raise ValidationError("portable execution policy uses an unsupported field set")
+
+    integers: dict[str, int] = {}
+    for field in (
+        "maximum_obligations",
+        "per_obligation_timeout_seconds",
+        "total_timeout_seconds",
+        "max_input_bytes",
+        "max_output_bytes",
+    ):
+        value = payload.get(field)
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise ValidationError(f"{field} must be an integer")
+        integers[field] = value
+    booleans: dict[str, bool] = {}
+    for field in ("allow_shell", "reject_symlink_escape", "authoritative_receipts_required"):
+        value = payload.get(field)
+        if not isinstance(value, bool):
+            raise ValidationError(f"{field} must be a boolean")
+        booleans[field] = value
+    raw_environment = payload.get("allowed_environment_variables")
+    if not isinstance(raw_environment, Sequence) or isinstance(
+        raw_environment, str | bytes | bytearray
+    ):
+        raise ValidationError("allowed_environment_variables must be a sequence")
+    policy = ProofExecutionPolicy(
+        schema=require_non_empty_string(payload.get("schema"), "schema"),
+        allowed_repository_root=str(root),
+        allowed_catalog_digest=require_digest(
+            payload.get("allowed_catalog_digest"), "allowed_catalog_digest"
+        ),
+        verifier_registry_digest=require_digest(
+            payload.get("verifier_registry_digest"), "verifier_registry_digest"
+        ),
+        expected_attempt_digest=require_digest(
+            payload.get("expected_attempt_digest"), "expected_attempt_digest"
+        ),
+        expected_workspace_digest=require_digest(
+            payload.get("expected_workspace_digest"), "expected_workspace_digest"
+        ),
+        maximum_obligations=integers["maximum_obligations"],
+        per_obligation_timeout_seconds=integers["per_obligation_timeout_seconds"],
+        total_timeout_seconds=integers["total_timeout_seconds"],
+        max_input_bytes=integers["max_input_bytes"],
+        max_output_bytes=integers["max_output_bytes"],
+        allowed_environment_variables=[
+            require_non_empty_string(item, f"allowed_environment_variables[{index}]")
+            for index, item in enumerate(raw_environment)
+        ],
+        allow_shell=booleans["allow_shell"],
+        reject_symlink_escape=booleans["reject_symlink_escape"],
+        isolation_disclosure=require_non_empty_string(
+            payload.get("isolation_disclosure"), "isolation_disclosure"
+        ),
+        authoritative_receipts_required=booleans["authoritative_receipts_required"],
+    )
+    if policy.portable_dict() != dict(payload):
+        raise ValidationError("portable execution policy does not round-trip exactly")
+    return policy
+
+
+def _expected_artifact_paths(
+    workflow: ProofWorkflowResult | None,
+) -> dict[str, object]:
+    paths: dict[str, object] = {
+        "task_contract": "task-contract.json",
+        "attempt": "attempt.json",
+        "context": "context.json",
+        "redaction_report": "redaction-report.json",
+        "planning_request": "planning-request.json",
+        "model_run_evidence": "model-run-evidence.json",
+        "proof_plan": "proof-plan.json",
+        "proof_catalog": "proof-catalog.json",
+        "proof_policy": "proof-policy.json",
+        "proof_evidence": [],
+        "verifier_runs": [],
+        "verification_receipts": [],
+        "proof_decision": "proof-decision.json" if workflow else None,
+        "execution_policy": "execution-policy.json" if workflow else None,
+        "workflow_result": "workflow-result.json" if workflow else None,
+        "run_summary": "run-summary.json",
+        "markdown_report": "report.md",
+        "html_report": "report.html",
+    }
+    if workflow is None:
+        return paths
+    paths["proof_evidence"] = [
+        f"proof-evidence/{index:03d}-{item.digest()[7:19]}.json"
+        for index, item in enumerate(workflow.evidence)
+    ]
+    paths["verifier_runs"] = [
+        f"verifier-runs/{index:03d}-{item.digest()[7:19]}.json"
+        for index, item in enumerate(workflow.verifier_runs)
+    ]
+    paths["verification_receipts"] = [
+        f"verification-receipts/{index:03d}-{item.digest()[7:19]}.json"
+        for index, item in enumerate(workflow.verification_receipts)
+    ]
+    return paths
+
+
+def _declared_artifact_files(paths: Mapping[str, object]) -> set[str]:
+    result: set[str] = set()
+    for name, value in paths.items():
+        if name == "run_summary" or value is None:
+            continue
+        if isinstance(value, str):
+            result.add(_portable_relative_path(value, f"artifact_paths.{name}"))
+            continue
+        result.update(_path_sequence(value, f"artifact_paths.{name}"))
+    return result
+
+
 def validate_proof_bundle(path: str | Path) -> Mapping[str, object]:
     """Re-read a bundle and fail closed on digest, path, or authority-graph tampering."""
 
@@ -588,8 +739,15 @@ def validate_proof_bundle(path: str | Path) -> Mapping[str, object]:
     records = summary.get("record_digests")
     if not isinstance(paths, Mapping) or not isinstance(records, Mapping):
         raise ValidationError("artifact_paths and record_digests must be objects")
-    task = _read_artifact(root, require_non_empty_string(paths.get("task_contract"), "task path"))
-    attempt = _read_artifact(root, require_non_empty_string(paths.get("attempt"), "attempt path"))
+
+    task_path = _portable_relative_path(paths.get("task_contract"), "task path")
+    attempt_path = _portable_relative_path(paths.get("attempt"), "attempt path")
+    task_payload = _read_artifact(root, task_path)
+    attempt_payload = _read_artifact(root, attempt_path)
+    task = load_task_contract(root / PurePosixPath(task_path))
+    attempt = Attempt.from_dict(attempt_payload)
+    if task.to_dict() != dict(task_payload) or attempt.to_dict() != dict(attempt_payload):
+        raise ValidationError("task or attempt artifact does not round-trip exactly")
     context = _read_artifact(root, require_non_empty_string(paths.get("context"), "context path"))
     request = _read_artifact(
         root, require_non_empty_string(paths.get("planning_request"), "planning request path")
@@ -602,158 +760,239 @@ def validate_proof_bundle(path: str | Path) -> Mapping[str, object]:
     )
     plan = ProofPlan.from_dict(plan_payload)
     model_run = ModelRunEvidence.from_dict(model_payload)
-    configuration_path = require_non_empty_string(paths.get("proof_catalog"), "proof catalog path")
-    configuration = load_proof_configuration(root / PurePosixPath(configuration_path))
-    expected_record_digests = {
-        "task_contract": sha256_digest(task),
-        "attempt": sha256_digest(attempt),
-        "planning_request": sha256_digest(request),
-        "proof_plan": plan.digest(),
-        "model_run": model_run.digest(),
-    }
-    for name, expected in expected_record_digests.items():
-        if records.get(name) != expected:
-            raise ValidationError(f"{name} record digest does not match the summary")
+    configuration_payload = _read_artifact(
+        root,
+        require_non_empty_string(paths.get("proof_catalog"), "proof catalog path"),
+    )
+    configuration = ProofConfiguration.from_dict(configuration_payload)
+    policy_payload = _read_artifact(
+        root,
+        require_non_empty_string(paths.get("proof_policy"), "proof policy path"),
+    )
+    proof_policy = ProofPolicy.from_dict(policy_payload)
+    if proof_policy.to_dict() != configuration.proof_policy.to_dict():
+        raise ValidationError("proof policy artifact does not match the proof configuration")
     if (
-        records.get("proof_catalog") != configuration.catalog.digest()
-        or records.get("proof_policy") != configuration.proof_policy.digest()
-        or request.get("proof_catalog_digest") != configuration.catalog.digest()
+        request.get("proof_catalog_digest") != configuration.catalog.digest()
         or plan.proof_catalog_digest != configuration.catalog.digest()
     ):
         raise ValidationError("catalog and proof-policy commitments are inconsistent")
     context_without_digest = dict(context)
     context_digest = context_without_digest.pop("context_digest", None)
-    if (
-        context_digest != sha256_digest(context_without_digest)
-        or records.get("context") != context_digest
-    ):
+    if context_digest != sha256_digest(context_without_digest):
         raise ValidationError("context digest does not match the context manifest")
     if (
-        task.get("id") != summary.get("task_id")
-        or attempt.get("id") != summary.get("attempt_id")
-        or request.get("task_contract_id") != task.get("id")
-        or request.get("attempt_id") != attempt.get("id")
-        or request.get("task_contract_digest") != sha256_digest(task)
-        or request.get("attempt_digest") != sha256_digest(attempt)
-        or request.get("base_revision") != summary.get("base_revision")
-        or request.get("candidate_revision") != summary.get("candidate_revision")
-        or request.get("diff_digest") != attempt.get("patch_digest")
+        request.get("task_contract_id") != task.id
+        or request.get("attempt_id") != attempt.id
+        or request.get("task_contract_digest") != task.digest()
+        or request.get("attempt_digest") != attempt.digest()
+        or request.get("base_revision") != attempt.base_revision
+        or request.get("candidate_revision") != attempt.candidate_revision
+        or request.get("diff_digest") != attempt.patch_digest
+        or plan.task_contract_id != task.id
+        or plan.task_contract_digest != task.digest()
+        or plan.attempt_id != attempt.id
+        or plan.attempt_digest != attempt.digest()
+        or plan.base_revision != attempt.base_revision
+        or plan.candidate_revision != attempt.candidate_revision
+        or plan.diff_digest != attempt.patch_digest
+        or model_run.request_digest != sha256_digest(request)
         or plan.model_run.digest() != model_run.digest()
     ):
         raise ValidationError("task, attempt, revision, diff, or model bindings are inconsistent")
 
     status = summary.get("status")
     decision: ProofDecision | None = None
+    workflow: ProofWorkflowResult | None = None
+    evidence: list[ProofEvidence] = []
+    verifier_runs: list[VerifierRun] = []
+    receipts: list[VerificationReceipt] = []
     if status == "dry_run":
-        if summary.get("verdict") is not None or paths.get("proof_decision") is not None:
+        if (
+            summary.get("verdict") is not None
+            or paths.get("proof_decision") is not None
+            or paths.get("execution_policy") is not None
+            or paths.get("workflow_result") is not None
+            or _path_sequence(paths.get("proof_evidence"), "proof_evidence paths")
+            or _path_sequence(paths.get("verifier_runs"), "verifier_runs paths")
+            or _path_sequence(
+                paths.get("verification_receipts"),
+                "verification_receipts paths",
+            )
+        ):
             raise ValidationError("dry-run bundles must not contain a verdict")
     elif status == "complete":
         decision_path = require_non_empty_string(paths.get("proof_decision"), "decision path")
         decision = ProofDecision.from_dict(_read_artifact(root, decision_path))
-        raw_evidence_paths = paths.get("proof_evidence")
-        if not isinstance(raw_evidence_paths, Sequence) or isinstance(raw_evidence_paths, str):
-            raise ValidationError("proof_evidence paths must be a sequence")
         evidence = [
-            ProofEvidence.from_dict(
-                _read_artifact(root, _portable_relative_path(item, "proof evidence path"))
+            ProofEvidence.from_dict(_read_artifact(root, item))
+            for item in _path_sequence(paths.get("proof_evidence"), "proof_evidence paths")
+        ]
+        verifier_runs = [
+            VerifierRun.from_dict(_read_artifact(root, item))
+            for item in _path_sequence(paths.get("verifier_runs"), "verifier_runs paths")
+        ]
+        receipts = [
+            VerificationReceipt.from_dict(_read_artifact(root, item))
+            for item in _path_sequence(
+                paths.get("verification_receipts"),
+                "verification_receipts paths",
             )
-            for item in raw_evidence_paths
         ]
-        evidence_digests = sorted({item.digest() for item in evidence})
+        execution_policy_payload = _read_artifact(
+            root,
+            require_non_empty_string(paths.get("execution_policy"), "execution policy path"),
+        )
+        execution_policy = _portable_execution_policy(root, execution_policy_payload)
+        declared_workflow = ProofWorkflowResult.from_dict(
+            _read_artifact(
+                root,
+                require_non_empty_string(paths.get("workflow_result"), "workflow result path"),
+            )
+        )
+        expected_workspace = attempt.metadata.get("environment_evidence")
+        if not isinstance(expected_workspace, Mapping):
+            raise ValidationError("attempt lacks bound environment evidence")
+        attempt_workspace_digest = require_digest(
+            expected_workspace.get("workspace_digest"),
+            "attempt.metadata.environment_evidence.workspace_digest",
+        )
+        settings = configuration.execution
         if (
-            decision.verdict != summary.get("verdict")
-            or decision.proof_plan_digest != plan.digest()
-            or list(decision.evidence_digests) != evidence_digests
-            or records.get("proof_decision") != decision.digest()
-            or records.get("proof_evidence") != [item.digest() for item in evidence]
+            execution_policy.allowed_catalog_digest != configuration.catalog.digest()
+            or execution_policy.verifier_registry_digest
+            != configuration.verifier_registry().digest()
+            or execution_policy.expected_attempt_digest != attempt.digest()
+            or execution_policy.expected_workspace_digest != attempt_workspace_digest
+            or execution_policy.maximum_obligations != settings.maximum_obligations
+            or execution_policy.per_obligation_timeout_seconds
+            != settings.per_obligation_timeout_seconds
+            or execution_policy.total_timeout_seconds != settings.total_timeout_seconds
+            or execution_policy.max_input_bytes != settings.max_input_bytes
+            or execution_policy.max_output_bytes != settings.max_output_bytes
+            or execution_policy.allowed_environment_variables
+            != settings.allowed_environment_variables
         ):
-            raise ValidationError("decision and evidence artifacts do not match the summary")
-        receipt_paths = paths.get("verification_receipts")
-        run_paths = paths.get("verifier_runs")
-        if not isinstance(receipt_paths, Sequence) or isinstance(receipt_paths, str):
-            raise ValidationError("verification_receipts paths must be a sequence")
-        if not isinstance(run_paths, Sequence) or isinstance(run_paths, str):
-            raise ValidationError("verifier_runs paths must be a sequence")
-        receipt_payloads = [
-            _read_artifact(root, _portable_relative_path(item, "receipt path"))
-            for item in receipt_paths
-        ]
-        run_payloads = [
-            _read_artifact(root, _portable_relative_path(item, "verifier run path"))
-            for item in run_paths
-        ]
-        receipt_digests = {sha256_digest(item) for item in receipt_payloads}
-        run_digests = {sha256_digest(item) for item in run_payloads}
-        if records.get("verification_receipts") != [
-            sha256_digest(item) for item in receipt_payloads
-        ] or records.get("verifier_runs") != [sha256_digest(item) for item in run_payloads]:
-            raise ValidationError("authority record digests do not match the summary")
-        if not set(decision.authoritative_receipt_digests) <= receipt_digests:
-            raise ValidationError("decision references an unavailable receipt")
-        if any(
-            item.verifier_run_digest is not None
-            and item.verifier_run_digest not in run_digests
-            or item.verification_receipt_digest is not None
-            and item.verification_receipt_digest not in receipt_digests
-            for item in evidence
-        ):
-            raise ValidationError("proof evidence references unavailable authority records")
-        for receipt in receipt_payloads:
-            if (
-                receipt.get("task_contract_id") != task.get("id")
-                or receipt.get("task_contract_digest") != sha256_digest(task)
-                or receipt.get("attempt_id") != attempt.get("id")
-                or receipt.get("base_revision") != summary.get("base_revision")
-                or receipt.get("candidate_revision") != summary.get("candidate_revision")
-            ):
-                raise ValidationError("receipt context does not match the proof bundle")
-        runs_by_digest = {sha256_digest(item): item for item in run_payloads}
-        receipts_by_digest = {sha256_digest(item): item for item in receipt_payloads}
-        for item in evidence:
-            if item.verifier_run_digest is None or item.verification_receipt_digest is None:
-                continue
-            run = runs_by_digest[item.verifier_run_digest]
-            receipt = receipts_by_digest[item.verification_receipt_digest]
-            verifier_spec = {
-                "verifier_id": run.get("verifier_id"),
-                "name": run.get("name"),
-                "version": run.get("version"),
-                "command": run.get("command"),
-            }
-            run_result = {
-                "passed": run.get("passed"),
-                "metrics": run.get("metrics"),
-                "failure_reasons": run.get("failure_reasons"),
-                "logs_digest": run.get("logs_digest"),
-            }
-            if (
-                run.get("verifier_digest") != sha256_digest(verifier_spec)
-                or run.get("result_digest") != sha256_digest(run_result)
-                or receipt.get("verifier_digest") != run.get("verifier_digest")
-                or receipt.get("result_digest") != run.get("result_digest")
-                or receipt.get("verifier_id") != run.get("verifier_id")
-                or receipt.get("accepted") != run.get("passed")
-                or receipt.get("metrics") != run.get("metrics")
-                or receipt.get("failure_reasons") != run.get("failure_reasons")
-            ):
-                raise ValidationError("receipt and verifier-run authority do not match")
+            raise ValidationError("execution policy does not match repository-owner authority")
+        recomputed_decision = decide_proof(
+            plan,
+            evidence,
+            proof_policy,
+            task_contract=task,
+            attempt=attempt,
+            verifier_runs=verifier_runs,
+            verification_receipts=receipts,
+        )
+        if recomputed_decision.to_dict() != decision.to_dict():
+            raise ValidationError(
+                "serialized decision does not match the deterministic proof decision"
+            )
+        workflow = ProofWorkflowResult(
+            plan=plan,
+            catalog_digest=configuration.catalog.digest(),
+            verifier_registry_digest=configuration.verifier_registry().digest(),
+            proof_policy_digest=proof_policy.digest(),
+            execution_policy_digest=execution_policy.authority_digest(),
+            workspace_digest=execution_policy.expected_workspace_digest,
+            evidence=evidence,
+            verifier_runs=verifier_runs,
+            verification_receipts=receipts,
+            decision=recomputed_decision,
+            execution_order=declared_workflow.execution_order,
+            timings=declared_workflow.timings,
+            diagnostics=declared_workflow.diagnostics,
+            short_circuited=declared_workflow.short_circuited,
+        )
+        if workflow.to_dict() != declared_workflow.to_dict():
+            raise ValidationError("workflow result is not the reconstructed authority graph")
+        decision = recomputed_decision
     else:
         raise ValidationError("run summary status must be complete or dry_run")
-    counts = summary.get("obligation_counts")
-    if not isinstance(counts, Mapping):
-        raise ValidationError("obligation_counts must be an object")
-    if status == "complete":
-        if decision is None:
-            raise AssertionError("complete bundle must have a decision")
-        expected_counts = {
-            "required": sum(1 for claim in plan.claims if claim.evidence_required),
-            "passed": len(decision.passed_claim_ids),
-            "failed": len(decision.failed_claim_ids),
-            "missing": len(decision.missing_claim_ids),
-            "uncovered": len(decision.uncovered_claim_ids),
-        }
-        if dict(counts) != expected_counts:
-            raise ValidationError("obligation counts do not match the proof decision")
+
+    expected_paths = _expected_artifact_paths(workflow)
+    if dict(paths) != expected_paths:
+        raise ValidationError("artifact paths do not match the reconstructed proof graph")
+    expected_artifact_files = _declared_artifact_files(expected_paths)
+    if set(artifact_digests) != expected_artifact_files:
+        raise ValidationError("artifact digests do not cover exactly the proof artifacts")
+
+    expected_record_digests: dict[str, object] = {
+        "task_contract": task.digest(),
+        "attempt": attempt.digest(),
+        "context": context_digest,
+        "planning_request": sha256_digest(request),
+        "structured_response": model_run.structured_response_digest,
+        "model_run": model_run.digest(),
+        "proof_plan": plan.digest(),
+        "proof_catalog": configuration.catalog.digest(),
+        "proof_policy": proof_policy.digest(),
+        "proof_evidence": [item.digest() for item in evidence],
+        "verifier_runs": [item.digest() for item in verifier_runs],
+        "verification_receipts": [item.digest() for item in receipts],
+        "proof_decision": decision.digest() if decision else None,
+        "workflow_result": workflow.digest() if workflow else None,
+    }
+    if dict(records) != expected_record_digests:
+        raise ValidationError("record digests do not match the reconstructed proof graph")
+
+    planning = ProofPlanningResult(
+        plan=plan,
+        model_run=model_run,
+        uncertainty_notes=(),
+        structured_response_digest=model_run.structured_response_digest,
+    )
+    failed_claim, counterexample = _failure_focus(planning, workflow)
+    max_diff_bytes = request.get("max_diff_bytes")
+    if isinstance(max_diff_bytes, bool) or not isinstance(max_diff_bytes, int):
+        raise ValidationError("planning request max_diff_bytes must be an integer")
+    expected_summary_values: dict[str, object] = {
+        "schema": PROOF_RUN_SUMMARY_SCHEMA,
+        "managed_by": "faber-proof",
+        "status": status,
+        "verdict": decision.verdict if decision else None,
+        "reason_codes": list(decision.reason_codes) if decision else ["dry_run_no_verdict"],
+        "task_id": task.id,
+        "task_title": request.get("task_title"),
+        "attempt_id": attempt.id,
+        "base_revision": attempt.base_revision,
+        "candidate_revision": attempt.candidate_revision,
+        "model": model_run.returned_model_id or model_run.requested_model_id,
+        "requested_model": model_run.requested_model_id,
+        "mode": model_run.mode,
+        "critic_count": 0,
+        "obligation_counts": _obligation_counts(planning, workflow),
+        "failed_claim_ids": list(decision.failed_claim_ids) if decision else [],
+        "missing_claim_ids": list(decision.missing_claim_ids) if decision else [],
+        "uncovered_claim_ids": (
+            list(decision.uncovered_claim_ids) if decision else list(plan.uncovered_claim_ids)
+        ),
+        "failed_claim": failed_claim,
+        "counterexample": counterexample,
+        "record_digests": expected_record_digests,
+        "artifact_paths": expected_paths,
+        "total_latency_ms": round(
+            (workflow.timings.get("total_seconds", 0.0) * 1000 if workflow else 0.0)
+            + float(model_run.latency_ms or 0),
+            3,
+        ),
+        "model_usage": {
+            "input_tokens": model_run.input_tokens,
+            "output_tokens": model_run.output_tokens,
+            "cost": None,
+        },
+        "validation_status": "valid",
+        "reproduction_command": _reproduction_command(
+            base_revision=attempt.base_revision,
+            candidate_revision=attempt.candidate_revision,
+            mode=model_run.mode,
+            model=model_run.requested_model_id,
+            max_diff_bytes=max_diff_bytes,
+            dry_run=status == "dry_run",
+        ),
+        "runtime_boundary": LOCAL_ISOLATION_DISCLOSURE,
+    }
+    if any(summary.get(field) != value for field, value in expected_summary_values.items()):
+        raise ValidationError("run summary is not the reconstructed proof projection")
     report_markdown_path = _portable_relative_path(
         paths.get("markdown_report"), "markdown report path"
     )
