@@ -11,8 +11,8 @@ Read it after `AGENTS.md`, `docs/CODEX_SESSION_HANDOFF.md`, and
   `e69552e1316a77361075a8d321f1c3fb7d7be54f`
 - Remote: `git@github.com:lk251/faber.git`
 - GitHub issue: `#7`
-- Active work item: `codex/future/0082-adversarial-evals-packaging-ci.md`
-- Follow-on item: `codex/future/0083-submission-video-final-audit.md`
+- Active work item: `codex/future/0082-evals-packaging-and-ci.md`
+- Follow-on item: `codex/future/0083-submission-and-final-audit.md`
 - Platform used: HB2, Windows, Python 3.11.15
 - State: this historical checkpoint has been completed locally. Threat/eval/live
   documentation, repository-wide formatting, full checks, packaging, clean installation,
@@ -20,9 +20,9 @@ Read it after `AGENTS.md`, `docs/CODEX_SESSION_HANDOFF.md`, and
   still open is remote workflow activation and observation.
 - 0083 machine work is current.
 
-The commit containing this file is a machine-transfer checkpoint, not the 0082
-completion commit. Use `git log -1 --oneline` after cloning to identify the exact
-checkpoint commit.
+The commit that introduced this file, `381b1a3`, is a machine-transfer checkpoint. The
+0082 local completion commit is `c61ac46`. Use `codex/build-week/STATUS.md` and the
+current branch head for later state.
 
 ## What is implemented
 
@@ -191,9 +191,9 @@ After promotion, observe both Linux and Windows jobs to completion and repair an
 platform failure. All machine work independent of that external authorization is
 complete, so 0083-M proceeds while this exact blocker remains recorded.
 
-## Intended threat-model content
+## Threat-model state
 
-The documentation still needed in 0082 should preserve these facts:
+The completed 0082 documentation preserves these facts:
 
 - Assets: task/diff integrity, owner catalog, planner response, execution evidence,
   receipts, decision, report bundle, credentials, and reviewed replay provenance.
@@ -212,8 +212,9 @@ The documentation still needed in 0082 should preserve these facts:
 
 ## 0083 continuation
 
-After 0082 and CI are green, execute all machine-completable parts of
-`codex/future/0083-submission-video-final-audit.md` and
+Continue all machine-completable parts of 0083 while the independent CI authorization
+gate is resolved in parallel. Read
+`codex/future/0083-submission-and-final-audit.md` and
 `codex/build-week/OFFLINE_CONTINUATION.md`:
 
 - top-level judge quickstart

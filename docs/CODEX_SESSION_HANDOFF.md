@@ -28,6 +28,12 @@ The detailed HB2 0082 implementation checkpoint is:
 codex/build-week/0082_HB2_HANDOFF.md
 ```
 
+The dated HB2-to-HB3 transfer packet is:
+
+```text
+codex/build-week/HB2_TO_HB3_HANDOFF_2026-07-26.md
+```
+
 When available, invoke:
 
 ```text
@@ -57,9 +63,9 @@ private data as part of the Build Week queue.
 - Eligibility tag: annotated `build-week-2026-baseline`, verified locally at the
   baseline commit
 - Eligible history at the branch starting point: 28 commits with no pre-cutoff author
-  or committer dates; the offline control-plane commit brings the total to 41
-- Last completed machine slice: 0081 deterministic implementation and demo; its final
-  live-reviewed replay provenance is deferred
+  or committer dates; the completed 0082 checkpoint has 43 baseline-to-head commits
+- Last completed machine slice: 0082 local implementation and release validation at
+  `c61ac4607b5f9b1c3f4fb6088ee37209365ccebf`; its remote workflow gate remains open
 - Active implementation state: 0082 code, documentation, and all available local
   release checks are complete; its exact Linux/Windows workflow is preserved at
   `codex/build-week/drafts/ci.yml` pending a GitHub credential authorized to modify
@@ -70,9 +76,9 @@ private data as part of the Build Week queue.
 - Primary-session designation: this director thread is the primary Build Week
   implementation session; `/feedback` session ID
   `019f6d53-0a3d-71d3-abd7-749dc4a3784c` is recorded
-- Current local working-tree state: expected clean after the focused 0082 completion
-  commit is pushed;
-  inspect it rather than relying on this file
+- Current transfer state after a fresh fetch: clean and even with
+  `origin/build-week/faber-proof` at `c61ac4607b5f9b1c3f4fb6088ee37209365ccebf`;
+  the remote has only `master` and `build-week/faber-proof`, with no `main`
 
 Confirm the checked-out state before changing anything:
 
@@ -334,6 +340,7 @@ On HB3, read the machine-transfer checkpoint for implementation history:
 
 ```text
 codex/build-week/0082_HB2_HANDOFF.md
+codex/build-week/HB2_TO_HB3_HANDOFF_2026-07-26.md
 ```
 
 Continue directly through all machine-completable 0083 submission preparation. In
@@ -361,6 +368,11 @@ A2 is eligible now against the current security and replay implementation. A pro
 addendum must inspect the final live-reviewed bundles after capture. Record audit
 eligibility without pausing the 0082/0083 machine lane; open P0 findings still take
 priority and block final tagging.
+
+The official submission deadline has passed as of this transfer. Continue useful 0083
+machine work, but do not claim submission eligibility or perform a Devpost modification
+until a human verifies that a timely submission exists or that the organizers permit a
+post-deadline change.
 
 ## Invariants to preserve
 
