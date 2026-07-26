@@ -78,8 +78,9 @@ private data as part of the Build Week queue.
   implementation session; `/feedback` session ID
   `019f6d53-0a3d-71d3-abd7-749dc4a3784c` is recorded
 - Current transfer target: the pushed `build-week/faber-proof` branch containing
-  source commit `f2518bd` plus this handoff/evidence commit; the remote has only
-  `master` and `build-week/faber-proof`, with no `main`
+  source commit `f2518bd`, evidence commit `1ed77cb`, and the final synchronization
+  note that updates this document; the remote has only `master` and
+  `build-week/faber-proof`, with no `main`
 
 Confirm the checked-out state before changing anything:
 

@@ -339,3 +339,28 @@ report, and begin A2 in a fresh audit session. Preserve provider neutrality,
 fail-closed authority, stable digests, no-key replay, honest `fake-development`
 provenance, integer money, and the separation between machine completion and human
 submission completion.
+
+## Final HB2 push verification
+
+HB2 pushed source commit `f2518bd` and evidence/handoff commit
+`1ed77cbff09bf88921c868fe9e2bfd9d9b11ac9f` with the repository-specific
+`faber_github_deploy_ed25519` identity, `IdentitiesOnly=yes`, and
+`AddKeysToAgent=no`. A fresh authenticated fetch then showed:
+
+```text
+origin/build-week/faber-proof...HEAD = 0 0
+HEAD = origin/build-week/faber-proof = 1ed77cbff09bf88921c868fe9e2bfd9d9b11ac9f
+remote build-week/faber-proof = 1ed77cbff09bf88921c868fe9e2bfd9d9b11ac9f
+remote master = c915523383dc58114bf748f7d7a64c1c398faaba
+remote main = absent
+```
+
+GitHub still returned `404` for repository contents at `.github/workflows`. `gh
+workflow list --all` showed only GitHub's `Dependency Graph`, not the prepared Faber
+CI workflow. The active GitHub API token scopes were `admin:public_key`, `gist`,
+`read:org`, and `repo`; `workflow` was absent. This reconfirms the external workflow
+authorization blocker.
+
+The commit containing this section is a final documentation-only synchronization note
+after `1ed77cb`. On HB3, trust the freshly fetched branch head and verify it is even with
+origin rather than expecting this document to embed its own commit ID.
