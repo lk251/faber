@@ -5,16 +5,16 @@
 - Human status: **INCOMPLETE**
 - Branch: `build-week/faber-proof`
 - Audited target: `HEAD`
-- Audited commit: `f2518bd96ebc90f3d6fc7ba6097f1ffb1d6595da`
+- Audited commit: `b227d728f4af145508d9d91eb44e7235ff5c9c4a`
 - Eligibility baseline: `64f775cfe2f622837bd9aaa40f6369aa22af1d80`
 
 Machine completion and human submission completion are separate. An external workflow-authorization blocker or unavailable Nix command is reported explicitly; neither is represented as a successful remote run.
 
 ## Build Week delta
 
-- Eligible commits: **45**
-- Changed files: **166**
-- Additions/deletions: **+35949 / -528**
+- Eligible commits: **51**
+- Changed files: **172**
+- Additions/deletions: **+39035 / -528**
 - Warnings: **0**
 
 ## Machine checks
@@ -31,8 +31,8 @@ Machine completion and human submission completion are separate. An external wor
 | `placeholder_policy` | `static` | **PASS** | No generic machine placeholder exists; only approved explicit human-gate markers remain. |
 | `submission_svg_assets` | `static` | **PASS** | Original SVG sources parse and contain no external or active content. |
 | `submission_privacy` | `static` | **PASS** | 17 submission files passed with zero covered findings. |
-| `remote_ci_definition` | `external` | **EXTERNAL_BLOCKED** | Exact Linux/Windows workflow remains preserved as a draft; GitHub rejected workflow-path updates from the registered non-FIDO deploy credential. |
-| `build_week_delta` | `git` | **PASS** | 45 eligible commits and 166 changed files have a warning-free baseline delta. |
+| `remote_ci_definition` | `external` | **PASS** | Linux/Windows workflow is active at .github/workflows/ci.yml. |
+| `build_week_delta` | `git` | **PASS** | 51 eligible commits and 172 changed files have a warning-free baseline delta. |
 | `human_gate_state` | `static` | **PASS** | Human gates are explicit, structurally valid, and internally consistent. |
 | `pytest` | `command` | **PASS** | Command exited 0. |
 | `ruff_format` | `command` | **PASS** | Command exited 0. |
