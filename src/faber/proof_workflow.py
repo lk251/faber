@@ -806,6 +806,36 @@ def _not_executed_evidence(
     )
 
 
+def _portable_verifier_command(
+    raw_command: Sequence[str],
+    repository_root: Path,
+) -> list[str]:
+    portable: list[str] = []
+    for index, argument in enumerate(raw_command):
+        argument_path = Path(argument)
+        label = argument_path.name or "runtime"
+        if index == 0 and label.casefold() in {
+            "python",
+            "python.exe",
+            "python3",
+            "python3.exe",
+            "python3.11",
+            "python3.11.exe",
+        }:
+            portable.append("python")
+            continue
+        if not argument_path.is_absolute():
+            portable.append(argument)
+            continue
+        try:
+            relative = argument_path.resolve(strict=False).relative_to(repository_root)
+        except ValueError:
+            portable.append(label if index == 0 else f"<runtime>/{label}")
+        else:
+            portable.append(f"./{relative.as_posix()}")
+    return portable
+
+
 def _evidence_from_execution(
     *,
     task_contract: TaskContract,
@@ -853,19 +883,7 @@ def _evidence_from_execution(
     if run is not None:
         raw_command = list(run.command)
         root = Path(repository_root).resolve(strict=True)
-        portable_command: list[str] = []
-        for index, argument in enumerate(raw_command):
-            argument_path = Path(argument)
-            if not argument_path.is_absolute():
-                portable_command.append(argument)
-                continue
-            try:
-                relative = argument_path.resolve(strict=False).relative_to(root)
-            except ValueError:
-                label = argument_path.name or "runtime"
-                portable_command.append(label if index == 0 else f"<runtime>/{label}")
-            else:
-                portable_command.append(f"./{relative.as_posix()}")
+        portable_command = _portable_verifier_command(raw_command, root)
         run = replace(
             run,
             command=portable_command,
@@ -875,10 +893,17 @@ def _evidence_from_execution(
             },
         )
         if plan.model_run.mode == "replay":
+            # Replay authority binds the portable command identity. Retaining the raw
+            # executable digest here would make the same evidence host-path-specific.
             replay_metadata = {
                 key: value
                 for key, value in run.metadata.items()
-                if key not in {"raw_verifier_run_digest", "raw_verifier_run_id"}
+                if key
+                not in {
+                    "raw_command_digest",
+                    "raw_verifier_run_digest",
+                    "raw_verifier_run_id",
+                }
             }
             replay_identity = sha256_digest(
                 {

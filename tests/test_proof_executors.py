@@ -39,6 +39,7 @@ from faber.proof_runtime_helper import PROTOCOL_VERSION, ProtocolError, execute_
 from faber.proof_workflow import (
     ProofExecutionPolicy,
     ProofWorkflowError,
+    _portable_verifier_command,
     run_proof_workflow,
     workspace_snapshot_digest,
 )
@@ -1611,6 +1612,54 @@ def test_passing_workflow_binds_evidence_runs_receipts_and_all_authority_context
     thawed_diagnostics = thawed["diagnostics"]
     assert isinstance(thawed_diagnostics, list)
     assert result.digest() == workflow_digest
+
+
+def test_replay_python_run_uses_portable_command_identity(tmp_path: Path) -> None:
+    _write_python_fixture(tmp_path)
+    entry, spec = _python_entry(tmp_path)
+    catalog = ProofCatalog([entry])
+    registry = _registry(spec)
+    selection = _selection(entry.id, parameters={"inputs": [7], "expected": 7})
+    task = _task(spec.verifier_id)
+    attempt = _attempt(task)
+    plan = _plan(task, attempt, catalog_digest=catalog.digest(), selections=[selection])
+
+    result = run_proof_workflow(
+        task_contract=task,
+        attempt=attempt,
+        plan=plan,
+        catalog=catalog,
+        verifier_registry=registry,
+        proof_policy=_proof_policy([selection], [spec.verifier_id]),
+        execution_policy=_execution_policy(tmp_path, catalog, registry, attempt),
+        launcher=HelperLauncher(),
+    )
+
+    run = result.verifier_runs[0]
+    assert run.command == ["python", "-I", "<runtime>/proof_runtime_helper.py"]
+    assert "raw_command_digest" not in run.metadata
+    assert result.decision.verdict == "pass"
+
+
+def test_python_command_identity_is_stable_across_platform_spellings(tmp_path: Path) -> None:
+    windows = _portable_verifier_command(
+        [
+            "C:/hostedtoolcache/Python/3.11/x64/python.exe",
+            "-I",
+            "<runtime>/proof_runtime_helper.py",
+        ],
+        tmp_path,
+    )
+    linux = _portable_verifier_command(
+        [
+            "/opt/hostedtoolcache/Python/3.11/x64/python3.11",
+            "-I",
+            "<runtime>/proof_runtime_helper.py",
+        ],
+        tmp_path,
+    )
+
+    assert windows == linux == ["python", "-I", "<runtime>/proof_runtime_helper.py"]
 
 
 def test_direct_executor_run_without_plan_selection_metadata_cannot_authorize_replay(
