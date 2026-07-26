@@ -8,17 +8,17 @@ reports under `codex/build-week/audits/`.
 
 ## Current state
 
-- Phase: 0083 machine lane complete; the final audit is `machine_pass` and
-  `human_incomplete`, while remote CI activation and final human/live gates remain open
+- Phase: 0082-0083 machine lanes and remote CI complete; the final audit is
+  `machine_pass` and `human_incomplete`, while independent audits and final human/live
+  gates remain open
 - Canonical implementation branch: `build-week/faber-proof`
 - Branch starting commit: `c915523383dc58114bf748f7d7a64c1c398faaba`
 - Eligibility baseline: `64f775cfe2f622837bd9aaa40f6369aa22af1d80`, tagged by
   annotated `build-week-2026-baseline`
 - Eligible commit count: 45 from the eligibility baseline through the 0083 source
   snapshot `f2518bd`; the warning-free report covers 166 changed files
-- Current P0 item: machine work through `0083-M` is complete at
-  `f2518bd96ebc90f3d6fc7ba6097f1ffb1d6595da`; 0081 live-reviewed provenance, 0082
-  remote CI, independent audits A2-A5, and final human actions remain
+- Current P0 item: machine work through `0083-M` and remote CI are complete; 0081
+  live-reviewed provenance, independent audits A2-A5, and final human actions remain
 - Current demo state: the original no-key command produces ordinary `PASS`/`PASS` and
   Faber Proof `BLOCK`/`PASS`; replay provenance is explicitly `fake-development`
 - Primary implementation session: this director thread (0076 onward)
@@ -46,13 +46,13 @@ reports under `codex/build-week/audits/`.
 - [ ] `0081` — Repository-scoped Codex skill and original winning demonstration
   - [x] Machine implementation and deterministic no-key demo
   - [ ] Guarded live capture and `live-reviewed` replay provenance
-- [ ] `0082` — Adversarial evals, packaging, clean-install path, and CI
+- [x] `0082` — Adversarial evals, packaging, clean-install path, and CI
   - [x] Threat model, 49-case eval campaign, privacy audit, packaging, clean install,
     judge paths, live-capture transaction, formatting, and full local checks
   - [x] Least-privilege Linux/Windows workflow prepared and validated at
     `codex/build-week/drafts/ci.yml`
-  - [ ] Promote the workflow with a non-FIDO credential authorized for workflow
-    updates, observe both remote jobs, and repair any failure
+  - [x] Active workflow promoted with the repository-specific non-FIDO key; Ubuntu,
+    Windows, and optional-extra jobs pass in Actions run `30217997785`
 - [ ] `0083` — Submission materials, video package, final audit, and freeze
   - [x] Machine package: README, judge quickstart, Devpost copy, 391-word narration,
     shot list, recording checklist, original SVG assets, explicit human-gate state,
@@ -140,7 +140,7 @@ until all required audits are green and no P0 finding remains open.
 - [x] mypy passes
 - [x] Nix check passes when Nix is available, or unavailability is documented
 - [x] Wheel and sdist build; the wheel installs and runs outside the checkout on HB2
-- [ ] Linux and Windows CI pass
+- [x] Linux and Windows CI pass
 - [x] Final submission audit reports machine pass and explicitly reports unresolved
   human gates
 - [x] Current deterministic adversarial campaign has 49/49 passing cases and zero
@@ -185,8 +185,8 @@ until all required audits are green and no P0 finding remains open.
 | A1-P0-001 | Verified | `6d11e7a` | 2 audit regressions; 16-case binding matrix; 342 focused tests, 1 skip; 652 full tests, 1 skip; isolated import; Ruff; format; mypy | Primary fix; secondary verification | Selected outcomes require a complete executor-tagged proof binding; A1 is green |
 | 0080 | Complete | `c759ac4` | 11 focused product tests; 343 adjacent proof/planner/executor tests, 1 guarded live skip; 663 full tests, 1 skip; Ruff; format; mypy 90 files; editable console install and `faber doctor` | Primary | Local Git context, owner configuration, externally pinned replay, atomic portable bundle, Markdown/HTML report, exit codes, and console entrypoint |
 | 0081 | Machine complete; live gate deferred | `d74b967` | 12 focused demo/skill tests; 675 full tests, 1 guarded live skip; Ruff; 14-file format; mypy 91 files; deterministic fixture regeneration; two skill validators; installed no-key console demo | Primary | Original stdlib demo and `$faber-proof`; fake-development replay is honest; human live capture/review remains required; primary session `019f6d53-0a3d-71d3-abd7-749dc4a3784c` recorded |
-| 0082 | Local machine work complete; remote CI gate open | `c61ac46` | 699 passed, 1 skip; Ruff format/lint; mypy 93 files; 49/49 evals; clean wheel/sdist/install; installed `BLOCK`/`PASS`; 0 privacy findings; 4 byte-stable reports | Primary machine lane; A2 may run independently | GitHub rejected `.github/workflows/ci.yml` because the OAuth app that registered the HB2 deploy key lacks `workflow` scope; exact workflow preserved as a draft |
-| 0083 | Machine complete; human/final gates open | `f2518bd` | 710 passed, 1 skip; 26 focused docs/audit/delta tests; Ruff format/lint; mypy 93 files; 49/49 evals; clean install with optional extra; `BLOCK`/`PASS`; final audit machine pass; narration 391 words | Primary machine lane; A2-A5 remain independent | Warning-free delta: 45 commits, 166 files; CI activation remains externally blocked; no final tag |
+| 0082 | Complete, including remote CI | `b622d7b` | 712 passed, 1 skip locally; Ruff format/lint; mypy 93 files; 49/49 evals; clean wheel/sdist/install; Ubuntu/Windows/optional-extra Actions green | Primary machine lane; A2 may run independently | Workflow activated at `0ab9b7b`; replay command identity made cross-platform at `6e7aebd`; full audit history enabled at `b622d7b`; run `30217997785` green |
+| 0083 | Machine complete; human/final gates open | `f2518bd` | 710 passed, 1 skip; 26 focused docs/audit/delta tests; Ruff format/lint; mypy 93 files; 49/49 evals; clean install with optional extra; `BLOCK`/`PASS`; final audit machine pass; narration 391 words | Primary machine lane; A2-A5 remain independent | Warning-free delta: 45 commits, 166 files; remote CI green; no final tag |
 | 0084 | Blocked by P0 | - | - | Optional | - |
 
 ## Demo scorecard
@@ -233,8 +233,9 @@ HB2 work item 0083 machine completion baseline at source commit `f2518bd`:
   `sha256:df9a108bc1b5f39e5cc3c2178beb7b3d9d30bc73217c3c58522dda6362bdf050`
 - warning-free Build Week delta: baseline `64f775c`, target `f2518bd`, 45 commits,
   166 files, +35949/-528, zero binary files
-- final-audit accepted exceptions: GitHub workflow activation is `external_blocked`;
-  Nix/`just` is `not_available` on HB2
+- final-audit accepted exception: Nix/`just` is `not_available` on HB2
+- remote CI: Actions run `30217997785` passed Ubuntu, Windows, and optional OpenAI-extra
+  jobs at `b622d7b`
 
 The generated reports live in `docs/generated/FINAL_SUBMISSION_AUDIT.*`,
 `docs/generated/BUILD_WEEK_DELTA.*`, and
@@ -245,28 +246,22 @@ The generated reports live in `docs/generated/FINAL_SUBMISSION_AUDIT.*`,
 
 After each session, replace this section with current facts:
 
-- Last completed item or finding: work item 0083 machine package and final audit;
-  remote CI and final human/live gates remain
-- Current implementation commit:
-  `f2518bd96ebc90f3d6fc7ba6097f1ffb1d6595da`
+- Last completed item or finding: remote Linux/Windows CI activation and repair after
+  the 0083 machine package; final human/live gates remain
+- Current implementation commit: `b622d7bbb540ba8a71408de3deeca7ba6bfdaf56`
 - Working tree state at HB2 transfer: handoff/evidence changes are committed and pushed
   after the source snapshot; verify clean/even state after cloning on HB3
 - Exact tests passed: full pytest 710 passed with 1 live skip; 26 focused submission
   tests; 49/49 adversarial cases; clean build/install/demo/privacy including optional
   extra; four byte-stable reports; Ruff across 193 files; mypy across 93 files; final
   aggregate audit machine pass
-- Exact tests unavailable or failed: Nix/`just` unavailable on HB2; GitHub rejected
-  workflow-path updates
-  from the dedicated deploy key because its registering OAuth app lacks `workflow`
-  scope, so the exact YAML is preserved under `codex/build-week/drafts/`
+- Exact tests unavailable or failed: Nix/`just` unavailable on HB2
 - Bad-patch verdict: ordinary tests `PASS`; replay Faber Proof `BLOCK` with one exact
   last-turn counterexample
 - Repaired-patch verdict: ordinary tests `PASS`; replay Faber Proof `PASS` with complete
   required coverage
 - Open audit P0/P1 findings: none
-- Next P0 action: on HB3 run A2, A3, and A4 from fresh independent audit sessions;
-  preserve the exact workflow draft until a credential with workflow authorization is
-  available
+- Next P0 action: on HB3 run A2, A3, and A4 from fresh independent audit sessions
 - Next eligible independent audit: A2, then A3/A4; A5 needs a final human-complete
   candidate for final-green status
 - Deferred human-only actions: establish deadline authorization/timely-submission

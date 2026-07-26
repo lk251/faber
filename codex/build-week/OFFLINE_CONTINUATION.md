@@ -11,8 +11,8 @@ The 0083 source snapshot is `f2518bd96ebc90f3d6fc7ba6097f1ffb1d6595da`;
 `docs/generated/FINAL_SUBMISSION_AUDIT.md` records `MACHINE PASS; HUMAN INCOMPLETE`.
 Do not reimplement the workstreams below on a fresh machine. Resume from
 `docs/CODEX_SESSION_HANDOFF.md` and `codex/build-week/STATUS.md`: run the independent
-audit queue, resolve the external workflow-authorization gate when an authorized
-non-FIDO credential exists, and preserve the remaining human/live gates.
+audit queue and preserve the remaining human/live gates. Remote Ubuntu/Windows CI is
+active and green in Actions run `30217997785`.
 
 ## Invocation
 

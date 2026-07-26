@@ -67,10 +67,9 @@ private data as part of the Build Week queue.
   166 changed files
 - Last completed machine slice: 0083 submission package and final machine audit at
   source commit `f2518bd96ebc90f3d6fc7ba6097f1ffb1d6595da`
-- Active implementation state: all machine-completable 0083 artifacts and checks are
-  complete; the final audit is `machine_pass` and `human_incomplete`. The exact
-  Linux/Windows workflow remains at `codex/build-week/drafts/ci.yml` pending a GitHub
-  credential authorized to modify workflow files
+- Active implementation state: all machine-completable 0082-0083 artifacts and checks
+  are complete; the final audit is `machine_pass` and `human_incomplete`. Active
+  Linux/Windows CI is green at `b622d7b` in GitHub Actions run `30217997785`
 - Last independent audit: A1 architecture/authority against `6d11e7a`, verdict
   `green`; `A1-P0-001` is independently verified
 - Snapshot date: 2026-07-26
@@ -78,9 +77,8 @@ private data as part of the Build Week queue.
   implementation session; `/feedback` session ID
   `019f6d53-0a3d-71d3-abd7-749dc4a3784c` is recorded
 - Current transfer target: the pushed `build-week/faber-proof` branch containing
-  source commit `f2518bd`, evidence commit `1ed77cb`, and the final synchronization
-  note that updates this document; the remote has only `master` and
-  `build-week/faber-proof`, with no `main`
+  source commit `f2518bd`, cross-platform replay repair `6e7aebd`, and CI history fix
+  `b622d7b`; the remote has only `master` and `build-week/faber-proof`, with no `main`
 
 Confirm the checked-out state before changing anything:
 
@@ -388,12 +386,11 @@ Use `$build-week-auditor` and the queue in
 codex/build-week/audits/A1-architecture-and-authority-report.md
 ```
 
-Remote CI remains a precise external authorization gate. Promote
-`codex/build-week/drafts/ci.yml` to `.github/workflows/ci.yml` only with a non-FIDO
-credential authorized for workflow updates, then observe and repair both Linux and
-Windows jobs. HB2's repository deploy key works for normal Git traffic, but GitHub
-rejected workflow-path changes because the OAuth app that registered it lacks
-`workflow` scope.
+Remote CI is active at `.github/workflows/ci.yml`. After workflow authorization was
+granted, HB2 promoted the synchronized draft, repaired host-specific replay command
+identity in `6e7aebd`, and enabled full-history checkout for the baseline audit in
+`b622d7b`. GitHub Actions run `30217997785` passed Ubuntu, Windows, and the optional
+OpenAI-extra no-provider-call job.
 
 The ordered human/final sequence is:
 
@@ -410,10 +407,9 @@ The ordered human/final sequence is:
 7. Update or submit Devpost only when step 1 permits it, and bind the record to the
    audited tag.
 
-The no-key demo is complete and green, but committed replay fixtures remain honestly
-`fake-development`. Do not claim `live-reviewed` provenance, green remote CI,
-independent audit completion, submission eligibility, or final submission until each
-has real evidence.
+The no-key demo and remote CI are green, but committed replay fixtures remain honestly
+`fake-development`. Do not claim `live-reviewed` provenance, independent audit
+completion, submission eligibility, or final submission until each has real evidence.
 
 ## Invariants to preserve
 

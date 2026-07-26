@@ -215,9 +215,10 @@ Read the full [Faber Proof threat model](docs/FABER_PROOF_THREAT_MODEL.md).
 - Optional live install: `python -m pip install ".[live-openai]"`.
 - Source install: standard wheel/sdist, direct install, or editable development install.
 
-The Linux/Windows workflow definition is preserved in
-`codex/build-week/drafts/ci.yml`; remote activation remains explicitly blocked by a
-GitHub workflow-authorization constraint rather than represented as green CI.
+The active Linux/Windows workflow is `.github/workflows/ci.yml`, with a synchronized
+reference copy at `codex/build-week/drafts/ci.yml`. GitHub Actions
+[run 30217997785](https://github.com/lk251/faber/actions/runs/30217997785) passed on
+Ubuntu, Windows, and the optional OpenAI-extra no-provider-call lane.
 
 ## Tests, evals, and clean-install evidence
 

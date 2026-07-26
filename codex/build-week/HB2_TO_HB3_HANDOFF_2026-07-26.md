@@ -18,8 +18,8 @@ When the repository skill is available, the intended resume instruction is:
 
 ```text
 Read AGENTS.md and docs/CODEX_SESSION_HANDOFF.md, verify source commit f2518bd is in
-the fetched build-week/faber-proof branch, then use $build-week-auditor for A2. Preserve
-the recorded workflow authorization blocker and do not invent human-gate evidence.
+the fetched build-week/faber-proof branch, verify CI repair commit b622d7b is present,
+then use $build-week-auditor for A2. Do not invent human-gate evidence.
 ```
 
 ## Transfer snapshot
@@ -77,11 +77,10 @@ The final audit result is:
 MACHINE PASS; HUMAN INCOMPLETE; OVERALL HUMAN_INCOMPLETE
 ```
 
-The remaining 0082 machine/external gate is GitHub workflow activation and observation.
-The exact Linux/Windows workflow is at `codex/build-week/drafts/ci.yml`. The HB2
-repository deploy key authenticated for normal Git, but GitHub rejected workflow-path
-updates because the OAuth app that registered it lacks `workflow` scope. This is a
-precise external authorization blocker, not green CI.
+The 0082 workflow gate is resolved. The active workflow is
+`.github/workflows/ci.yml`, synchronized with `codex/build-week/drafts/ci.yml`.
+GitHub Actions run `30217997785` passed Ubuntu, Windows, and the optional OpenAI-extra
+no-provider-call lane at `b622d7b`.
 
 The next machine-actionable queue is independent A2, A3, A4, then the machine portion
 of A5. Use fresh audit contexts; accepted P0 findings block the final tag. A5 must be
@@ -144,34 +143,28 @@ HB2 used the same constrained command shape with its machine-local
 An additional HB2 workflow key was generated during diagnosis but was never registered.
 It is not a usable repository credential and does not transfer.
 
-## Workflow activation blocker
+## Workflow activation resolution
 
-The intended Linux and Windows workflow is preserved verbatim at:
+The active Linux and Windows workflow and its synchronized reference are:
 
 ```text
+.github/workflows/ci.yml
 codex/build-week/drafts/ci.yml
 ```
 
-HB2 could authenticate and push ordinary files with its non-FIDO deploy key. GitHub
-rejected a commit containing `.github/workflows/ci.yml` with:
+The first promotion attempt was rejected because the GitHub OAuth token lacked
+`workflow` scope:
 
 ```text
 refusing to allow an OAuth App to create or update workflow
 .github/workflows/ci.yml without workflow scope
 ```
 
-The active `gh` token had `repo` but not `workflow` scope. Browser-based remediation was
-not performed because the HB2 in-app browser was not signed in. On HB3, use a
-human-authorized GitHub action that is allowed to register or use a non-FIDO SSH
-credential for workflow updates. Then:
-
-1. promote the exact draft to `.github/workflows/ci.yml`;
-2. update documentation references that describe it as a draft;
-3. commit and push with the repository-specific non-FIDO key;
-4. observe both Linux and Windows jobs;
-5. fix real platform failures and record exact results.
-
-Do not weaken the workflow and do not use the FIDO identity as a shortcut.
+Javier granted workflow authorization. HB2 then promoted the workflow at `0ab9b7b`,
+fixed cross-platform replay command identity at `6e7aebd`, and enabled full-history
+checkout for the eligibility-baseline audit at `b622d7b`. Actions run `30217997785`
+passed all three jobs. All pushes used the repository-specific non-FIDO key with
+`IdentitiesOnly=yes` and `AddKeysToAgent=no`.
 
 ## Validation baseline
 
@@ -355,11 +348,9 @@ remote master = c915523383dc58114bf748f7d7a64c1c398faaba
 remote main = absent
 ```
 
-GitHub still returned `404` for repository contents at `.github/workflows`. `gh
-workflow list --all` showed only GitHub's `Dependency Graph`, not the prepared Faber
-CI workflow. The active GitHub API token scopes were `admin:public_key`, `gist`,
-`read:org`, and `repo`; `workflow` was absent. This reconfirms the external workflow
-authorization blocker.
+The earlier `404` and missing `workflow` scope described above were resolved after
+Javier refreshed GitHub authorization. The active workflow is present and Actions run
+`30217997785` is green on Ubuntu, Windows, and the optional-extra lane.
 
 The commit containing this section is a final documentation-only synchronization note
 after `1ed77cb`. On HB3, trust the freshly fetched branch head and verify it is even with
