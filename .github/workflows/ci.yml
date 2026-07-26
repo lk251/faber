@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+      - build-week/faber-proof
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Python 3.11 / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install base package and development tools
+        run: python -m pip install ".[dev]"
+      - name: Prove base install has no OpenAI SDK
+        run: python -c "import importlib.util; assert importlib.util.find_spec('openai') is None"
+      - name: Check formatting
+        run: python -m ruff format --check .
+      - name: Lint
+        run: python -m ruff check .
+      - name: Type check
+        run: python -m mypy src
+      - name: Run full tests
+        run: python -m pytest
+      - name: Build wheel and sdist
+        run: python -m build --wheel --sdist --outdir dist
+      - name: Audit a clean wheel install and no-key demo
+        run: python scripts/clean_install_audit.py --skip-live-extra
+      - name: Generate no-key replay artifacts
+        run: faber demo proof --mode replay --out-dir .faber/ci-demo --json
+      - name: Audit replay artifacts
+        run: faber audit-proof-artifacts .faber/ci-demo docs/generated examples/build-week-proof/expected
+      - name: Run adversarial eval campaign
+        run: python scripts/run_build_week_evals.py --check
+      - name: Check deterministic development reports
+        run: python scripts/check_development_report_regeneration.py --check
+      - name: Check demo narration budget
+        run: python scripts/check_demo_script.py
+      - name: Check generous performance budget
+        run: python scripts/measure_proof_demo.py
+      - name: Run final machine submission audit
+        run: python scripts/final_submission_audit.py --run-machine-checks --require machine
+
+  optional-openai-extra:
+    name: Optional OpenAI extra / no provider call
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install optional live adapter
+        run: python -m pip install ".[live-openai]"
+      - name: Verify SDK availability without a provider call
+        run: python -c "import importlib.util; import faber.adapters; assert importlib.util.find_spec('openai') is not None"
+      - name: Run installed no-key replay
+        run: faber demo proof --mode replay --out-dir .faber/optional-extra-demo --json
