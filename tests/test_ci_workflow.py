@@ -11,6 +11,7 @@ def test_ci_is_least_privilege_cross_platform_and_covers_0082_gates() -> None:
     workflow = (active if active.is_file() else draft).read_text(encoding="utf-8")
 
     assert "permissions:\n  contents: read" in workflow
+    assert "fetch-depth: 0" in workflow
     assert "persist-credentials: false" in workflow
     assert "ubuntu-latest" in workflow
     assert "windows-latest" in workflow
