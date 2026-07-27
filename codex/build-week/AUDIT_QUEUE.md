@@ -26,10 +26,10 @@ Use $build-week-auditor and run the next eligible independent audit.
   - Prompt: `codex/audits/A2-adversarial-security.md`
   - Report: `codex/build-week/audits/A2-adversarial-security-report.md`
   - Result: `not-green` against
-    `795ff0ad8f1d4706c8d92f88059059aa81f89bbb`; 4 P0, 4 P1, and 4 P2
-    findings remain open and require director fixes plus independent re-verification;
-    38 additional cases executed, of which 30 were genuinely new and 8 were deeper
-    corroborations
+    `795ff0ad8f1d4706c8d92f88059059aa81f89bbb`; all 4 P0 findings are fixed at candidate
+    `b254458d705d801631be8207a0ddce75fbf68c21` but remain independently unverified,
+    while 4 P1 and 4 P2 findings remain open; the initial audit executed 38 additional
+    cases, of which 30 were genuinely new and 8 were deeper corroborations
 
 - [ ] `A3` — Clean-room installation audit
   - Eligible after: work item 0082 complete
@@ -49,11 +49,13 @@ Use $build-week-auditor and run the next eligible independent audit.
 ## Current state
 
 - Implementation branch to audit: `build-week/faber-proof`
-- Immediate audit action: A2 independent re-verification after director fixes; A3/A4
-  remain queued but are not the immediate action while A2 P0 findings are open
+- Immediate audit action: A2 independent re-verification of exact candidate
+  `b254458d705d801631be8207a0ddce75fbf68c21`; A3/A4 remain queued and must not begin
+  first
 - Final live provenance remains unavailable and requires a later addendum; this is
   separate from `A2-P0-003`, which concerns the validation gate
-- Open or unverified P0 findings: 4
+- Open or unverified P0 findings: 4, all fixed by the director and none independently
+  verified
 - Open P1 findings: 4
 - Open P2 findings: 4
 - Last audit report: A2 initial audit at
@@ -61,16 +63,18 @@ Use $build-week-auditor and run the next eligible independent audit.
   `git log`
 - Last implementation commit audited:
   `795ff0ad8f1d4706c8d92f88059059aa81f89bbb`
+- Exact remediation candidate awaiting audit:
+  `b254458d705d801631be8207a0ddce75fbf68c21`
 
 ## Finding ledger
 
 | ID | Audit | Severity | Status | Summary | Owner | Fix commit | Verification |
 |---|---|---|---|---|---|---|---|
 | `A1-P0-001` | `A1` | P0 | verified | Unbound or advisory-metadata-only receipted runs can be relabeled as unrelated selected proof evidence and produce `PASS` | `$build-week-director` | `6d11e7a76a8b3f235a026c877d4bf6710bda4925` | 2-case regression passed; independent 16-case complete-binding tamper matrix failed closed |
-| `A2-P0-001` | `A2` | P0 | open | Coherent bundle graph rewrite preserves failed evidence but changes self-declared decision, summary, reports, and digests to validated `PASS` | `$build-week-director` | - | Exact-SHA inert BLOCK-to-PASS bundle rewrite accepted by `validate_proof_bundle`, terminal/JSON/reports, and exit 0 |
-| `A2-P0-002` | `A2` | P0 | open | Visible PASS Markdown/HTML validates over unchanged BLOCK authority when hidden BLOCK markers remain | `$build-week-director` | - | Refreshed report byte digests accepted; deterministic semantic regeneration is absent |
-| `A2-P0-003` | `A2` | P0 | open | Fake-development replay copies can be relabeled `live-reviewed` by changing provenance status only | `$build-week-director` | - | `require_live_reviewed=True` accepted while returned model remained `development-fixture-not-live` |
-| `A2-P0-004` | `A2` | P0 | open | Identical cached raw passing verifier authority can authorize different workflow invocations and candidates | `$build-week-director` | - | Two tasks/attempts/revisions/patches/workspaces both produced PASS and receipts from one cached raw result |
+| `A2-P0-001` | `A2` | P0 | fixed | Coherent bundle graph rewrite preserves failed evidence but changes self-declared decision, summary, reports, and digests to validated `PASS` | `$build-week-director` | `35231e7f9d891bc7838dce59c9ef68d50135c5a5` | Director regression reconstructs complete authority and rejects the coherent false-PASS rewrite; independent verification pending |
+| `A2-P0-002` | `A2` | P0 | fixed | Visible PASS Markdown/HTML validates over unchanged BLOCK authority when hidden BLOCK markers remain | `$build-week-director` | `f161881822c7b829016103cfffc73d5b738474e8` | Seven independent visible report mutations reject despite retained hidden markers and refreshed byte digests; independent verification pending |
+| `A2-P0-003` | `A2` | P0 | fixed | Fake-development replay copies can be relabeled `live-reviewed` by changing provenance status only | `$build-week-director` | `d41ca460264e1b962f74644bfa3d50a6ae5ef265` | Relabel-only and seven capture/review transaction mutations reject with inert fixtures and no provider call; independent verification pending |
+| `A2-P0-004` | `A2` | P0 | fixed | Identical cached raw passing verifier authority can authorize different workflow invocations and candidates | `$build-week-director` | `b254458d705d801631be8207a0ddce75fbf68c21` | Ten cached-result cases now reject on single-use nonce binding, and context commitments change for every required mutation; independent verification pending |
 | `A2-P1-001` | `A2` | P1 | open | Dry-run with no verdict exits 0 despite the documented 0=PASS contract | `$build-week-director` | - | Dry-run terminal/JSON had no verdict and process exit 0 |
 | `A2-P1-002` | `A2` | P1 | open | Parent demo summary can contradict a valid child bundle with no demo-level validator | `$build-week-director` | - | `bad.verdict=pass` persisted while the unchanged child validated BLOCK |
 | `A2-P1-003` | `A2` | P1 | open | Normal proof publication can persist an absolute machine path because privacy audit is not integrated | `$build-week-director` | - | Path survived diagnostics/HTML; standalone privacy correctly reported `machine_specific_path` |
@@ -92,6 +96,29 @@ rejected-with-rationale
 
 A P0 finding cannot be marked resolved without a fix or an evidence-backed rationale
 that the reported failure is impossible under the actual implementation.
+
+## Pending A2 re-verification candidate
+
+- Candidate: `b254458d705d801631be8207a0ddce75fbf68c21`
+- Fix commits: `A2-P0-001` at
+  `35231e7f9d891bc7838dce59c9ef68d50135c5a5`; `A2-P0-002` at
+  `f161881822c7b829016103cfffc73d5b738474e8`; `A2-P0-003` at
+  `d41ca460264e1b962f74644bfa3d50a6ae5ef265`; `A2-P0-004` at
+  `b254458d705d801631be8207a0ddce75fbf68c21`
+- Director validation: 725 passed and 1 guarded live-provider skip; Ruff lint passed;
+  Ruff format checked 193 files; mypy checked 93 source files; 49/49 deterministic
+  eval cases passed with zero reported unjustified PASS results; 4 development reports
+  were byte-stable
+- No-key and package validation: direct and clean-installed demos both reproduced
+  ordinary `PASS`/`PASS` and Faber Proof `BLOCK`/`PASS`; the direct privacy audit
+  scanned 53 files and 241762 bytes with zero findings; wheel and sdist built and the
+  clean-install audit passed
+- Limitations: Nix and `just` were unavailable on HB2; the guarded live-provider test
+  remained skipped and no provider call was made
+- Required next action: a fresh `$build-week-auditor` must independently reconstruct
+  and verify each finding against this exact candidate. Do not infer verification from
+  the director's regressions, do not change A2 from `not-green` before that audit, and
+  do not begin A3/A4 first.
 
 ## Audit report requirements
 
