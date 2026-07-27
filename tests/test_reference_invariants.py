@@ -11,10 +11,21 @@ from faber.ledger import LedgerAccount, MarketLedger
 from faber.money import Money
 from faber.receipts import VerificationReceipt
 from faber.routing import RouterDecision
-from faber.runner.local import LocalVerifierRunner, RunnerPolicy
+from faber.runner.local import (
+    LocalVerifierRunner,
+    RunnerPolicy,
+    new_local_verifier_invocation_nonce,
+)
 from faber.store import save_attempt, save_trajectory, store_summary
 from faber.trajectories import Trajectory
 from faber.verifiers import VerifierRegistry, VerifierRun, VerifierSpec
+
+
+def _invocation() -> dict[str, str]:
+    return {
+        "invocation_nonce": new_local_verifier_invocation_nonce(),
+        "invocation_context_digest": sha256_digest("reference invariant test context"),
+    }
 
 
 def _contract() -> TaskContract:
@@ -143,6 +154,7 @@ def test_timed_out_verifier_run_cannot_drive_payout(tmp_path: Path) -> None:
     result = LocalVerifierRunner(registry, policy=policy).run(
         "verifier.reference",
         working_directory=tmp_path,
+        **_invocation(),
     )
     receipt = VerificationReceipt.from_verifier_run(_contract(), _attempt(), result.verifier_run)
     ledger = _ledger()
@@ -241,6 +253,7 @@ def test_runner_policy_rejects_unapproved_candidate_environment(tmp_path: Path) 
             "verifier.reference",
             working_directory=tmp_path,
             extra_environment={"FABER_CANDIDATE_SECRET": "candidate-controlled"},
+            **_invocation(),
         )
 
 
@@ -260,6 +273,7 @@ def test_runner_policy_digest_is_bound_into_verifier_run(tmp_path: Path) -> None
     result = LocalVerifierRunner(registry, policy=policy).run(
         "verifier.reference",
         working_directory=tmp_path,
+        **_invocation(),
     )
 
     assert result.verifier_run.metadata["runner_policy_digest"] == policy.digest()

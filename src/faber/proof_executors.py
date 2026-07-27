@@ -45,7 +45,13 @@ from faber.proof_catalog import (
 )
 from faber.proof_runtime_helper import PROTOCOL_VERSION, json_values_equal
 from faber.redaction import default_sensitive_patterns, detect_sensitive_fields
-from faber.runner.local import LocalVerifierResult, LocalVerifierRunner, RunnerPolicy
+from faber.runner.local import (
+    LocalVerifierResult,
+    LocalVerifierRunner,
+    RunnerPolicy,
+    local_verifier_invocation_digest,
+    new_local_verifier_invocation_nonce,
+)
 from faber.validation import require_digest, require_non_empty_string
 from faber.verifiers import VerifierRegistry, VerifierRun, VerifierSpec
 
@@ -55,6 +61,7 @@ EXECUTION_ERROR_CODES = frozenset(
         "invalid_capability",
         "invalid_parameters",
         "invalid_path",
+        "invocation_binding_mismatch",
         "registry_mismatch",
         "environment_not_allowed",
         "timeout",
@@ -193,9 +200,11 @@ class ExistingVerifierRunner(Protocol):
         verifier_id: str,
         *,
         working_directory: str | Path,
+        invocation_nonce: str,
+        invocation_context_digest: str,
         timeout_seconds: int | None = None,
         extra_environment: dict[str, str] | None = None,
-    ) -> LocalVerifierResult | VerifierRun: ...
+    ) -> LocalVerifierResult: ...
 
 
 @dataclass(frozen=True)
@@ -1055,12 +1064,14 @@ def _result(
 
 def _execute_existing_command(
     entry: ProofCatalogEntry,
+    parameters: Mapping[str, object],
     *,
     root: Path,
     registry: VerifierRegistry,
     runner: ExistingVerifierRunner | None,
     runner_policy: RunnerPolicy | None,
     allowed_environment_variables: Sequence[str],
+    invocation_context_digest: str | None,
 ) -> ProofExecutionResult:
     capability = entry.capability
     if not isinstance(capability, ExistingCommandCapability):
@@ -1082,6 +1093,27 @@ def _execute_existing_command(
         allow_shell=False,
     )
     expected_runner_policy_digest = entry_runner_policy.digest()
+    if invocation_context_digest is None:
+        invocation_context_digest = sha256_digest(
+            {
+                "schema": "faber.direct_proof_invocation_context.v1",
+                "catalog_entry_id": entry.id,
+                "catalog_entry_version": entry.version,
+                "family": entry.family,
+                "capability_digest": entry.capability_digest(),
+                "parameters": parameters,
+                "repository_root": str(root),
+                "verifier_registry_digest": registry.digest(),
+                "runner_policy_digest": expected_runner_policy_digest,
+            }
+        )
+    else:
+        require_digest(invocation_context_digest, "invocation_context_digest")
+    invocation_nonce = new_local_verifier_invocation_nonce()
+    expected_invocation_digest = local_verifier_invocation_digest(
+        invocation_nonce=invocation_nonce,
+        invocation_context_digest=invocation_context_digest,
+    )
     actual_runner: ExistingVerifierRunner
     if runner is None:
         actual_runner = LocalVerifierRunner(registry, entry_runner_policy)
@@ -1109,6 +1141,8 @@ def _execute_existing_command(
         raw_result = actual_runner.run(
             policy.verifier_id,
             working_directory=cwd,
+            invocation_nonce=invocation_nonce,
+            invocation_context_digest=invocation_context_digest,
             timeout_seconds=policy.timeout_seconds,
             extra_environment=dict(environment),
         )
@@ -1131,12 +1165,50 @@ def _execute_existing_command(
             elapsed_seconds=elapsed,
         )
     elapsed = time.perf_counter() - started
-    if isinstance(raw_result, LocalVerifierResult):
-        local_result: LocalVerifierResult | None = raw_result
-        verifier_run = raw_result.verifier_run
-    else:
-        local_result = None
-        verifier_run = raw_result
+    if not isinstance(raw_result, LocalVerifierResult):
+        return _result(
+            entry,
+            status="error",
+            reasons=["invocation_binding_mismatch"],
+            expected={"invocation_bound": True},
+            observed={"invocation_bound": False},
+            counterexample=_counterexample(
+                input_summary={"family": entry.family},
+                expected_summary={"invocation_bound": True},
+                observed_summary={"invocation_bound": False},
+                exception_type=None,
+                reason_code="invocation_binding_mismatch",
+            ),
+            run=None,
+            elapsed_seconds=elapsed,
+        )
+    local_result = raw_result
+    verifier_run = raw_result.verifier_run
+    invocation_binding_valid = (
+        local_result.invocation_nonce == invocation_nonce
+        and local_result.invocation_context_digest == invocation_context_digest
+        and local_result.invocation_digest == expected_invocation_digest
+        and verifier_run.metadata.get("invocation_nonce") == invocation_nonce
+        and verifier_run.metadata.get("invocation_context_digest") == invocation_context_digest
+        and verifier_run.metadata.get("invocation_digest") == expected_invocation_digest
+    )
+    if not invocation_binding_valid:
+        return _result(
+            entry,
+            status="error",
+            reasons=["invocation_binding_mismatch"],
+            expected={"invocation_bound": True},
+            observed={"invocation_bound": False},
+            counterexample=_counterexample(
+                input_summary={"family": entry.family},
+                expected_summary={"invocation_bound": True},
+                observed_summary={"invocation_bound": False},
+                exception_type=None,
+                reason_code="invocation_binding_mismatch",
+            ),
+            run=None,
+            elapsed_seconds=elapsed,
+        )
     if not isinstance(verifier_run, VerifierRun) or (
         verifier_run.verifier_id != policy.verifier_id
         or verifier_run.version != policy.verifier_version
@@ -1206,22 +1278,10 @@ def _execute_existing_command(
             "raw_verifier_run_id": raw_verifier_run_id,
         },
     )
-    timed_out = (
-        local_result.timed_out
-        if local_result is not None
-        else bool(verifier_run.metrics.get("timed_out", False))
-    )
-    output_truncated = (
-        local_result.stdout_truncated or local_result.stderr_truncated
-        if local_result is not None
-        else bool(
-            metadata.get("stdout_truncated", False) or metadata.get("stderr_truncated", False)
-        )
-    )
-    runner_error = (
-        local_result.error_code if local_result is not None else metadata.get("runner_error_code")
-    )
-    if local_result is not None and local_result.status == "error" and runner_error is None:
+    timed_out = local_result.timed_out
+    output_truncated = local_result.stdout_truncated or local_result.stderr_truncated
+    runner_error = local_result.error_code
+    if local_result.status == "error" and runner_error is None:
         if local_result.output_limit_exceeded:
             runner_error = "output_limit"
         elif local_result.capture_incomplete:
@@ -1272,7 +1332,7 @@ def _execute_existing_command(
             )
         ),
         run=verifier_run if status in {"passed", "failed"} else None,
-        elapsed_seconds=(local_result.elapsed_seconds if local_result else elapsed),
+        elapsed_seconds=local_result.elapsed_seconds,
         timed_out=timed_out,
         output_truncated=output_truncated,
     )
@@ -2025,6 +2085,7 @@ def execute_catalog_entry(
     launcher: ProcessLauncher = launch_bounded_process,
     allowed_environment_variables: Sequence[str] = (),
     max_input_bytes: int = DEFAULT_MAX_INPUT_BYTES,
+    invocation_context_digest: str | None = None,
 ) -> ProofExecutionResult:
     """Preflight then execute one exact typed catalog capability."""
 
@@ -2047,11 +2108,13 @@ def execute_catalog_entry(
     if isinstance(capability, ExistingCommandCapability):
         return _execute_existing_command(
             entry,
+            bound,
             root=root,
             registry=verifier_registry,
             runner=runner,
             runner_policy=runner_policy,
             allowed_environment_variables=allowed_environment_variables,
+            invocation_context_digest=invocation_context_digest,
         )
     if isinstance(capability, PytestNodeCapability):
         return _execute_pytest(
@@ -2130,6 +2193,8 @@ class ProofExecutorRegistry:
         self,
         entry: ProofCatalogEntry,
         parameters: Mapping[str, object],
+        *,
+        invocation_context_digest: str | None = None,
     ) -> ProofExecutionResult:
         return execute_catalog_entry(
             entry,
@@ -2141,4 +2206,5 @@ class ProofExecutorRegistry:
             launcher=self.launcher,
             allowed_environment_variables=self.allowed_environment_variables,
             max_input_bytes=self.max_input_bytes,
+            invocation_context_digest=invocation_context_digest,
         )

@@ -3,9 +3,21 @@ from pathlib import Path
 
 import pytest
 
+from faber.digests import sha256_digest
 from faber.errors import VerifierError
-from faber.runner.local import LocalVerifierRunner, RunnerPolicy
+from faber.runner.local import (
+    LocalVerifierRunner,
+    RunnerPolicy,
+    new_local_verifier_invocation_nonce,
+)
 from faber.verifiers import VerifierRegistry, VerifierSpec
+
+
+def _invocation() -> dict[str, str]:
+    return {
+        "invocation_nonce": new_local_verifier_invocation_nonce(),
+        "invocation_context_digest": sha256_digest("runner safety test context"),
+    }
 
 
 def _registry(command: list[str], *, timeout: int = 30) -> VerifierRegistry:
@@ -29,7 +41,7 @@ def test_runner_executes_command_list_without_shell(tmp_path: Path) -> None:
         policy=RunnerPolicy(allowed_working_directory_root=str(tmp_path)),
     )
 
-    result = runner.run("verifier.safe", working_directory=tmp_path)
+    result = runner.run("verifier.safe", working_directory=tmp_path, **_invocation())
 
     assert result.verifier_run.passed is True
     assert result.verifier_run.metadata["shell"] is False
@@ -39,7 +51,7 @@ def test_runner_rejects_unregistered_command(tmp_path: Path) -> None:
     runner = LocalVerifierRunner(VerifierRegistry())
 
     with pytest.raises(VerifierError, match="not registered"):
-        runner.run("candidate-owned-command", working_directory=tmp_path)
+        runner.run("candidate-owned-command", working_directory=tmp_path, **_invocation())
 
 
 def test_runner_rejects_path_outside_allowed_root(tmp_path: Path) -> None:
@@ -53,7 +65,7 @@ def test_runner_rejects_path_outside_allowed_root(tmp_path: Path) -> None:
     )
 
     with pytest.raises(VerifierError, match="outside allowed root"):
-        runner.run("verifier.safe", working_directory=outside)
+        runner.run("verifier.safe", working_directory=outside, **_invocation())
 
 
 def test_runner_rejects_unapproved_environment_variable(tmp_path: Path) -> None:
@@ -70,6 +82,7 @@ def test_runner_rejects_unapproved_environment_variable(tmp_path: Path) -> None:
             "verifier.safe",
             working_directory=tmp_path,
             extra_environment={"SECRET_TOKEN": "nope"},
+            **_invocation(),
         )
 
 
@@ -79,7 +92,7 @@ def test_runner_timeout_and_digest_capture(tmp_path: Path) -> None:
         policy=RunnerPolicy(allowed_working_directory_root=str(tmp_path), timeout_seconds=1),
     )
 
-    result = runner.run("verifier.safe", working_directory=tmp_path)
+    result = runner.run("verifier.safe", working_directory=tmp_path, **_invocation())
 
     assert result.timed_out is True
     assert result.stdout_digest.startswith("sha256:")

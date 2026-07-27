@@ -871,6 +871,47 @@ def _workspace_matches_execution_policy(execution_policy: ProofExecutionPolicy) 
         return False
 
 
+def _proof_invocation_context_digest(
+    *,
+    task_contract: TaskContract,
+    attempt: Attempt,
+    plan: ProofPlan,
+    prepared: _PreparedSelection,
+    verifier_registry: VerifierRegistry,
+    proof_policy: ProofPolicy,
+    execution_policy: ProofExecutionPolicy,
+) -> str:
+    """Bind a raw verifier call to the complete validated workflow context."""
+
+    policy = _entry_policy(prepared.entry)
+    return sha256_digest(
+        {
+            "schema": "faber.proof_invocation_context.v1",
+            "task_contract_id": task_contract.id,
+            "task_contract_digest": task_contract.digest(),
+            "attempt_id": attempt.id,
+            "attempt_digest": attempt.digest(),
+            "base_revision": attempt.base_revision,
+            "candidate_revision": attempt.candidate_revision,
+            "patch_digest": attempt.patch_digest,
+            "proof_plan_digest": plan.digest(),
+            "selection_digest": prepared.selection.digest(),
+            "parameters_digest": sha256_digest(dict(prepared.parameters)),
+            "proof_catalog_digest": plan.proof_catalog_digest,
+            "catalog_entry_id": prepared.entry.id,
+            "catalog_entry_version": prepared.entry.version,
+            "family": prepared.entry.family,
+            "capability_digest": prepared.entry.capability_digest(),
+            "verifier_id": policy.verifier_id,
+            "verifier_version": policy.verifier_version,
+            "verifier_registry_digest": verifier_registry.digest(),
+            "proof_policy_digest": proof_policy.digest(),
+            "execution_policy_digest": execution_policy.authority_digest(),
+            "workspace_digest": execution_policy.expected_workspace_digest,
+        }
+    )
+
+
 def _not_executed_evidence(
     plan: ProofPlan,
     prepared: _PreparedSelection,
@@ -996,6 +1037,8 @@ def _evidence_from_execution(
                 for key, value in run.metadata.items()
                 if key
                 not in {
+                    "invocation_digest",
+                    "invocation_nonce",
                     "raw_command_digest",
                     "raw_verifier_run_digest",
                     "raw_verifier_run_id",
@@ -1223,6 +1266,15 @@ def run_proof_workflow(
             )
             continue
         try:
+            invocation_context_digest = _proof_invocation_context_digest(
+                task_contract=task_contract,
+                attempt=attempt,
+                plan=plan,
+                prepared=item,
+                verifier_registry=verifier_registry,
+                proof_policy=proof_policy,
+                execution_policy=execution_policy,
+            )
             result = execute_catalog_entry(
                 item.entry,
                 item.parameters,
@@ -1233,6 +1285,7 @@ def run_proof_workflow(
                 launcher=launcher,
                 allowed_environment_variables=execution_policy.allowed_environment_variables,
                 max_input_bytes=execution_policy.max_input_bytes,
+                invocation_context_digest=invocation_context_digest,
             )
             family = result.family
             obligation_elapsed = result.elapsed_seconds

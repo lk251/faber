@@ -54,7 +54,11 @@ from faber.proofs import (
     proof_authority_binding_digest,
 )
 from faber.receipts import VerificationReceipt
-from faber.runner.local import LocalVerifierResult, RunnerPolicy
+from faber.runner.local import (
+    LocalVerifierResult,
+    RunnerPolicy,
+    local_verifier_invocation_digest,
+)
 from faber.verifiers import VerifierRegistry, VerifierRun, VerifierSpec
 
 CREATED_AT = "2026-07-17T00:00:00Z"
@@ -562,10 +566,21 @@ class RecordingRunner:
         if self.error is not None:
             raise self.error
         working_directory = str(Path(str(kwargs["working_directory"])).resolve())
+        invocation_nonce = kwargs["invocation_nonce"]
+        invocation_context_digest = kwargs["invocation_context_digest"]
+        assert isinstance(invocation_nonce, str)
+        assert isinstance(invocation_context_digest, str)
+        invocation_digest = local_verifier_invocation_digest(
+            invocation_nonce=invocation_nonce,
+            invocation_context_digest=invocation_context_digest,
+        )
         metadata: dict[str, object] = {
             "approved_verifier_spec_digest": self.spec.digest(),
             "shell": False,
             "working_directory": working_directory,
+            "invocation_nonce": invocation_nonce,
+            "invocation_context_digest": invocation_context_digest,
+            "invocation_digest": invocation_digest,
         }
         if self.runner_policy is not None:
             metadata["runner_policy_digest"] = self.runner_policy.digest()
@@ -584,12 +599,28 @@ class RecordingRunner:
         )
         return LocalVerifierResult(
             verifier_run=run,
+            invocation_nonce=invocation_nonce,
+            invocation_context_digest=invocation_context_digest,
+            invocation_digest=invocation_digest,
             stdout_digest=sha256_digest(b""),
             stderr_digest=sha256_digest(b""),
             elapsed_seconds=0.01,
             exit_code=0 if self.passed else 1,
             timed_out=self.timed_out,
         )
+
+
+class CachedRunner(RecordingRunner):
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        super().__init__(*args, **kwargs)  # type: ignore[arg-type]
+        self.cached_result: LocalVerifierResult | None = None
+
+    def run(self, verifier_id: str, **kwargs: object) -> LocalVerifierResult:
+        if self.cached_result is None:
+            self.cached_result = super().run(verifier_id, **kwargs)
+        else:
+            self.calls.append({"verifier_id": verifier_id, **kwargs})
+        return self.cached_result
 
 
 def test_catalog_and_capability_digests_are_stable_and_order_independent() -> None:
@@ -1938,6 +1969,117 @@ def test_one_raw_verifier_run_cannot_authorize_two_proof_selections(
     assert len(result.verifier_runs) == 1
     assert len(result.verification_receipts) == 1
     assert result.decision.verdict != "pass"
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "identical",
+        "task",
+        "attempt",
+        "base-revision",
+        "candidate-revision",
+        "patch",
+        "workspace",
+        "selection",
+        "proof-policy",
+        "combined",
+    ],
+)
+def test_cached_raw_result_cannot_authorize_another_workflow_invocation(
+    tmp_path: Path,
+    mutation: str,
+) -> None:
+    entry, spec = _existing_entry()
+    catalog = ProofCatalog([entry])
+    registry = _registry(spec)
+    selection = _selection(entry.id)
+    task = _task(spec.verifier_id)
+    attempt = _attempt(task)
+    plan = _plan(task, attempt, catalog_digest=catalog.digest(), selections=[selection])
+    proof_policy = _proof_policy([selection], [spec.verifier_id])
+    execution_policy = _execution_policy(tmp_path, catalog, registry, attempt)
+    runner = CachedRunner(
+        spec,
+        passed=True,
+        runner_policy=_entry_runner_policy(
+            tmp_path,
+            entry,
+            execution_policy=execution_policy,
+        ),
+    )
+    first = run_proof_workflow(
+        task_contract=task,
+        attempt=attempt,
+        plan=plan,
+        catalog=catalog,
+        verifier_registry=registry,
+        proof_policy=proof_policy,
+        execution_policy=execution_policy,
+        runner=runner,
+    )
+    assert first.decision.verdict == "pass"
+
+    second_task = replace(task, title="Changed task") if mutation in {"task", "combined"} else task
+    second_attempt = attempt
+    if mutation in {"attempt", "combined"}:
+        second_attempt = replace(second_attempt, id="attempt_executor-second")
+    if mutation in {"base-revision", "combined"}:
+        second_attempt = replace(second_attempt, base_revision="different-base")
+    if mutation in {"candidate-revision", "combined"}:
+        second_attempt = replace(second_attempt, candidate_revision="different-candidate")
+    if mutation in {"patch", "combined"}:
+        second_attempt = replace(
+            second_attempt,
+            patch_digest=sha256_digest("different patch"),
+        )
+    second_selection = (
+        replace(selection, rationale="Changed approved selection")
+        if mutation in {"selection", "combined"}
+        else selection
+    )
+    second_policy = (
+        replace(proof_policy, name="changed-proof-policy")
+        if mutation in {"proof-policy", "combined"}
+        else proof_policy
+    )
+    if mutation in {"workspace", "combined"}:
+        (tmp_path / "workspace-change.txt").write_text("changed\n", encoding="utf-8")
+    second_plan = _plan(
+        second_task,
+        second_attempt,
+        catalog_digest=catalog.digest(),
+        selections=[second_selection],
+    )
+    second_execution_policy = _execution_policy(
+        tmp_path,
+        catalog,
+        registry,
+        second_attempt,
+    )
+
+    second = run_proof_workflow(
+        task_contract=second_task,
+        attempt=second_attempt,
+        plan=second_plan,
+        catalog=catalog,
+        verifier_registry=registry,
+        proof_policy=second_policy,
+        execution_policy=second_execution_policy,
+        runner=runner,
+    )
+
+    assert second.decision.verdict != "pass"
+    assert second.evidence[0].status == "error"
+    assert second.evidence[0].failure_reason_codes == ("invocation_binding_mismatch",)
+    assert second.verifier_runs == ()
+    assert second.verification_receipts == ()
+    first_call, second_call = runner.calls
+    assert first_call["invocation_nonce"] != second_call["invocation_nonce"]
+    if mutation == "identical":
+        assert first_call["invocation_context_digest"] == second_call["invocation_context_digest"]
+    else:
+        assert first_call["invocation_context_digest"] != second_call["invocation_context_digest"]
 
 
 def test_workspace_digest_mismatch_is_rejected_before_launch(tmp_path: Path) -> None:

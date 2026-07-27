@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import secrets
 import subprocess
 import threading
 import time
@@ -13,12 +14,44 @@ from pathlib import Path
 from faber import schemas
 from faber.digests import sha256_digest
 from faber.errors import VerifierError
+from faber.validation import require_digest
 from faber.verifiers import VerifierRegistry, VerifierRun, VerifierSpec
 
 PIPE_READ_BYTES = 8_192
 PIPE_DRAIN_GRACE_SECONDS = 0.2
 PIPE_CLOSE_GRACE_SECONDS = 0.05
 PROCESS_KILL_GRACE_SECONDS = 1.0
+LOCAL_VERIFIER_INVOCATION_SCHEMA = "faber.local_verifier_invocation.v1"
+LOCAL_VERIFIER_INVOCATION_NONCE_BYTES = 32
+
+
+def new_local_verifier_invocation_nonce() -> str:
+    """Return a fresh caller-owned nonce for one verifier invocation."""
+
+    return secrets.token_hex(LOCAL_VERIFIER_INVOCATION_NONCE_BYTES)
+
+
+def local_verifier_invocation_digest(
+    *,
+    invocation_nonce: str,
+    invocation_context_digest: str,
+) -> str:
+    """Commit one fresh invocation to its exact pre-execution context."""
+
+    if (
+        not isinstance(invocation_nonce, str)
+        or len(invocation_nonce) != LOCAL_VERIFIER_INVOCATION_NONCE_BYTES * 2
+        or any(character not in "0123456789abcdef" for character in invocation_nonce)
+    ):
+        raise VerifierError("invocation_nonce must be a 256-bit lowercase hexadecimal nonce")
+    require_digest(invocation_context_digest, "invocation_context_digest")
+    return sha256_digest(
+        {
+            "schema": LOCAL_VERIFIER_INVOCATION_SCHEMA,
+            "invocation_nonce": invocation_nonce,
+            "invocation_context_digest": invocation_context_digest,
+        }
+    )
 
 
 @dataclass(frozen=True)
@@ -26,6 +59,9 @@ class LocalVerifierResult:
     """Structured local runner output before receipt creation."""
 
     verifier_run: VerifierRun
+    invocation_nonce: str
+    invocation_context_digest: str
+    invocation_digest: str
     stdout_digest: str
     stderr_digest: str
     elapsed_seconds: float
@@ -38,6 +74,22 @@ class LocalVerifierResult:
     stdout_capture_incomplete: bool = False
     stderr_capture_incomplete: bool = False
     error_code: str | None = None
+
+    def __post_init__(self) -> None:
+        expected_invocation_digest = local_verifier_invocation_digest(
+            invocation_nonce=self.invocation_nonce,
+            invocation_context_digest=self.invocation_context_digest,
+        )
+        require_digest(self.invocation_digest, "invocation_digest")
+        if self.invocation_digest != expected_invocation_digest:
+            raise VerifierError("invocation_digest does not match the invocation binding")
+        metadata = self.verifier_run.metadata
+        if (
+            metadata.get("invocation_nonce") != self.invocation_nonce
+            or metadata.get("invocation_context_digest") != self.invocation_context_digest
+            or metadata.get("invocation_digest") != self.invocation_digest
+        ):
+            raise VerifierError("verifier_run metadata does not match the invocation binding")
 
     @property
     def output_limit_exceeded(self) -> bool:
@@ -61,6 +113,9 @@ class LocalVerifierResult:
     def to_dict(self) -> dict[str, object]:
         return {
             "verifier_run": self.verifier_run.to_dict(),
+            "invocation_nonce": self.invocation_nonce,
+            "invocation_context_digest": self.invocation_context_digest,
+            "invocation_digest": self.invocation_digest,
             "stdout_digest": self.stdout_digest,
             "stderr_digest": self.stderr_digest,
             "elapsed_seconds": self.elapsed_seconds,
@@ -317,9 +372,15 @@ class LocalVerifierRunner:
         verifier_id: str,
         *,
         working_directory: str | Path,
+        invocation_nonce: str,
+        invocation_context_digest: str,
         timeout_seconds: int | None = None,
         extra_environment: dict[str, str] | None = None,
     ) -> LocalVerifierResult:
+        invocation_digest = local_verifier_invocation_digest(
+            invocation_nonce=invocation_nonce,
+            invocation_context_digest=invocation_context_digest,
+        )
         spec = self._registry.resolve(verifier_id)
         cwd = self._policy.validate_working_directory(working_directory)
         requested_timeout = timeout_seconds or spec.allowed_timeout_seconds
@@ -469,10 +530,16 @@ class LocalVerifierRunner:
                 "shell": False,
                 "runner_policy_digest": self._policy.digest(),
                 "network_isolation": self._policy.network_isolation,
+                "invocation_nonce": invocation_nonce,
+                "invocation_context_digest": invocation_context_digest,
+                "invocation_digest": invocation_digest,
             },
         )
         return LocalVerifierResult(
             verifier_run=verifier_run,
+            invocation_nonce=invocation_nonce,
+            invocation_context_digest=invocation_context_digest,
+            invocation_digest=invocation_digest,
             stdout_digest=stdout_digest,
             stderr_digest=stderr_digest,
             elapsed_seconds=elapsed,
@@ -496,15 +563,24 @@ def run_registered_verifier(
     timeout_seconds: int | None = None,
     policy: RunnerPolicy | None = None,
 ) -> VerifierRun:
-    return (
-        LocalVerifierRunner(registry, policy=policy)
-        .run(
-            verifier_id,
-            working_directory=working_directory,
-            timeout_seconds=timeout_seconds,
-        )
-        .verifier_run
+    runner = LocalVerifierRunner(registry, policy=policy)
+    invocation_context_digest = sha256_digest(
+        {
+            "schema": "faber.registered_verifier_invocation_context.v1",
+            "verifier_registry_digest": registry.digest(),
+            "verifier_id": verifier_id,
+            "working_directory": str(Path(working_directory).resolve()),
+            "timeout_seconds": timeout_seconds,
+            "runner_policy_digest": runner.runner_policy_digest,
+        }
     )
+    return runner.run(
+        verifier_id,
+        working_directory=working_directory,
+        invocation_nonce=new_local_verifier_invocation_nonce(),
+        invocation_context_digest=invocation_context_digest,
+        timeout_seconds=timeout_seconds,
+    ).verifier_run
 
 
 def _coerce_bytes(value: bytes | str | None) -> bytes:

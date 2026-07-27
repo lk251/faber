@@ -11,8 +11,19 @@ from faber.contracts import TaskContract
 from faber.digests import sha256_digest
 from faber.errors import VerifierError
 from faber.receipts import VerificationReceipt
-from faber.runner.local import LocalVerifierRunner, RunnerPolicy
+from faber.runner.local import (
+    LocalVerifierRunner,
+    RunnerPolicy,
+    new_local_verifier_invocation_nonce,
+)
 from faber.verifiers import VerifierRegistry, VerifierSpec
+
+
+def _invocation() -> dict[str, str]:
+    return {
+        "invocation_nonce": new_local_verifier_invocation_nonce(),
+        "invocation_context_digest": sha256_digest("local verifier runner test context"),
+    }
 
 
 def _spec(
@@ -100,7 +111,11 @@ def test_local_verifier_success_captures_metrics_and_digests(tmp_path: Path) -> 
     spec = _spec([sys.executable, "-c", 'print(\'{"metrics":{"checks":1}}\')'])
     registry.register(spec)
 
-    result = LocalVerifierRunner(registry).run(spec.verifier_id, working_directory=tmp_path)
+    result = LocalVerifierRunner(registry).run(
+        spec.verifier_id,
+        working_directory=tmp_path,
+        **_invocation(),
+    )
 
     assert result.verifier_run.passed is True
     assert result.verifier_run.metrics["checks"] == 1
@@ -115,7 +130,11 @@ def test_local_verifier_failure_records_exit_code(tmp_path: Path) -> None:
     spec = _spec([sys.executable, "-c", "import sys; sys.exit(7)"])
     registry.register(spec)
 
-    result = LocalVerifierRunner(registry).run(spec.verifier_id, working_directory=tmp_path)
+    result = LocalVerifierRunner(registry).run(
+        spec.verifier_id,
+        working_directory=tmp_path,
+        **_invocation(),
+    )
 
     assert result.verifier_run.passed is False
     assert result.exit_code == 7
@@ -130,7 +149,11 @@ def test_local_verifier_timeout_records_failure(tmp_path: Path) -> None:
     )
     registry.register(spec)
 
-    result = LocalVerifierRunner(registry).run(spec.verifier_id, working_directory=tmp_path)
+    result = LocalVerifierRunner(registry).run(
+        spec.verifier_id,
+        working_directory=tmp_path,
+        **_invocation(),
+    )
 
     assert result.verifier_run.passed is False
     assert result.timed_out is True
@@ -153,7 +176,11 @@ def test_local_verifier_output_overflow_is_bounded_and_cannot_pass(
         RunnerPolicy(max_capture_bytes=64),
     )
 
-    result = runner.run(spec.verifier_id, working_directory=tmp_path)
+    result = runner.run(
+        spec.verifier_id,
+        working_directory=tmp_path,
+        **_invocation(),
+    )
 
     assert result.status == "error"
     assert result.error_code == "output_limit"
@@ -216,6 +243,7 @@ def test_local_verifier_closes_inherited_pipe_without_hanging(
     result = LocalVerifierRunner(registry).run(
         spec.verifier_id,
         working_directory=tmp_path,
+        **_invocation(),
     )
     elapsed = time.perf_counter() - started
 
@@ -274,6 +302,7 @@ def test_local_verifier_pipe_read_error_is_incomplete_and_cannot_pass(
     result = LocalVerifierRunner(registry).run(
         spec.verifier_id,
         working_directory=tmp_path,
+        **_invocation(),
     )
 
     assert failing_stdout.reads == 2
@@ -287,7 +316,11 @@ def test_local_verifier_pipe_read_error_is_incomplete_and_cannot_pass(
 
 def test_unregistered_verifier_is_rejected(tmp_path: Path) -> None:
     with pytest.raises(VerifierError, match="not registered"):
-        LocalVerifierRunner(VerifierRegistry()).run("missing", working_directory=tmp_path)
+        LocalVerifierRunner(VerifierRegistry()).run(
+            "missing",
+            working_directory=tmp_path,
+            **_invocation(),
+        )
 
 
 def test_receipt_creation_from_approved_verifier_run(tmp_path: Path) -> None:
@@ -299,6 +332,7 @@ def test_receipt_creation_from_approved_verifier_run(tmp_path: Path) -> None:
         .run(
             spec.verifier_id,
             working_directory=tmp_path,
+            **_invocation(),
         )
         .verifier_run
     )

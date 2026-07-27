@@ -21,7 +21,11 @@ from faber.events import (
 from faber.money import Money
 from faber.receipts import VerificationReceipt
 from faber.routing import RouterDecision
-from faber.runner.local import LocalVerifierRunner, RunnerPolicy
+from faber.runner.local import (
+    LocalVerifierRunner,
+    RunnerPolicy,
+    new_local_verifier_invocation_nonce,
+)
 from faber.settlement import Settlement
 from faber.store import (
     export_trajectory,
@@ -141,7 +145,20 @@ def run_demo_verifier(
         registry,
         policy=RunnerPolicy(allowed_working_directory_root=str(cwd), timeout_seconds=30),
     )
-    verifier_run = runner.run(spec.verifier_id, working_directory=cwd).verifier_run
+    verifier_run = runner.run(
+        spec.verifier_id,
+        working_directory=cwd,
+        invocation_nonce=new_local_verifier_invocation_nonce(),
+        invocation_context_digest=sha256_digest(
+            {
+                "schema": "faber.golden_verifier_invocation_context.v1",
+                "verifier_registry_digest": registry.digest(),
+                "verifier_id": spec.verifier_id,
+                "working_directory": str(cwd),
+                "runner_policy_digest": runner.runner_policy_digest,
+            }
+        ),
+    ).verifier_run
     verifier_run = VerifierRun(
         id="verifier-run_golden",
         created_at=CREATED_AT,
