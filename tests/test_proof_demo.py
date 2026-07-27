@@ -373,6 +373,10 @@ def test_fake_development_bundles_cannot_be_installed_as_live_reviewed(
             {
                 "schema": DEMO_CAPTURE_SCHEMA,
                 "status": "live-captured-unreviewed",
+                "captured_at": "2026-07-17T00:30:00+00:00",
+                "capture_mode": "live-provider",
+                "capture_adapter": "faber.adapters.openai.live",
+                "warning": "unreviewed test capture",
                 "bundles": bundles,
             }
         )
@@ -387,6 +391,24 @@ def test_fake_development_bundles_cannot_be_installed_as_live_reviewed(
             reviewer="test reviewer",
             reviewed_at="2026-07-17T01:00:00+00:00",
         )
+
+
+def test_relabelled_development_provenance_cannot_satisfy_live_gate(
+    tmp_path: Path,
+) -> None:
+    fixture = tmp_path / "relabelled-fixture"
+    shutil.copytree(FIXTURE_ROOT, fixture)
+    provenance_path = fixture / "replays" / "provenance.json"
+    provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
+    provenance["status"] = "live-reviewed"
+    provenance_path.write_text(
+        canonical_json(provenance) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+
+    with pytest.raises(ProofDemoError, match="review transaction"):
+        review_demo_replays(fixture, require_live_reviewed=True)
 
 
 def test_reviewed_fixture_privacy_failure_preserves_existing_files(tmp_path: Path) -> None:
@@ -428,17 +450,66 @@ def test_guarded_live_capture_uses_fake_backend_and_completes_transaction(
         capture_record=_fake_live_capture(configuration, calls),
     )
 
-    assert result["status"] == "installed-live-reviewed"
+    assert result["status"] == "installed-inert-reviewed"
     assert len(calls) == 2
     assert len(set(calls)) == 2
     assert result["offline_demo"]["bad"]["verdict"] == "block"  # type: ignore[index]
     assert result["offline_demo"]["repaired"]["verdict"] == "pass"  # type: ignore[index]
     assert result["privacy_audit"]["status"] == "pass"  # type: ignore[index]
     provenance = json.loads((fixture / "replays" / "provenance.json").read_text(encoding="utf-8"))
-    assert provenance["status"] == "live-reviewed"
+    assert provenance["status"] == "inert-reviewed"
+    assert provenance["review_transaction"]["capture_mode"] == "inert-injected"
+    assert review_demo_replays(fixture)["provenance"] == "inert-reviewed"
+    with pytest.raises(ProofDemoError, match="live-reviewed"):
+        review_demo_replays(fixture, require_live_reviewed=True)
     assert (fixture / "expected" / "blocked-report.html").is_file()
     assert (fixture / "expected" / "passing-report.html").is_file()
+    assert (fixture / "expected" / "capture-manifest.json").is_file()
+    assert (fixture / "expected" / "review-transaction.json").is_file()
     assert (repository / ".faber" / "review.json").is_file()
+
+    for mutation in (
+        "missing-reviewer",
+        "missing-reviewed-at",
+        "missing-capture-digest",
+        "missing-privacy-result",
+        "swapped-review-transaction",
+        "development-returned-model",
+        "capture-mode-relabel",
+    ):
+        variant = tmp_path / f"fixture-{mutation}"
+        shutil.copytree(fixture, variant)
+        variant_provenance_path = variant / "replays" / "provenance.json"
+        variant_provenance = json.loads(variant_provenance_path.read_text(encoding="utf-8"))
+        if mutation == "missing-reviewer":
+            del variant_provenance["reviewer"]
+        elif mutation == "missing-reviewed-at":
+            del variant_provenance["reviewed_at"]
+        elif mutation == "missing-capture-digest":
+            del variant_provenance["review_transaction"]["capture_manifest_digest"]
+        elif mutation == "missing-privacy-result":
+            (variant / "expected" / "privacy-audit.json").unlink()
+        elif mutation == "swapped-review-transaction":
+            transaction_path = variant / "expected" / "review-transaction.json"
+            transaction = json.loads(transaction_path.read_text(encoding="utf-8"))
+            transaction["reviewer"] = "different reviewer"
+            transaction_path.write_text(
+                canonical_json(transaction) + "\n",
+                encoding="utf-8",
+                newline="\n",
+            )
+        elif mutation == "development-returned-model":
+            variant_provenance["bundles"]["bad"]["returned_model"] = "development-fixture-not-live"
+        else:
+            variant_provenance["review_transaction"]["capture_mode"] = "live-provider"
+        variant_provenance_path.write_text(
+            canonical_json(variant_provenance) + "\n",
+            encoding="utf-8",
+            newline="\n",
+        )
+
+        with pytest.raises(ProofDemoError):
+            review_demo_replays(variant)
 
 
 def test_guarded_live_capture_rolls_back_after_post_install_failure(

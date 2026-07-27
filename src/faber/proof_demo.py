@@ -47,17 +47,21 @@ from faber.proof_product import (
 )
 from faber.proof_workflow import workspace_snapshot_digest
 from faber.proofs import ProofClaim, ProofPolicy
+from faber.validation import require_digest, require_non_empty_string
 from faber.verifiers import VerifierSpec
 
 DEMO_SCHEMA = "faber.proof_build_week_demo.v1"
 DEMO_PROVENANCE_SCHEMA = "faber.proof_demo_replay_provenance.v1"
 DEMO_CAPTURE_SCHEMA = "faber.proof_demo_live_capture.v1"
+DEMO_REVIEW_TRANSACTION_SCHEMA = "faber.proof_demo_review_transaction.v1"
 DEMO_CREATED_AT = "2026-07-17T00:00:00+00:00"
 DEMO_MODEL = "gpt-5.6"
 DEMO_RETURNED_MODEL = "development-fixture-not-live"
 DEMO_EXPECTED_FAILED_CLAIM = "claim.boundary-final-report"
 DEMO_FIXTURE_RELATIVE = Path("examples") / "build-week-proof"
 _REPLAY_NAMES = ("bad", "repaired")
+_LIVE_CAPTURE_MODE = "live-provider"
+_INERT_CAPTURE_MODE = "inert-injected"
 _SECRET_MARKERS = (
     "api_key=",
     "api-key=",
@@ -117,6 +121,38 @@ def _mapping(value: object, label: str) -> Mapping[str, object]:
     if not isinstance(value, Mapping):
         raise ProofDemoError(f"{label} must be an object")
     return value
+
+
+def _exact_mapping(
+    value: object,
+    label: str,
+    fields: set[str],
+) -> Mapping[str, object]:
+    record = _mapping(value, label)
+    if set(record) != fields:
+        raise ProofDemoError(f"{label} does not match the required review transaction schema")
+    return record
+
+
+def _review_timestamp(value: object, label: str) -> str:
+    try:
+        text = require_non_empty_string(value, label)
+    except ValidationError:
+        raise ProofDemoError(f"{label} must be a non-empty timestamp") from None
+    try:
+        parsed = datetime.fromisoformat(text)
+    except ValueError:
+        raise ProofDemoError(f"{label} must be an ISO-8601 timestamp") from None
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise ProofDemoError(f"{label} must include a timezone")
+    return text
+
+
+def _review_digest(value: object, label: str) -> str:
+    try:
+        return require_digest(value, label)
+    except ValidationError:
+        raise ProofDemoError(f"{label} must be a SHA-256 digest") from None
 
 
 def _count(value: object) -> int:
@@ -767,6 +803,220 @@ def _secret_safe(value: object) -> bool:
     return not any(marker in lowered for marker in _SECRET_MARKERS)
 
 
+def _validate_reviewed_provenance(
+    fixture_root: Path,
+    provenance: Mapping[str, object],
+    *,
+    status: str,
+    task: TaskContract,
+    configuration: ProofConfiguration,
+    bundle_results: Mapping[str, object],
+) -> None:
+    _exact_mapping(
+        provenance,
+        "review transaction provenance",
+        {
+            "schema",
+            "status",
+            "description",
+            "reviewer",
+            "reviewed_at",
+            "bundles",
+            "review_transaction",
+            "review_transaction_digest",
+        },
+    )
+    reviewer = require_non_empty_string(provenance.get("reviewer"), "reviewer")
+    reviewed_at = _review_timestamp(provenance.get("reviewed_at"), "reviewed_at")
+    transaction = _exact_mapping(
+        provenance.get("review_transaction"),
+        "review transaction",
+        {
+            "schema",
+            "capture_manifest_digest",
+            "capture_mode",
+            "capture_adapter",
+            "captured_at",
+            "review_status",
+            "reviewer",
+            "reviewed_at",
+            "source_commit",
+            "task_contract_digest",
+            "catalog_digest",
+            "proof_policy_digest",
+            "bundles",
+            "offline_demo",
+            "privacy_audit_digest",
+        },
+    )
+    transaction_digest = _review_digest(
+        provenance.get("review_transaction_digest"),
+        "review_transaction_digest",
+    )
+    if (
+        transaction.get("schema") != DEMO_REVIEW_TRANSACTION_SCHEMA
+        or transaction_digest != sha256_digest(transaction)
+        or transaction.get("reviewer") != reviewer
+        or transaction.get("reviewed_at") != reviewed_at
+    ):
+        raise ProofDemoError("review transaction identity or digest is inconsistent")
+
+    live_reviewed = status == "live-reviewed"
+    expected_mode = _LIVE_CAPTURE_MODE if live_reviewed else _INERT_CAPTURE_MODE
+    expected_adapter = (
+        "faber.adapters.openai.live" if live_reviewed else "repository-inert-test-adapter"
+    )
+    expected_review_status = (
+        "installed-live-reviewed" if live_reviewed else "installed-inert-reviewed"
+    )
+    if (
+        transaction.get("capture_mode") != expected_mode
+        or transaction.get("capture_adapter") != expected_adapter
+        or transaction.get("review_status") != expected_review_status
+        or transaction.get("task_contract_digest") != task.digest()
+        or transaction.get("catalog_digest") != configuration.catalog.digest()
+        or transaction.get("proof_policy_digest") != configuration.proof_policy.digest()
+    ):
+        raise ProofDemoError("review transaction authority or capture mode is inconsistent")
+    require_non_empty_string(transaction.get("source_commit"), "source_commit")
+    _review_timestamp(transaction.get("captured_at"), "captured_at")
+
+    capture = _exact_mapping(
+        _read_json(fixture_root / "expected" / "capture-manifest.json"),
+        "installed capture manifest",
+        {
+            "schema",
+            "status",
+            "captured_at",
+            "capture_mode",
+            "capture_adapter",
+            "warning",
+            "bundles",
+        },
+    )
+    if (
+        capture.get("schema") != DEMO_CAPTURE_SCHEMA
+        or capture.get("status") != "live-captured-unreviewed"
+        or capture.get("capture_mode") != expected_mode
+        or capture.get("capture_adapter") != expected_adapter
+        or capture.get("captured_at") != transaction.get("captured_at")
+        or sha256_digest(capture) != transaction.get("capture_manifest_digest")
+    ):
+        raise ProofDemoError("installed capture manifest does not match the review transaction")
+
+    provenance_bundles = _mapping(provenance.get("bundles"), "provenance.bundles")
+    transaction_bundles = _mapping(transaction.get("bundles"), "review transaction bundles")
+    capture_bundles = _mapping(capture.get("bundles"), "capture bundles")
+    for name in _REPLAY_NAMES:
+        recorded = _exact_mapping(
+            provenance_bundles.get(name),
+            f"provenance.bundles.{name}",
+            {
+                "path",
+                "bundle_digest",
+                "request_digest",
+                "requested_model",
+                "returned_model",
+                "response_id",
+            },
+        )
+        result = _mapping(bundle_results.get(name), f"reviewed bundle result {name}")
+        expected = {
+            "bundle_digest": recorded["bundle_digest"],
+            "request_digest": recorded["request_digest"],
+            "requested_model": recorded["requested_model"],
+            "returned_model": recorded["returned_model"],
+            "response_id": recorded["response_id"],
+        }
+        capture_record = _exact_mapping(
+            capture_bundles.get(name),
+            f"capture.bundles.{name}",
+            {
+                "path",
+                "bundle_digest",
+                "request_digest",
+                "requested_model",
+                "returned_model",
+                "response_id",
+            },
+        )
+        if (
+            recorded.get("path") != f"replays/{name}.json"
+            or dict(_mapping(transaction_bundles.get(name), name)) != expected
+            or capture_record.get("path") != f"{name}.json"
+            or any(capture_record.get(key) != value for key, value in expected.items())
+            or any(result.get(key) != value for key, value in expected.items())
+        ):
+            raise ProofDemoError(f"{name} review transaction bundle binding is inconsistent")
+        if live_reviewed and (
+            result.get("returned_model") in {None, "", DEMO_RETURNED_MODEL}
+            or result.get("response_id") in {None, ""}
+        ):
+            raise ProofDemoError(f"{name} live review lacks real returned model metadata")
+
+    offline = _exact_mapping(
+        transaction.get("offline_demo"),
+        "review transaction offline demo",
+        {"bad", "repaired"},
+    )
+    bad = _mapping(offline.get("bad"), "review transaction bad demo")
+    repaired = _mapping(offline.get("repaired"), "review transaction repaired demo")
+    _validate_demo_contrast(bad, repaired)
+
+    privacy = _read_json(fixture_root / "expected" / "privacy-audit.json")
+    if (
+        privacy.get("status") != "pass"
+        or privacy.get("finding_count") != 0
+        or sha256_digest(privacy) != transaction.get("privacy_audit_digest")
+    ):
+        raise ProofDemoError("review transaction privacy result is missing or inconsistent")
+    installed_transaction = _read_json(fixture_root / "expected" / "review-transaction.json")
+    if (
+        dict(installed_transaction) != dict(transaction)
+        or sha256_digest(installed_transaction) != transaction_digest
+    ):
+        raise ProofDemoError("installed review transaction does not match provenance")
+
+    generation = _exact_mapping(
+        _read_json(fixture_root / "expected" / "generation-manifest.json"),
+        "reviewed report generation manifest",
+        {
+            "schema",
+            "command",
+            "source_commit",
+            "generator_version",
+            "replay_digests",
+            "report_digests",
+            "determinism_note",
+            "capture_manifest_digest",
+            "review_transaction_digest",
+            "privacy_audit_digest",
+        },
+    )
+    report_digests = {
+        "expected/blocked-report.html": sha256_digest(
+            (fixture_root / "expected" / "blocked-report.html").read_bytes()
+        ),
+        "expected/passing-report.html": sha256_digest(
+            (fixture_root / "expected" / "passing-report.html").read_bytes()
+        ),
+    }
+    if (
+        generation.get("schema") != "faber.proof_demo_sample_reports.v1"
+        or generation.get("source_commit") != transaction.get("source_commit")
+        or generation.get("replay_digests")
+        != {
+            name: _mapping(provenance_bundles[name], name)["bundle_digest"]
+            for name in _REPLAY_NAMES
+        }
+        or generation.get("report_digests") != report_digests
+        or generation.get("capture_manifest_digest") != transaction.get("capture_manifest_digest")
+        or generation.get("review_transaction_digest") != transaction_digest
+        or generation.get("privacy_audit_digest") != transaction.get("privacy_audit_digest")
+    ):
+        raise ProofDemoError("reviewed report generation is not bound to the review transaction")
+
+
 def review_demo_replays(
     fixture_root: Path,
     *,
@@ -776,10 +1026,20 @@ def review_demo_replays(
 
     provenance = _read_json(fixture_root / "replays" / "provenance.json")
     status = provenance.get("status")
-    if status not in {"fake-development", "live-reviewed"}:
+    if (
+        provenance.get("schema") != DEMO_PROVENANCE_SCHEMA
+        or not isinstance(status, str)
+        or status not in {"fake-development", "live-reviewed", "inert-reviewed"}
+    ):
         raise ProofDemoError("replay provenance status is invalid")
     if require_live_reviewed and status != "live-reviewed":
         raise ProofDemoError("final demo requires live-reviewed replay provenance")
+    if status == "fake-development":
+        _exact_mapping(
+            provenance,
+            "development replay provenance",
+            {"schema", "status", "description", "bundles"},
+        )
     if not _secret_safe(provenance):
         raise ProofDemoError("replay provenance contains secret-like text")
     task = load_task_contract(fixture_root / "task-contract.json")
@@ -807,9 +1067,21 @@ def review_demo_replays(
                 expected_bundle_digest=digest,
                 expected_requested_model=DEMO_MODEL,
             )
-            recorded = _mapping(provenance_bundles.get(name), f"provenance.bundles.{name}")
+            recorded = _exact_mapping(
+                provenance_bundles.get(name),
+                f"provenance.bundles.{name}",
+                {
+                    "path",
+                    "bundle_digest",
+                    "request_digest",
+                    "requested_model",
+                    "returned_model",
+                    "response_id",
+                },
+            )
             if (
-                recorded.get("bundle_digest") != digest
+                recorded.get("path") != f"replays/{name}.json"
+                or recorded.get("bundle_digest") != digest
                 or recorded.get("request_digest") != request.digest()
                 or recorded.get("requested_model") != DEMO_MODEL
                 or recorded.get("returned_model") != metadata.get("returned_model")
@@ -817,6 +1089,18 @@ def review_demo_replays(
             ):
                 raise ProofDemoError(f"{name} replay provenance does not match its bundle")
             results[name] = metadata
+    if status in {"live-reviewed", "inert-reviewed"}:
+        try:
+            _validate_reviewed_provenance(
+                fixture_root,
+                provenance,
+                status=status,
+                task=task,
+                configuration=configuration,
+                bundle_results=results,
+            )
+        except ValidationError:
+            raise ProofDemoError("review transaction contains invalid bound metadata") from None
     return {
         "schema": "faber.proof_demo_replay_review.v1",
         "status": "valid",
@@ -1028,6 +1312,11 @@ def capture_live_demo_replays(
 
     if output_directory.exists():
         raise ProofDemoError("live capture output directory must not already exist")
+    capture_mode = (
+        _LIVE_CAPTURE_MODE
+        if capture_record is capture_live_planning_replay_record
+        else _INERT_CAPTURE_MODE
+    )
     task, configuration = build_demo_records(fixture_root)
     output_directory.mkdir(parents=True)
     captured_at = datetime.now(UTC).isoformat()
@@ -1058,6 +1347,12 @@ def capture_live_demo_replays(
         "schema": DEMO_CAPTURE_SCHEMA,
         "status": "live-captured-unreviewed",
         "captured_at": captured_at,
+        "capture_mode": capture_mode,
+        "capture_adapter": (
+            "faber.adapters.openai.live"
+            if capture_mode == _LIVE_CAPTURE_MODE
+            else "repository-inert-test-adapter"
+        ),
         "warning": "Do not install or describe these captures as reviewed until human review.",
         "bundles": bundles,
     }
@@ -1187,7 +1482,7 @@ def run_guarded_live_demo_capture(
         )
         manifest: dict[str, object] = {
             "schema": "faber.proof_demo_live_capture_review_manifest.v1",
-            "status": "installed-live-reviewed",
+            "status": review["status"],
             "preflight": dict(preflight),
             "reviewer": reviewer.strip(),
             "reviewed_at": review_time,
@@ -1307,15 +1602,31 @@ def review_live_demo_capture(
     """Validate staged live captures and optionally install them as reviewed authority."""
 
     reviewer = reviewer.strip()
-    reviewed_at = reviewed_at.strip()
-    if not reviewer or not reviewed_at:
+    if not reviewer:
         raise ProofDemoError("reviewer and reviewed-at are required for a live review")
-    capture = _read_json(capture_directory / "capture-manifest.json")
+    reviewed_at = _review_timestamp(reviewed_at.strip(), "reviewed_at")
+    capture = _exact_mapping(
+        _read_json(capture_directory / "capture-manifest.json"),
+        "capture manifest",
+        {
+            "schema",
+            "status",
+            "captured_at",
+            "capture_mode",
+            "capture_adapter",
+            "warning",
+            "bundles",
+        },
+    )
     if (
         capture.get("schema") != DEMO_CAPTURE_SCHEMA
         or capture.get("status") != "live-captured-unreviewed"
     ):
         raise ProofDemoError("candidate capture manifest is not an unreviewed live capture")
+    capture_mode = capture.get("capture_mode")
+    if capture_mode not in {_LIVE_CAPTURE_MODE, _INERT_CAPTURE_MODE}:
+        raise ProofDemoError("candidate capture manifest has an invalid capture mode")
+    _review_timestamp(capture.get("captured_at"), "capture captured_at")
     capture_bundles = _mapping(capture.get("bundles"), "capture.bundles")
     committed_task = load_task_contract(fixture_root / "task-contract.json")
     committed_configuration = load_proof_configuration(fixture_root / "proof-catalog.json")
@@ -1406,23 +1717,88 @@ def review_live_demo_capture(
             if not _secret_safe(report) or str(repository.root).casefold() in report.casefold():
                 raise ProofDemoError(f"{label} reviewed report is not portable and secret-safe")
 
-        provenance = {
-            "schema": DEMO_PROVENANCE_SCHEMA,
-            "status": "live-reviewed",
-            "description": "Sanitized live planner responses reviewed against exact demo requests.",
+        source_commit = _git(fixture_root.parents[1], "rev-parse", "HEAD")
+        provenance_bundles = {
+            name: {
+                "path": f"replays/{name}.json",
+                "bundle_digest": digests[name],
+                "request_digest": requests[name].digest(),
+                "requested_model": metadata[name]["requested_model"],
+                "returned_model": metadata[name]["returned_model"],
+                "response_id": metadata[name]["response_id"],
+            }
+            for name in _REPLAY_NAMES
+        }
+        forbidden_literals = tuple(value for value in (os.environ.get("OPENAI_API_KEY"),) if value)
+        privacy_inputs: dict[str, object] = {
+            "proof-catalog.json": reviewed_configuration.to_dict(),
+            "replays/bad.json": records["bad"],
+            "replays/repaired.json": records["repaired"],
+            "expected/capture-manifest.json": dict(capture),
+            "expected/blocked-report.html": reports["blocked"],
+            "expected/passing-report.html": reports["passing"],
+        }
+        privacy = _audit_reviewed_demo_files(
+            review_root / "privacy-review",
+            privacy_inputs,
+            forbidden_literals=forbidden_literals,
+        )
+        live_eligible = capture_mode == _LIVE_CAPTURE_MODE
+        review_status = (
+            "installed-live-reviewed"
+            if install and live_eligible
+            else "installed-inert-reviewed"
+            if install
+            else "valid-live-uninstalled"
+            if live_eligible
+            else "valid-inert-uninstalled"
+        )
+        transaction = {
+            "schema": DEMO_REVIEW_TRANSACTION_SCHEMA,
+            "capture_manifest_digest": sha256_digest(capture),
+            "capture_mode": capture_mode,
+            "capture_adapter": capture["capture_adapter"],
+            "captured_at": capture["captured_at"],
+            "review_status": review_status,
             "reviewer": reviewer,
             "reviewed_at": reviewed_at,
+            "source_commit": source_commit,
+            "task_contract_digest": task.digest(),
+            "catalog_digest": reviewed_configuration.catalog.digest(),
+            "proof_policy_digest": reviewed_configuration.proof_policy.digest(),
             "bundles": {
                 name: {
-                    "path": f"replays/{name}.json",
-                    "bundle_digest": digests[name],
-                    "request_digest": requests[name].digest(),
-                    "requested_model": metadata[name]["requested_model"],
-                    "returned_model": metadata[name]["returned_model"],
-                    "response_id": metadata[name]["response_id"],
+                    key: provenance_bundles[name][key]
+                    for key in (
+                        "bundle_digest",
+                        "request_digest",
+                        "requested_model",
+                        "returned_model",
+                        "response_id",
+                    )
                 }
                 for name in _REPLAY_NAMES
             },
+            "offline_demo": {
+                "bad": dict(bad),
+                "repaired": dict(repaired),
+            },
+            "privacy_audit_digest": sha256_digest(privacy.to_dict()),
+        }
+        transaction_digest = sha256_digest(transaction)
+        provenance = {
+            "schema": DEMO_PROVENANCE_SCHEMA,
+            "status": "live-reviewed" if live_eligible else "inert-reviewed",
+            "description": (
+                "Sanitized live planner responses reviewed against exact demo requests."
+                if live_eligible
+                else "Inert injected planner responses reviewed for transaction testing only."
+            ),
+            "reviewer": reviewer,
+            "reviewed_at": reviewed_at,
+            "bundles": provenance_bundles,
+            "review_transaction": transaction,
+            "review_transaction_digest": transaction_digest,
         }
         generation_manifest = {
             "schema": "faber.proof_demo_sample_reports.v1",
@@ -1430,7 +1806,7 @@ def review_live_demo_capture(
                 "python examples/build-week-proof/scripts/review_replays.py "
                 "--candidate-dir <capture> --reviewer <name> --reviewed-at <timestamp> --install"
             ),
-            "source_commit": _git(fixture_root.parents[1], "rev-parse", "HEAD"),
+            "source_commit": source_commit,
             "generator_version": "faber-proof-report.v1",
             "replay_digests": {name: digests[name] for name in _REPLAY_NAMES},
             "report_digests": {
@@ -1441,26 +1817,23 @@ def review_live_demo_capture(
                 "Semantic inputs, revisions, replay and decision bindings are deterministic; "
                 "runtime timing remains non-authoritative performance evidence."
             ),
+            "capture_manifest_digest": sha256_digest(capture),
+            "review_transaction_digest": transaction_digest,
+            "privacy_audit_digest": sha256_digest(privacy.to_dict()),
         }
-        forbidden_literals = tuple(value for value in (os.environ.get("OPENAI_API_KEY"),) if value)
         reviewed_files: dict[str, object] = {
-            "proof-catalog.json": reviewed_configuration.to_dict(),
-            "replays/bad.json": records["bad"],
-            "replays/repaired.json": records["repaired"],
+            **privacy_inputs,
             "replays/provenance.json": provenance,
             "expected/generation-manifest.json": generation_manifest,
-            "expected/blocked-report.html": reports["blocked"],
-            "expected/passing-report.html": reports["passing"],
+            "expected/review-transaction.json": transaction,
+            "expected/privacy-audit.json": privacy.to_dict(),
+            "expected/privacy-audit.md": privacy.markdown(),
         }
-        privacy = _audit_reviewed_demo_files(
-            review_root / "privacy-review",
+        _audit_reviewed_demo_files(
+            review_root / "final-privacy-review",
             reviewed_files,
             forbidden_literals=forbidden_literals,
         )
-        generation_manifest["privacy_audit_digest"] = sha256_digest(privacy.to_dict())
-        reviewed_files["expected/generation-manifest.json"] = generation_manifest
-        reviewed_files["expected/privacy-audit.json"] = privacy.to_dict()
-        reviewed_files["expected/privacy-audit.md"] = privacy.markdown()
         if install:
             _install_reviewed_demo_files(
                 fixture_root,
@@ -1469,7 +1842,7 @@ def review_live_demo_capture(
             )
     return {
         "schema": "faber.proof_demo_live_review.v1",
-        "status": "installed-live-reviewed" if install else "valid-live-uninstalled",
+        "status": review_status,
         "reviewer": reviewer,
         "reviewed_at": reviewed_at,
         "bundles": metadata,
