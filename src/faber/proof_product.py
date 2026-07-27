@@ -28,7 +28,11 @@ from faber.proof_context import (
     collect_git_proof_context,
     ensure_executable_candidate,
 )
-from faber.proof_planning import ProofPlanningError, ProofPlanningResult
+from faber.proof_planning import (
+    ProofPlanningError,
+    ProofPlanningRequest,
+    ProofPlanningResult,
+)
 from faber.proof_reports import render_html_report, render_markdown_report
 from faber.proof_workflow import (
     LOCAL_ISOLATION_DISCLOSURE,
@@ -349,6 +353,7 @@ def _write_bundle(
         "context": "context.json",
         "redaction_report": "redaction-report.json",
         "planning_request": "planning-request.json",
+        "planning_result": "planning-result.json",
         "model_run_evidence": "model-run-evidence.json",
         "proof_plan": "proof-plan.json",
         "proof_catalog": "proof-catalog.json",
@@ -377,6 +382,7 @@ def _write_bundle(
             "raw_diff_persisted": False,
         },
         "planning-request.json": request.to_dict(),
+        "planning-result.json": planning.to_dict(),
         "model-run-evidence.json": planning.model_run.to_dict(),
         "proof-plan.json": planning.plan.to_dict(),
         "proof-catalog.json": configuration.to_dict(),
@@ -415,6 +421,7 @@ def _write_bundle(
         "attempt": attempt.digest(),
         "context": context_manifest["context_digest"],
         "planning_request": request.digest(),
+        "planning_result": planning.digest(),
         "structured_response": planning.structured_response_digest,
         "model_run": planning.model_run.digest(),
         "proof_plan": planning.plan.digest(),
@@ -619,6 +626,7 @@ def _expected_artifact_paths(
         "context": "context.json",
         "redaction_report": "redaction-report.json",
         "planning_request": "planning-request.json",
+        "planning_result": "planning-result.json",
         "model_run_evidence": "model-run-evidence.json",
         "proof_plan": "proof-plan.json",
         "proof_catalog": "proof-catalog.json",
@@ -749,9 +757,15 @@ def validate_proof_bundle(path: str | Path) -> Mapping[str, object]:
     if task.to_dict() != dict(task_payload) or attempt.to_dict() != dict(attempt_payload):
         raise ValidationError("task or attempt artifact does not round-trip exactly")
     context = _read_artifact(root, require_non_empty_string(paths.get("context"), "context path"))
-    request = _read_artifact(
+    request_payload = _read_artifact(
         root, require_non_empty_string(paths.get("planning_request"), "planning request path")
     )
+    request = ProofPlanningRequest.from_dict(request_payload)
+    planning_payload = _read_artifact(
+        root,
+        require_non_empty_string(paths.get("planning_result"), "planning result path"),
+    )
+    planning = ProofPlanningResult.from_dict(planning_payload)
     plan_payload = _read_artifact(
         root, require_non_empty_string(paths.get("proof_plan"), "proof plan path")
     )
@@ -760,6 +774,11 @@ def validate_proof_bundle(path: str | Path) -> Mapping[str, object]:
     )
     plan = ProofPlan.from_dict(plan_payload)
     model_run = ModelRunEvidence.from_dict(model_payload)
+    if (
+        planning.plan.to_dict() != plan.to_dict()
+        or planning.model_run.to_dict() != model_run.to_dict()
+    ):
+        raise ValidationError("planning result does not match plan and model artifacts")
     configuration_payload = _read_artifact(
         root,
         require_non_empty_string(paths.get("proof_catalog"), "proof catalog path"),
@@ -773,7 +792,7 @@ def validate_proof_bundle(path: str | Path) -> Mapping[str, object]:
     if proof_policy.to_dict() != configuration.proof_policy.to_dict():
         raise ValidationError("proof policy artifact does not match the proof configuration")
     if (
-        request.get("proof_catalog_digest") != configuration.catalog.digest()
+        request.proof_catalog_digest != configuration.catalog.digest()
         or plan.proof_catalog_digest != configuration.catalog.digest()
     ):
         raise ValidationError("catalog and proof-policy commitments are inconsistent")
@@ -782,13 +801,13 @@ def validate_proof_bundle(path: str | Path) -> Mapping[str, object]:
     if context_digest != sha256_digest(context_without_digest):
         raise ValidationError("context digest does not match the context manifest")
     if (
-        request.get("task_contract_id") != task.id
-        or request.get("attempt_id") != attempt.id
-        or request.get("task_contract_digest") != task.digest()
-        or request.get("attempt_digest") != attempt.digest()
-        or request.get("base_revision") != attempt.base_revision
-        or request.get("candidate_revision") != attempt.candidate_revision
-        or request.get("diff_digest") != attempt.patch_digest
+        request.task_contract_id != task.id
+        or request.attempt_id != attempt.id
+        or request.task_contract_digest != task.digest()
+        or request.attempt_digest != attempt.digest()
+        or request.base_revision != attempt.base_revision
+        or request.candidate_revision != attempt.candidate_revision
+        or request.diff_digest != attempt.patch_digest
         or plan.task_contract_id != task.id
         or plan.task_contract_digest != task.digest()
         or plan.attempt_id != attempt.id
@@ -796,7 +815,7 @@ def validate_proof_bundle(path: str | Path) -> Mapping[str, object]:
         or plan.base_revision != attempt.base_revision
         or plan.candidate_revision != attempt.candidate_revision
         or plan.diff_digest != attempt.patch_digest
-        or model_run.request_digest != sha256_digest(request)
+        or model_run.request_digest != request.digest()
         or plan.model_run.digest() != model_run.digest()
     ):
         raise ValidationError("task, attempt, revision, diff, or model bindings are inconsistent")
@@ -920,7 +939,8 @@ def validate_proof_bundle(path: str | Path) -> Mapping[str, object]:
         "task_contract": task.digest(),
         "attempt": attempt.digest(),
         "context": context_digest,
-        "planning_request": sha256_digest(request),
+        "planning_request": request.digest(),
+        "planning_result": planning.digest(),
         "structured_response": model_run.structured_response_digest,
         "model_run": model_run.digest(),
         "proof_plan": plan.digest(),
@@ -935,16 +955,15 @@ def validate_proof_bundle(path: str | Path) -> Mapping[str, object]:
     if dict(records) != expected_record_digests:
         raise ValidationError("record digests do not match the reconstructed proof graph")
 
-    planning = ProofPlanningResult(
-        plan=plan,
-        model_run=model_run,
-        uncertainty_notes=(),
-        structured_response_digest=model_run.structured_response_digest,
-    )
     failed_claim, counterexample = _failure_focus(planning, workflow)
-    max_diff_bytes = request.get("max_diff_bytes")
-    if isinstance(max_diff_bytes, bool) or not isinstance(max_diff_bytes, int):
-        raise ValidationError("planning request max_diff_bytes must be an integer")
+    reproduction_command = _reproduction_command(
+        base_revision=attempt.base_revision,
+        candidate_revision=attempt.candidate_revision,
+        mode=model_run.mode,
+        model=model_run.requested_model_id,
+        max_diff_bytes=request.max_diff_bytes,
+        dry_run=status == "dry_run",
+    )
     expected_summary_values: dict[str, object] = {
         "schema": PROOF_RUN_SUMMARY_SCHEMA,
         "managed_by": "faber-proof",
@@ -952,7 +971,7 @@ def validate_proof_bundle(path: str | Path) -> Mapping[str, object]:
         "verdict": decision.verdict if decision else None,
         "reason_codes": list(decision.reason_codes) if decision else ["dry_run_no_verdict"],
         "task_id": task.id,
-        "task_title": request.get("task_title"),
+        "task_title": request.task_title,
         "attempt_id": attempt.id,
         "base_revision": attempt.base_revision,
         "candidate_revision": attempt.candidate_revision,
@@ -981,39 +1000,50 @@ def validate_proof_bundle(path: str | Path) -> Mapping[str, object]:
             "cost": None,
         },
         "validation_status": "valid",
-        "reproduction_command": _reproduction_command(
-            base_revision=attempt.base_revision,
-            candidate_revision=attempt.candidate_revision,
-            mode=model_run.mode,
-            model=model_run.requested_model_id,
-            max_diff_bytes=max_diff_bytes,
-            dry_run=status == "dry_run",
-        ),
+        "reproduction_command": reproduction_command,
         "runtime_boundary": LOCAL_ISOLATION_DISCLOSURE,
     }
-    if any(summary.get(field) != value for field, value in expected_summary_values.items()):
-        raise ValidationError("run summary is not the reconstructed proof projection")
+    for field, value in expected_summary_values.items():
+        if canonical_json(summary.get(field)) != canonical_json(value):
+            raise ValidationError(
+                f"run summary field {field!r} is not the reconstructed proof projection"
+            )
     report_markdown_path = _portable_relative_path(
         paths.get("markdown_report"), "markdown report path"
     )
     report_html_path = _portable_relative_path(paths.get("html_report"), "HTML report path")
     try:
-        markdown = (root / PurePosixPath(report_markdown_path)).read_text(encoding="utf-8")
-        html_report = (root / PurePosixPath(report_html_path)).read_text(encoding="utf-8")
+        markdown_bytes = (root / PurePosixPath(report_markdown_path)).read_bytes()
+        html_bytes = (root / PurePosixPath(report_html_path)).read_bytes()
+        markdown_bytes.decode("utf-8", errors="strict")
+        html_report = html_bytes.decode("utf-8", errors="strict")
     except (OSError, UnicodeDecodeError):
         raise ValidationError("proof reports must be readable UTF-8 files") from None
-    expected_label = (
-        "DRY RUN — NO VERDICT"
-        if status == "dry_run"
-        else require_non_empty_string(summary.get("verdict"), "verdict").replace("_", " ").upper()
+    report_artifact_digests = {
+        artifact_path: require_digest(digest, f"artifact_digests.{artifact_path}")
+        for artifact_path, digest in artifact_digests.items()
+        if artifact_path not in {"workflow-result.json", "report.md", "report.html"}
+    }
+    expected_markdown = render_markdown_report(
+        task_title=request.task_title,
+        request=request,
+        planning=planning,
+        workflow=workflow,
+        reproduction_command=reproduction_command,
+        artifact_digests=report_artifact_digests,
     )
-    if (
-        expected_label not in markdown
-        or expected_label not in html_report
-        or str(summary.get("candidate_revision")) not in markdown
-        or str(summary.get("candidate_revision")) not in html_report
+    expected_html = render_html_report(
+        task_title=request.task_title,
+        request=request,
+        planning=planning,
+        workflow=workflow,
+        reproduction_command=reproduction_command,
+        artifact_digests=report_artifact_digests,
+    )
+    if markdown_bytes != expected_markdown.encode("utf-8") or html_bytes != expected_html.encode(
+        "utf-8"
     ):
-        raise ValidationError("Markdown and HTML reports do not match the decision artifact")
+        raise ValidationError("Markdown and HTML reports are not exact deterministic projections")
     lowered_html = html_report.casefold()
     if any(value in lowered_html for value in ("<script", "http://", "https://", " src=")):
         raise ValidationError("HTML report contains an external or executable asset reference")

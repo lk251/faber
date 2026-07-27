@@ -168,6 +168,16 @@ def _bounded_text(value: object, field: str, *, max_bytes: int = MAX_TEXT_BYTES)
     return text
 
 
+def _closed_payload(
+    value: object,
+    name: str,
+    fields: set[str],
+) -> Mapping[str, object]:
+    if not isinstance(value, Mapping) or set(value) != fields:
+        raise ValidationError(f"{name} must use the exact supported field set")
+    return value
+
+
 def _string_tuple(
     value: object,
     field: str,
@@ -621,6 +631,42 @@ class PlannerCatalogEntryView:
     def digest(self) -> str:
         return sha256_digest(self.to_dict())
 
+    @classmethod
+    def from_dict(cls, payload: Mapping[str, object]) -> PlannerCatalogEntryView:
+        value = _closed_payload(
+            payload,
+            "PlannerCatalogEntryView",
+            {
+                "schema",
+                "id",
+                "version",
+                "description",
+                "parameter_schema",
+                "assertion_operators",
+                "capability_limits",
+                "capability_digest",
+            },
+        )
+        parameter_schema = value.get("parameter_schema")
+        capability_limits = value.get("capability_limits")
+        if not isinstance(parameter_schema, Mapping) or not isinstance(capability_limits, Mapping):
+            raise ValidationError("planner catalog mappings must be objects")
+        result = cls(
+            schema=require_non_empty_string(value.get("schema"), "schema"),
+            id=require_non_empty_string(value.get("id"), "id"),
+            version=require_non_empty_string(value.get("version"), "version"),
+            description=require_non_empty_string(value.get("description"), "description"),
+            parameter_schema=parameter_schema,
+            assertion_operators=_string_tuple(
+                value.get("assertion_operators"), "assertion_operators"
+            ),
+            capability_limits=capability_limits,
+            capability_digest=require_digest(value.get("capability_digest"), "capability_digest"),
+        )
+        if result.to_dict() != dict(payload):
+            raise ValidationError("PlannerCatalogEntryView fields do not round-trip exactly")
+        return result
+
 
 def planner_catalog_digest(entries: Sequence[PlannerCatalogEntryView]) -> str:
     if not isinstance(entries, Sequence) or isinstance(entries, str | bytes | bytearray):
@@ -677,6 +723,23 @@ class PlanningFileSummary:
             "summary": self.summary,
             "content_digest": self.content_digest,
         }
+
+    @classmethod
+    def from_dict(cls, payload: Mapping[str, object]) -> PlanningFileSummary:
+        value = _closed_payload(
+            payload,
+            "PlanningFileSummary",
+            {"schema", "identifier", "summary", "content_digest"},
+        )
+        result = cls(
+            schema=require_non_empty_string(value.get("schema"), "schema"),
+            identifier=require_non_empty_string(value.get("identifier"), "identifier"),
+            summary=require_non_empty_string(value.get("summary"), "summary"),
+            content_digest=require_digest(value.get("content_digest"), "content_digest"),
+        )
+        if result.to_dict() != dict(payload):
+            raise ValidationError("PlanningFileSummary fields do not round-trip exactly")
+        return result
 
 
 @dataclass(frozen=True)
@@ -849,6 +912,176 @@ class ProofPlanningRequest:
 
     def digest(self) -> str:
         return sha256_digest(self.to_dict())
+
+    @classmethod
+    def from_dict(cls, payload: Mapping[str, object]) -> ProofPlanningRequest:
+        value = _closed_payload(
+            payload,
+            "ProofPlanningRequest",
+            {
+                "schema",
+                "task_contract_id",
+                "task_contract_digest",
+                "task_title",
+                "task_description",
+                "requirements",
+                "acceptance_criteria",
+                "rejection_criteria",
+                "attempt_id",
+                "attempt_digest",
+                "base_revision",
+                "candidate_revision",
+                "diff_digest",
+                "redacted_diff_digest",
+                "redacted_diff_text",
+                "max_diff_bytes",
+                "diff_truncated",
+                "file_summaries",
+                "proof_catalog_digest",
+                "catalog_entries",
+                "mandatory_claims",
+                "mandatory_template_ids",
+                "prompt_template_version",
+                "prompt_template_digest",
+                "response_schema_version",
+                "response_schema_digest",
+                "redaction_summary",
+            },
+        )
+        max_diff_bytes = value.get("max_diff_bytes")
+        diff_truncated = value.get("diff_truncated")
+        if isinstance(max_diff_bytes, bool) or not isinstance(max_diff_bytes, int):
+            raise ValidationError("max_diff_bytes must be an integer")
+        if not isinstance(diff_truncated, bool):
+            raise ValidationError("diff_truncated must be a boolean")
+        raw_file_summaries = value.get("file_summaries")
+        raw_entries = value.get("catalog_entries")
+        raw_claims = value.get("mandatory_claims")
+        redaction_summary = value.get("redaction_summary")
+        if (
+            not isinstance(raw_file_summaries, Sequence)
+            or isinstance(raw_file_summaries, str | bytes | bytearray)
+            or not isinstance(raw_entries, Sequence)
+            or isinstance(raw_entries, str | bytes | bytearray)
+            or not isinstance(raw_claims, Sequence)
+            or isinstance(raw_claims, str | bytes | bytearray)
+            or not isinstance(redaction_summary, Mapping)
+        ):
+            raise ValidationError("planning request nested records use invalid shapes")
+        result = cls(
+            schema=require_non_empty_string(value.get("schema"), "schema"),
+            task_contract_id=require_non_empty_string(
+                value.get("task_contract_id"), "task_contract_id"
+            ),
+            task_contract_digest=require_digest(
+                value.get("task_contract_digest"), "task_contract_digest"
+            ),
+            task_title=require_non_empty_string(value.get("task_title"), "task_title"),
+            task_description=require_non_empty_string(
+                value.get("task_description"), "task_description"
+            ),
+            requirements=_string_tuple(
+                value.get("requirements"),
+                "requirements",
+                allow_empty=False,
+                unique=False,
+            ),
+            acceptance_criteria=_string_tuple(
+                value.get("acceptance_criteria"),
+                "acceptance_criteria",
+                unique=False,
+            ),
+            rejection_criteria=_string_tuple(
+                value.get("rejection_criteria"),
+                "rejection_criteria",
+                unique=False,
+            ),
+            attempt_id=require_non_empty_string(value.get("attempt_id"), "attempt_id"),
+            attempt_digest=require_digest(value.get("attempt_digest"), "attempt_digest"),
+            base_revision=require_non_empty_string(value.get("base_revision"), "base_revision"),
+            candidate_revision=require_non_empty_string(
+                value.get("candidate_revision"), "candidate_revision"
+            ),
+            diff_digest=require_digest(value.get("diff_digest"), "diff_digest"),
+            redacted_diff_digest=require_digest(
+                value.get("redacted_diff_digest"), "redacted_diff_digest"
+            ),
+            redacted_diff_text=require_non_empty_string(
+                value.get("redacted_diff_text"), "redacted_diff_text"
+            ),
+            max_diff_bytes=max_diff_bytes,
+            diff_truncated=diff_truncated,
+            file_summaries=[
+                PlanningFileSummary.from_dict(
+                    _closed_payload(
+                        item,
+                        f"file_summaries[{index}]",
+                        {"schema", "identifier", "summary", "content_digest"},
+                    )
+                )
+                for index, item in enumerate(raw_file_summaries)
+            ],
+            proof_catalog_digest=require_digest(
+                value.get("proof_catalog_digest"), "proof_catalog_digest"
+            ),
+            catalog_entries=[
+                PlannerCatalogEntryView.from_dict(
+                    _closed_payload(
+                        item,
+                        f"catalog_entries[{index}]",
+                        {
+                            "schema",
+                            "id",
+                            "version",
+                            "description",
+                            "parameter_schema",
+                            "assertion_operators",
+                            "capability_limits",
+                            "capability_digest",
+                        },
+                    )
+                )
+                for index, item in enumerate(raw_entries)
+            ],
+            mandatory_claims=[
+                ProofClaim.from_dict(
+                    _closed_payload(
+                        item,
+                        f"mandatory_claims[{index}]",
+                        {
+                            "schema",
+                            "id",
+                            "statement",
+                            "severity",
+                            "requirement_refs",
+                            "evidence_required",
+                            "risk_rationale",
+                        },
+                    )
+                )
+                for index, item in enumerate(raw_claims)
+            ],
+            mandatory_template_ids=_string_tuple(
+                value.get("mandatory_template_ids"),
+                "mandatory_template_ids",
+            ),
+            prompt_template_version=require_non_empty_string(
+                value.get("prompt_template_version"), "prompt_template_version"
+            ),
+            prompt_template_digest=require_digest(
+                value.get("prompt_template_digest"), "prompt_template_digest"
+            ),
+            response_schema_version=require_non_empty_string(
+                value.get("response_schema_version"), "response_schema_version"
+            ),
+            response_schema_digest=require_digest(
+                value.get("response_schema_digest"), "response_schema_digest"
+            ),
+            redaction_summary=redaction_summary,
+        )
+        if result.to_dict() != dict(payload):
+            raise ValidationError("ProofPlanningRequest fields do not round-trip exactly")
+        return result
 
 
 @dataclass(frozen=True)
@@ -1302,3 +1535,41 @@ class ProofPlanningResult:
 
     def digest(self) -> str:
         return sha256_digest(self.to_dict())
+
+    @classmethod
+    def from_dict(cls, payload: Mapping[str, object]) -> ProofPlanningResult:
+        value = _closed_payload(
+            payload,
+            "ProofPlanningResult",
+            {
+                "schema",
+                "plan",
+                "model_run",
+                "uncertainty_notes",
+                "structured_response_digest",
+                "semantic_digest",
+            },
+        )
+        raw_plan = value.get("plan")
+        raw_model_run = value.get("model_run")
+        if not isinstance(raw_plan, Mapping) or not isinstance(raw_model_run, Mapping):
+            raise ValidationError("planning result records must be objects")
+        result = cls(
+            schema=require_non_empty_string(value.get("schema"), "schema"),
+            plan=ProofPlan.from_dict(raw_plan),
+            model_run=ModelRunEvidence.from_dict(raw_model_run),
+            uncertainty_notes=_string_tuple(
+                value.get("uncertainty_notes"),
+                "uncertainty_notes",
+                sort=True,
+            ),
+            structured_response_digest=require_digest(
+                value.get("structured_response_digest"),
+                "structured_response_digest",
+            ),
+        )
+        if require_digest(
+            value.get("semantic_digest"), "semantic_digest"
+        ) != result.semantic_digest() or result.to_dict() != dict(payload):
+            raise ValidationError("ProofPlanningResult fields do not round-trip exactly")
+        return result

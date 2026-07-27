@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import subprocess
 import sys
 from dataclasses import replace
@@ -543,6 +544,78 @@ def test_coherent_declared_pass_cannot_override_failed_authoritative_evidence(
     assert [payload["status"] for payload in evidence_payloads] == ["failed"]
     with pytest.raises(ValidationError, match="deterministic proof decision"):
         validate_proof_bundle(output)
+
+
+def test_reports_must_be_exact_deterministic_projections(tmp_path: Path) -> None:
+    repository, base, candidate, task_path, catalog_path, replay_path = _fixture(
+        tmp_path,
+        candidate_text="bad\n",
+    )
+    output = repository / ".faber" / "proof"
+    run_proof_product(
+        repository=repository,
+        task_path=task_path,
+        catalog_path=catalog_path,
+        base_revision=base,
+        candidate_revision=candidate,
+        mode="replay",
+        replay_path=replay_path,
+        output_directory=output,
+    )
+    mutations = [
+        ("markdown-heading", "report.md", "## BLOCK", "## PASS"),
+        (
+            "html-title",
+            "report.html",
+            "<title>Faber Proof — BLOCK</title>",
+            "<title>Faber Proof — PASS</title>",
+        ),
+        ("html-class", "report.html", 'class="hero block"', 'class="hero pass"'),
+        (
+            "reason",
+            "report.md",
+            "Authoritative evidence demonstrated that at least one required claim is false.",
+            "Every required proof obligation has accepted authoritative evidence.",
+        ),
+        (
+            "counts",
+            "report.md",
+            "required 1 · passed 0 · failed 1 · missing 0 · uncovered 0",
+            "required 1 · passed 1 · failed 0 · missing 0 · uncovered 0",
+        ),
+        (
+            "failed-focus",
+            "report.md",
+            "**Failed claim:** The candidate contains the required boundary result.",
+            "**Failed claim:** None.",
+        ),
+        (
+            "candidate",
+            "report.md",
+            f"**Candidate:** `{candidate}`",
+            "**Candidate:** `0000000000000000000000000000000000000000`",
+        ),
+    ]
+
+    for name, relative, original, replacement in mutations:
+        variant = repository / ".faber" / f"report-variant-{name}"
+        shutil.copytree(output, variant)
+        report_path = variant / relative
+        report = report_path.read_text(encoding="utf-8")
+        assert original in report
+        report_path.write_text(
+            report.replace(original, replacement, 1)
+            + f"\n<!-- BLOCK {candidate} retained as hidden validation markers -->\n",
+            encoding="utf-8",
+            newline="\n",
+        )
+        summary_path = variant / "run-summary.json"
+        summary = json.loads(summary_path.read_text(encoding="utf-8"))
+        _refresh_artifact_digest(variant, summary, relative)
+        _write_json(summary_path, summary)
+
+        with pytest.raises(ValidationError, match="deterministic projection"):
+            validate_proof_bundle(variant)
 
 
 def test_critic_mode_is_disabled_fail_closed(tmp_path: Path) -> None:
