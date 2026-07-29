@@ -127,6 +127,45 @@ Exit criteria are defined as Milestone 2 in [`MILESTONES.md`](MILESTONES.md).
 - Clear repository opt-in, maintainer-facing copy, retention/deletion behavior,
   privacy terms, support ownership, and uninstall/data-export behavior.
 
+## Deferred wedge-discovery experiments
+
+These are complementary hypotheses to test after the submission freeze, not roadmap
+commitments or a decision to enter a vertical.
+
+**Freight evidence and acceptance.** Investigate one narrow, repeatable
+quote-to-cash exception among known counterparties: proof-of-delivery issues,
+accessorial reconciliation, invoice disputes, or freight claims. The product
+hypothesis is that Faber can ingest messy evidence, normalize it into a
+machine-checkable case, route it under explicit authority, and emit an auditable
+decision into existing systems of record. Freight is attractive because these
+evidence-heavy exceptions cross organizational boundaries, recur, and delay cash or
+consume operational labor. Discovery must identify a precise buyer, recurring
+workflow, data rights, pain, and economic value. Falsify the hypothesis if incumbents
+bundle an adequate solution, internal automation is sufficient, counterparties reject
+a shared process, delivery remains excessively bespoke, value is weak, or the
+necessary data rights are unavailable.
+
+**Experiment-first agent transaction.** Before selecting a vertical, run the
+smallest real productive transaction between two independently governed parties. A
+buyer-side agent specifies a genuine task, constraints, budget, evidence requirements,
+and acceptance criteria. A provider-side agent representing another party accepts or
+negotiates, performs the task, and returns evidence. The buyer-side agent then accepts,
+requests revision, or raises a structured objection. Humans retain approval over
+consequential commitments and payments.
+
+Instrument capability discovery, identity and organizational affiliation, delegated
+authority, task specification and contracting, private-data boundaries, execution and
+evidence, acceptance and evaluation, revisions and disputes, settlement or
+system-of-record updates, and reputation or repeat transactions. Measure human
+intervention, clarification rounds, cycle time, integration effort, failure types,
+acceptance disagreements, and economic value against the current process. The
+repeated bottleneck should reveal whether the possible wedge is capability
+verification, task contracting, bounded delegation, evidence and acceptance, dispute
+resolution, or settlement infrastructure.
+
+If Faber controls both agents, the experiment tests plumbing rather than cross-company
+trust. One buyer and provider test a transaction, not a full market.
+
 ## Decision rule
 
 Complete the no-money external pilot before a real payment adapter, hosted market,
