@@ -166,6 +166,58 @@ resolution, or settlement infrastructure.
 If Faber controls both agents, the experiment tests plumbing rather than cross-company
 trust. One buyer and provider test a transaction, not a full market.
 
+**Spain private-clinic–health-insurer authorization, invoicing, rejection, and
+payment reconciliation (structurally strong, operationally difficult).** This
+deferred candidate concerns Spanish private health insurance, not the public Sistema
+Nacional de Salud and not a U.S.-style medical-claims or HIPAA/X12 product. The
+market commonly offers direct *asistencia sanitaria* through insurer-contracted
+provider networks alongside reimbursement policies in which the patient pays and
+submits invoices and evidence. Spanish insurance law expressly recognizes both
+payment of medical expenses and direct provision of medical services within policy
+limits ([Ley 50/1980, arts. 105-106
+quater](https://www.boe.es/buscar/act.php?id=BOE-A-1980-22501)). The primary
+hypothesis is the contracted-provider workflow; the patient-clinic-insurer
+reimbursement triangle is adjacent.
+
+The recurring case spans the clinic or provider, insurer, and sometimes patient:
+verify recorded coverage and authorization; bind the delivered service to that
+authorization and its clinical or administrative evidence; apply insurer-specific
+contract, *baremo*, copayment, capitation, and documentation rules; invoice; resolve
+rejection or clarification; and reconcile payment. This fits Faber because known
+counterparties hold different records and authority, the workflow repeats and affects
+cash, and many providers face a relatively concentrated insurer market. The
+[CNMC's 2025 market note](https://www.cnmc.es/sites/default/files/editor_contenidos/Notas%20de%20prensa/2025/20250516_%20NP%20PH%20Seguros%20m%C3%A9dicos_0.pdf)
+identifies concentration and insurer-provider relationships as study questions;
+[ASPE's industry submission](https://www.cnmc.es/sites/default/files/CentroMed_ASPE.pdf)
+describes provider dependence, insurer bargaining power, tariffs, capitation,
+authorization friction, and vertical relationships.
+
+Compare two possible products: (1) provider-side pre-billing audit and recovery, which
+is easier to sell but weaker evidence for Faber's cross-company thesis; and (2) a
+shared clinic-insurer exception case, which tests that thesis directly but requires
+much harder insurer adoption. Insurers may impose their own portals and rules,
+vertical integration is meaningful, and clinic-side automation may collapse into
+ordinary clinic-management or revenue-cycle software. A genuinely neutral layer
+requires insurer participation. Health data receive special protection under GDPR
+and Spanish rules; the
+[AEPD says clinics may communicate only strictly necessary billing data](https://www.aepd.es/preguntas-frecuentes/16-salud/2-profesionales-sanitarios/FAQ-1620-comunicacion-de-datos-a-aseguradoras-para-el-abono-de-gastos-medicos)
+to insurers. Authorization errors can also affect patient care.
+
+The safest narrow experiment is post-service, non-clinical administrative
+reconciliation: missing or expired authorization; service, code, or date mismatch;
+missing required report; contract, *baremo*, copayment, or capitation discrepancy;
+partial or delayed payment; or invoice rejection. Exclude autonomous decisions about
+medical necessity, coverage entitlement, or clinical care; never gate or delay
+treatment. Start discovery with real anonymized cases from Valencia-area private
+clinics and billing teams, then add insurer-side participants if possible. Measure
+manual time, clarification rounds, rejection frequency, days to payment, recovered
+revenue, integration burden, and willingness to use a shared workflow.
+
+Falsify the candidate if clinic software or insurer portals already solve the problem,
+economic pain is low or infrequent, every insurer contract is too bespoke, insurers
+refuse participation, privacy or compliance burden is unacceptable, case-use rights
+are missing, or delivery requires custom services for each clinic.
+
 ## Decision rule
 
 Complete the no-money external pilot before a real payment adapter, hosted market,
