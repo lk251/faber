@@ -1,56 +1,57 @@
 # Faber Proof
 
-**Codex can write the patch. Faber makes the patch prove itself.**
+**Evidence-bound acceptance for code produced by AI agents.**
 
-An AI-generated patch can pass every ordinary test and still miss the exact boundary
-condition in the task. Faber Proof asks an independent GPT-5.6 planner to turn the task
-and bounded diff into falsifiable obligations, executes only repository-approved proof
-capabilities, and makes a deterministic evidence-based decision.
+Faber Proof is a research prototype built around one principle:
+
+> The agent producing a patch should not control the standard used to accept it.
+
+A second model does not solve that problem by itself. If it may invent arbitrary
+commands or tests and then judge its own evidence, it can create a circular acceptance
+process. Faber instead separates model judgment from execution authority.
+
+The current prototype:
+
+1. gives an optional model planner a task contract, a bounded redacted diff, and an
+   owner-approved catalog of proof capabilities;
+2. accepts only structured claims and selections from that catalog—the model cannot
+   supply commands, imports, source code, arbitrary paths, or a verdict;
+3. executes the selected bounded capabilities;
+4. binds the resulting evidence to the task, candidate, diff, catalog, policy, and
+   execution context; and
+5. maps complete evidence to `PASS`, `BLOCK`, or `HUMAN_REVIEW` using
+   deterministic policy.
+
+This branch is a technical work sample in agent evaluation, evidence provenance,
+adversarial testing, and acceptance boundaries. It is an alpha, not a production
+service.
+
+## Demonstration
+
+The included scheduler case contains a boundary defect: a complete report produced on
+the final permitted turn is discarded as `budget_exhausted`.
 
 ```text
-                         BAD PATCH   REPAIRED PATCH
-Ordinary tests              PASS          PASS
-Faber Proof verdict        BLOCK          PASS
+                         FLAWED PATCH   NARROW REPAIR
+Ordinary tests                PASS           PASS
+Faber Proof                  BLOCK           PASS
 ```
 
-The original demo catches a scheduler patch that discards a complete report on the
-last permitted turn. Faber shows the failed claim and the concrete two-turn
-counterexample, Codex makes the narrow ordering repair, and the same proof passes.
+For a two-turn budget and responses `["NOTE: premise", "FINAL: summary"]`, ordinary
+tests accept both candidates. Faber's additional obligation exposes the concrete
+counterexample and accepts the repair that moves the completed-report check ahead of
+the exhaustion return.
 
-## Thirty-second explanation
+## Run the no-key replay
 
-GPT-5.6 receives a task contract, a bounded redacted diff, and a catalog of proof
-templates approved by the repository owner. It returns structured claims and
-data-only template selections. It cannot provide commands, source code, imports,
-arbitrary paths, or a verdict.
-
-Faber validates every binding, executes the approved capabilities, records verifier
-runs and receipts, and returns `PASS`, `BLOCK`, or `HUMAN_REVIEW`. A demonstrated
-failure wins over confident prose; missing or stale evidence cannot become `PASS`.
-
-Judges can reproduce the complete bad/repaired comparison without an API key, account,
-network request, Docker image, or model provider call.
-
-## Watch the demo
-
-Public narrated video: `HUMAN_GATE::PUBLIC_YOUTUBE_URL`
-
-Status: the recording and public upload require human action. The official submission
-deadline has passed, so any Devpost update also requires confirmation that a timely
-submission exists or that the organizers authorized a modification.
-
-## Run the no-key proof demo
-
-Python 3.11 or newer and Git are required. From a clean checkout:
-
-Linux/macOS:
+Python 3.11+ and Git are required.
 
 ```bash
-python3 -m venv .venv
+python -m venv .venv
 . .venv/bin/activate
 python -m pip install .
 faber doctor
-faber demo proof --mode replay --out-dir .faber/build-week-demo
+faber demo proof --mode replay --out-dir .faber/proof-demo
 ```
 
 Windows PowerShell:
@@ -59,235 +60,105 @@ Windows PowerShell:
 py -3.11 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install .
 .\.venv\Scripts\faber.exe doctor
-.\.venv\Scripts\faber.exe demo proof --mode replay --out-dir .faber\build-week-demo
+.\.venv\Scripts\faber.exe demo proof --mode replay --out-dir .faber\proof-demo
 ```
 
-Expected comparison:
+The command writes self-contained evidence reports to:
 
 ```text
-                         BAD PATCH   REPAIRED PATCH
-Ordinary tests              PASS          PASS
-Faber Proof verdict        BLOCK          PASS
-Failed required claims         1             0
-Concrete counterexamples      1             0
-
-Replay provenance: FAKE-DEVELOPMENT
+.faber/proof-demo/bad/report.html
+.faber/proof-demo/repaired/report.html
 ```
 
-The committed fixture is deliberately labeled `fake-development`: replay is a no-key
-reproduction of a context-bound structured response, not a new live call and not final
-submission provenance. See [the judge quickstart](docs/JUDGE_QUICKSTART.md) for clean
-wheel, editable, live-install, digest-validation, and cleanup paths.
+The committed planner fixtures are deliberately marked `fake-development`. They
+reproduce parsing, binding, execution, decision, and reporting without a key or network
+call. They are not live model output and are not presented as evidence that a model
+independently discovered the defect.
 
-## What the blocked report proves
+## Current evidence
 
-Open these generated files:
+At remediation candidate `b254458d705d801631be8207a0ddce75fbf68c21`:
 
-```text
-.faber/build-week-demo/bad/report.html
-.faber/build-week-demo/repaired/report.html
-```
-
-The red report places the failed requirement above the fold:
-
-> A complete final report produced on the last permitted turn is preserved and
-> returned.
-
-For `turn_budget = 2` and responses `["NOTE: premise", "FINAL: summary"]`, the bad
-candidate returns `budget_exhausted` instead of the expected complete
-`"premise\nsummary"` report. Ordinary tests remain green because they do not exercise
-that exact boundary.
-
-The committed [sample-report provenance gate](examples/build-week-proof/expected/PROVENANCE.md)
-explains why final sanitized HTML samples are withheld until the guarded live responses
-are human-reviewed. The current reports are valid development evidence for layout,
-replay, installation, and deterministic behavior only.
-
-## How it works
-
-```mermaid
-flowchart LR
-    A["Task contract + bounded redacted diff"] --> B["GPT-5.6 advisory proof plan"]
-    C["Owner-approved proof catalog"] --> D["Faber validation + bounded executors"]
-    B --> D
-    D --> E["Verifier runs + authoritative receipts"]
-    E --> F["Deterministic PASS / BLOCK / HUMAN_REVIEW"]
-    F --> G["Self-contained evidence report"]
-    G --> H["Codex evidence-driven repair"]
-```
-
-The trust boundary is deliberate: task text, repository content, model output, and
-replay files are untrusted data. Owner policy defines what may execute. Receipted
-evidence, not the model, determines the result.
-
-## Why this is not another AI code reviewer
-
-Generic AI review returns prose, a score, or unrestricted suggested tests. Faber Proof
-requires falsifiable claims in a closed proof language and binds every selected
-obligation to an approved capability, exact candidate, execution policy, result, and
-receipt.
-
-The model can broaden attention; it cannot broaden authority. Unknown templates,
-operational-looking fields, replay mismatches, partial bundles, contradictory evidence,
-timeouts, and output truncation fail closed.
-
-## GPT-5.6 usage
-
-The optional OpenAI adapter uses the Responses API with strict structured output and
-defaults to the `gpt-5.6` alias. The request contains the task, revisions, bounded
-redacted diff, mandatory claims, approved catalog, and prompt/schema commitments.
-
-The response contains claims, severity, risk rationale, approved template IDs,
-JSON-compatible parameters, coverage links, and uncovered risks. Faber records the
-requested and returned model IDs, response ID when available, usage, latency, request
-and response digests, and live/replay mode. It does not require private chain-of-thought.
-
-Live mode is guarded and optional. Replay uses the same parser and validator with exact
-request, task, diff, catalog, prompt, schema, model, and response-digest bindings.
-Current committed responses are deterministic development fixtures, not claimed live
-GPT-5.6 output.
-
-## Codex usage and the repository-scoped skill
-
-Codex implemented the Build Week extension through a repository-scoped director queue,
-focused work-item commits, adversarial repair loops, and independent audit prompts. The
-[`$faber-proof` skill](.agents/skills/faber-proof/SKILL.md) verifies context, runs the
-proof, reads the authoritative counterexample, repairs only demonstrated failures, and
-reruns the same obligations.
-
-In the demo, Codex moves the complete-report check ahead of the budget-exhaustion
-return. It does not rewrite the scheduler or weaken the contract. The primary Codex
-session is recorded in the durable Build Week status.
-
-## What existed before Build Week and what was added during Build Week
-
-Faber's provider-neutral protocol, trajectory quality system, verifier receipts, local
-runner, source adapters, market records, and training-data foundations predate Build
-Week. They are not presented as competition work.
-
-The post-baseline competition extension is Faber Proof: proof protocol and policy,
-direct GPT-5.6 planner adapter, context-bound replay, bounded proof catalog and
-executors, authority binding, CLI, atomic evidence bundles, self-contained reports,
-repository skill, original scheduler demo, guarded live-capture transaction,
-adversarial eval campaign, privacy audit, packaging, clean-install audit, and this
-submission package.
-
-The annotated baseline is `build-week-2026-baseline` at
-`64f775cfe2f622837bd9aaa40f6369aa22af1d80`. The generated
-[Build Week delta](docs/generated/BUILD_WEEK_DELTA.md) records every eligible commit
-and changed path without claiming pre-existing work as new.
-
-## Technical decisions made by the human entrant
-
-- Build a focused proof-carrying-patch product instead of demoing the broader market.
-- Keep the GPT-5.6 integration in a provider adapter rather than the protocol core.
-- Make model planning advisory and deterministic verifier receipts authoritative.
-- Use bounded repository-approved templates instead of executing generated tests.
-- Build an original standard-library demo with no third-party project dependency.
-- Preserve a no-key, no-network replay path for judge accessibility.
-- Fail closed on missing, stale, contradictory, partial, or unbound evidence.
-- Separate pre-existing Faber foundations from the post-baseline competition delta.
-- Keep live capture atomic and human-reviewed rather than committing provider output
-  automatically.
-
-## Security, privacy, authority, and runtime limitations
-
-Faber binds task, candidate, diff, plan, catalog, selection, workspace, verifier,
-result, receipt, and decision digests. It bounds request and process output, rejects
-path traversal and symlink escape, stages bundles atomically, emits self-contained
-reports, and runs a deterministic privacy scanner over accepted artifacts.
-
-The local runner is not a production sandbox. It provides no
-operating-system, VM, container, network, or descendant-process isolation. The scanner
-is bounded rather than comprehensive. Repository-owner catalog policy is trusted.
-Digests provide integrity, not signatures or non-repudiation. Faber proves declared
-obligations, not universal program correctness.
-
-Read the full [Faber Proof threat model](docs/FABER_PROOF_THREAT_MODEL.md).
-
-## Supported platforms and installation paths
-
-- Package requirement: Python 3.11 or newer.
-- Declared Build Week workflow: Python 3.11 on Linux and Windows.
-- Locally validated checkpoint: Windows with Python 3.11.15.
-- macOS: expected from the dependency-light Python path, but not claimed CI-verified.
-- Base install: no runtime dependencies and no OpenAI SDK.
-- Optional live install: `python -m pip install ".[live-openai]"`.
-- Source install: standard wheel/sdist, direct install, or editable development install.
-
-The active Linux/Windows workflow is `.github/workflows/ci.yml`, with a synchronized
-reference copy at `codex/build-week/drafts/ci.yml`. GitHub Actions
-[run 30217997785](https://github.com/lk251/faber/actions/runs/30217997785) passed on
-Ubuntu, Windows, and the optional OpenAI-extra no-provider-call lane.
-
-## Tests, evals, and clean-install evidence
-
-At the completed 0083 machine checkpoint on HB2:
-
-- 710 tests passed and one guarded live test skipped;
+- 725 tests passed; one guarded live-provider test was skipped;
 - Ruff formatting and lint passed;
 - mypy passed across 93 source files;
-- 49/49 adversarial cases passed with zero unjustified `PASS` results;
-- wheel, sdist, isolated base install, optional live-extra install, installed CLI,
-  no-key replay demo, and artifact privacy audit passed;
-- four generated reports reproduced byte for byte;
-- the latest measured bad/repaired demo completed in 12.207419 seconds on HB2;
-- the clean-install package produced 51 demo files, 232,262 bytes, and zero covered
-  privacy findings.
+- the 49-case deterministic adversarial regression campaign passed;
+- direct and clean-installed replay both reproduced ordinary `PASS/PASS` and Faber
+  `BLOCK/PASS`;
+- wheel, source distribution, artifact privacy scan, and byte-stable report
+  regeneration passed.
 
-The deterministic eval report is
-[committed here](docs/generated/BUILD_WEEK_EVAL_RESULTS.md). The generated
-[final machine audit](docs/generated/FINAL_SUBMISSION_AUDIT.md) records the current
-submission-package checks and unresolved human gates.
+The repository's Ubuntu and Windows workflow has produced
+[green CI runs](https://github.com/lk251/faber/actions/runs/30440995635). That run
+predates this exact remediation candidate; the application branch must pass fresh CI
+before the two checkpoints are represented as one verified state.
 
-## Business and adoption path
+These are project-run results, not an independent product certification. Four P0
+authority and provenance findings discovered by an adversarial audit have remediation
+candidates and targeted regression tests, but still await fresh independent
+re-verification. The audit is therefore not green. See
+[`codex/build-week/AUDIT_QUEUE.md`](codex/build-week/AUDIT_QUEUE.md) for the exact
+findings, commits, and remaining P1/P2 issues.
 
-The initial buyer is an engineering team that wants to accept more agent-generated code
-without pushing all risk onto human review. The practical path is:
+## Trust boundary
 
-1. local Codex skill and CLI for individual maintainers;
-2. CI/check integration for engineering teams;
-3. repository-approved proof catalogs for repeated task classes;
-4. organization policy, audit export, and team reporting;
-5. stronger isolated runners and evidence-aware multi-candidate routing;
-6. later integration with Faber's verifier market and trajectory system.
+Task text, repository content, diffs, model responses, and replay files are treated as
+untrusted data. Repository-owner policy defines which capabilities may execute and
+which evidence may determine acceptance.
 
-There are no claimed customers, revenue, or production deployments.
+A demonstrated contract failure takes precedence and produces `BLOCK`. Missing,
+contradictory, stale, incomplete, or improperly bound evidence cannot produce `PASS`;
+it is referred for human review.
 
-## Repository map and deeper Faber documentation
+The intended distinction is:
 
-- [`src/faber/proofs.py`](src/faber/proofs.py): proof records and fail-closed decision
-  policy.
-- [`src/faber/proof_planning.py`](src/faber/proof_planning.py): provider-neutral
-  planning records.
-- [`src/faber/adapters/openai/`](src/faber/adapters/openai/): optional GPT-5.6 live and
-  replay adapters.
-- [`src/faber/proof_catalog.py`](src/faber/proof_catalog.py): approved bounded
-  capabilities.
-- [`src/faber/proof_executors.py`](src/faber/proof_executors.py): fixed proof execution
-  families.
-- [`src/faber/proof_product.py`](src/faber/proof_product.py): local end-to-end workflow
-  and atomic bundle validation.
-- [`src/faber/proof_reports.py`](src/faber/proof_reports.py): Markdown and self-contained
-  HTML reports.
-- [`examples/build-week-proof/`](examples/build-week-proof/): original bad/repaired
-  scheduler demonstration.
-- [`docs/JUDGE_QUICKSTART.md`](docs/JUDGE_QUICKSTART.md): judge installation and replay.
-- [`docs/FABER_PROOF_PRODUCT.md`](docs/FABER_PROOF_PRODUCT.md): product and authority
-  design.
-- [`docs/CODEX_SESSION_HANDOFF.md`](docs/CODEX_SESSION_HANDOFF.md): current operational
-  state.
-- [`docs/ROADMAP.md`](docs/ROADMAP.md): broader post-freeze Faber direction.
+> Models may propose what to examine. They may not grant themselves verification
+> authority.
 
-Faber remains a verifier-first, trajectory-first work market underneath this focused
-developer-tool entry:
+## Explicit limitations
 
-- **Faber for GitHub** is the first source adapter and future GitHub App.
-- **Faber Market** coordinates verified work demand and supply.
-- **Faber Protocol** is the provider-neutral schema and audit layer.
-- **Faber Runner** executes repository-approved verifier policy.
-- **Faber Verifiers** represents verifier definitions, evidence, and quality.
-- **Faber Orchestration** learns routing from verified trajectories.
+Faber Proof does not currently provide:
 
-GitHub, model providers, payments, and hosted services are adapters rather than root
-abstractions.
+- a production sandbox—the local runner has no OS, VM, container, network, or
+  descendant-process isolation;
+- automatic policy bootstrapping or lifecycle management—the executable catalog is
+  currently authored and approved by the repository owner;
+- general program correctness or comprehensive vulnerability detection;
+- independently reviewed live-model provenance for the committed demo;
+- evidence of effectiveness across unfamiliar repositories;
+- customers, revenue, production deployments, or pilot commitments.
+
+The next research question is whether useful repository-owned policies can be
+bootstrapped and evolved economically, and whether they outperform hardened CI plus an
+independent verifier agent under matched budgets.
+
+## Code map
+
+- [`src/faber/proof_product.py`](src/faber/proof_product.py) — local end-to-end
+  workflow and atomic evidence bundles
+- [`src/faber/proofs.py`](src/faber/proofs.py) — proof records and deterministic
+  decision policy
+- [`src/faber/proof_catalog.py`](src/faber/proof_catalog.py) — approved bounded
+  capabilities
+- [`src/faber/proof_executors.py`](src/faber/proof_executors.py) — fixed execution
+  families
+- [`src/faber/adapters/openai/`](src/faber/adapters/openai/) — optional live and
+  replay planner adapters
+- [`src/faber/proof_reports.py`](src/faber/proof_reports.py) — Markdown and
+  self-contained HTML reports
+- [`docs/FABER_PROOF_THREAT_MODEL.md`](docs/FABER_PROOF_THREAT_MODEL.md) — trust
+  boundaries, residual risks, and non-claims
+- [`docs/NAMING.md`](docs/NAMING.md) — broader experimental product vocabulary
+- [`docs/BUILD_WEEK_SUBMISSION_README.md`](docs/BUILD_WEEK_SUBMISSION_README.md) —
+  archived competition landing page
+- [`docs/generated/BUILD_WEEK_EVAL_RESULTS.md`](docs/generated/BUILD_WEEK_EVAL_RESULTS.md)
+  — adversarial regression cases and reproduction commands
+
+## Development method
+
+Faber was developed with coding agents. Javier Mares defined the product boundary,
+acceptance-authority model, falsification criteria, and human gates, then used separate
+implementation and adversarial-review passes to expose failures and develop candidate
+remediations. The audit history is retained because the failures—and the decision not
+to call remediated code independently verified before re-review—are part of the
+engineering evidence.

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "faber"
 version = "0.1.0"
-description = "Verifier-first proof-carrying patches and work-market protocol primitives."
+description = "Evidence-bound acceptance for code produced by AI agents."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = []
