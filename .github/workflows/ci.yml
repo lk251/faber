@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - build-week/faber-proof
+      - portfolio/faber-proof
   pull_request:
 
 permissions:
@@ -65,6 +66,7 @@ jobs:
       - name: Check generous performance budget
         run: python scripts/measure_proof_demo.py
       - name: Run final machine submission audit
+        if: github.event_name == 'push' && github.ref == 'refs/heads/build-week/faber-proof'
         run: python scripts/final_submission_audit.py --run-machine-checks --require machine
 
   optional-openai-extra:

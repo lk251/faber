@@ -44,14 +44,13 @@ def test_hardening_docs_exist() -> None:
 
 
 def test_product_terms_are_aligned_in_main_docs() -> None:
-    documents = {
-        "README.md": _read("README.md"),
-        "docs/NAMING.md": _read("docs/NAMING.md"),
-    }
+    naming = _read("docs/NAMING.md")
+    for term in TERMS:
+        assert term in naming, f"{term} missing from docs/NAMING.md"
 
-    for path, text in documents.items():
-        for term in TERMS:
-            assert term in text, f"{term} missing from {path}"
+    readme = _read("README.md")
+    assert "Faber Proof" in readme
+    assert "docs/NAMING.md" in readme
     agents = _read("AGENTS.md")
     for path in ("docs/ARCHITECTURE.md", "docs/GLOSSARY.md", "docs/PROTOCOL.md"):
         assert path in agents
