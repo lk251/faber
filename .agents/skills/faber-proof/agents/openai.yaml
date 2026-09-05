@@ -4,4 +4,4 @@ interface:
   default_prompt: "Use $faber-proof to prove the current patch and repair only authoritative failures."
 
 policy:
-  allow_implicit_invocation: true
+  allow_implicit_invocation: false
