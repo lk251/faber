@@ -11,9 +11,10 @@ fine-grained verification evidence, estimate progress, and produce dense trainin
 signals without making a model provider part of the core.
 
 The paper "LLM-as-a-Verifier: A General-Purpose Verification Framework"
-(arXiv:2607.05391v1) frames verification as its own scaling axis. It uses
-probabilistic scores from scoring-token distributions, repeated evaluation,
-criteria decomposition, and budget-aware candidate ranking.
+([arXiv:2607.05391v2](https://arxiv.org/abs/2607.05391)) frames verification as
+its own scaling axis. It uses probabilistic scores from scoring-token
+distributions, repeated evaluation, criteria decomposition, and budget-aware
+candidate ranking.
 
 The project `lk251/llm-as-a-verifier` is a useful read-only reference for
 implementing and testing these ideas. Faber should learn from its scoring,
