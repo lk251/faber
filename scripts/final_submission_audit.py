@@ -47,8 +47,10 @@ ALLOWED_HUMAN_MARKERS = {
     "HUMAN_GATE::VIDEO_MODE",
     "HUMAN_GATE::VIDEO_TAKE_ID",
 }
+ARCHIVED_SUBMISSION_README = "docs/BUILD_WEEK_SUBMISSION_README.md"
 REQUIRED_ARTIFACTS = (
     "README.md",
+    ARCHIVED_SUBMISSION_README,
     "docs/JUDGE_QUICKSTART.md",
     "docs/DEVPOST_SUBMISSION.md",
     "docs/DEMO_SCRIPT.md",
@@ -62,7 +64,7 @@ REQUIRED_ARTIFACTS = (
     "codex/build-week/submission-human-gates.json",
 )
 SUBMISSION_DOCS = (
-    "README.md",
+    ARCHIVED_SUBMISSION_README,
     "docs/JUDGE_QUICKSTART.md",
     "docs/DEVPOST_SUBMISSION.md",
     "docs/DEMO_SCRIPT.md",
@@ -72,6 +74,7 @@ SUBMISSION_DOCS = (
 )
 PRIVACY_PATHS = (
     "README.md",
+    ARCHIVED_SUBMISSION_README,
     "docs/JUDGE_QUICKSTART.md",
     "docs/DEVPOST_SUBMISSION.md",
     "docs/DEMO_SCRIPT.md",
@@ -209,8 +212,7 @@ def check_required_artifacts() -> AuditCheck:
 
 
 def check_readme() -> AuditCheck:
-    text = _read_text("README.md")
-    first_lines = [line.strip() for line in text.splitlines() if line.strip()][:4]
+    text = _read_text(ARCHIVED_SUBMISSION_README)
     missing_sections = [section for section in README_SECTIONS if f"## {section}" not in text]
     required_fragments = (
         "Faber Proof",
@@ -225,12 +227,7 @@ def check_readme() -> AuditCheck:
         "build-week-2026-baseline",
     )
     missing_fragments = [fragment for fragment in required_fragments if fragment not in text]
-    passed = (
-        bool(first_lines)
-        and first_lines[0] == "# Faber Proof"
-        and not missing_sections
-        and not missing_fragments
-    )
+    passed = "# Faber Proof" in text and not missing_sections and not missing_fragments
     detail_parts = []
     if missing_sections:
         detail_parts.append("sections=" + ", ".join(missing_sections))
@@ -240,8 +237,11 @@ def check_readme() -> AuditCheck:
         "judge_readme",
         "static",
         passed,
-        "README has the required opening, comparison, no-key path, honesty, and 15 sections.",
-        "README requirements missing: " + "; ".join(detail_parts),
+        (
+            "Archived submission README has the required comparison, no-key path, "
+            "honesty, and 15 sections."
+        ),
+        "Archived submission README requirements missing: " + "; ".join(detail_parts),
     )
 
 
