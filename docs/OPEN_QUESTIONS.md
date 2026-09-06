@@ -22,6 +22,10 @@ They are intentionally narrower than the completed 0047-0074 implementation queu
 - What calibration threshold and uncertainty policy allow a probabilistic verifier
   to influence routing, and when must it force human review?
 - How should verifier compute be priced when repeated scoring improves confidence?
+- Can verifier-guided routing, retry, and escalation turn heterogeneous local and
+  hosted model capacity into more verified useful work per euro without increasing
+  false-accept risk? See
+  [`verification-leverage-ai-capacity-dogfooding-2026-09-06.md`](research/verification-leverage-ai-capacity-dogfooding-2026-09-06.md).
 
 ## Market and money
 
