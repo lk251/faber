@@ -28,6 +28,11 @@ from faber.proof_context import (
     collect_git_proof_context,
     ensure_executable_candidate,
 )
+from faber.proof_observations import (
+    ProofObservationError,
+    ProofObservationRun,
+    start_proof_observation,
+)
 from faber.proof_planning import (
     ProofPlanningError,
     ProofPlanningRequest,
@@ -1165,6 +1170,19 @@ def _publish_stage(stage: Path, target: Path) -> None:
         shutil.rmtree(backup)
 
 
+def _observe_failed_phase(observation: ProofObservationRun | None, phase: str) -> None:
+    if observation is not None:
+        try:
+            observation.record_run_failure(phase)
+        except ProofObservationError:
+            raise ProofProductError(
+                "observation_error",
+                "the terminal failure observation could not be retained",
+                why="Requested observation capture must fail explicitly.",
+                next_step="Inspect the observations directory and retry.",
+            ) from None
+
+
 def run_proof_product(
     *,
     repository: str | Path,
@@ -1179,6 +1197,7 @@ def run_proof_product(
     max_diff_bytes: int = DEFAULT_MAX_DIFF_BYTES,
     output_directory: str | Path = ".faber/proof",
     dry_run: bool = False,
+    observations_directory: str | Path | None = None,
 ) -> ProofRunOutcome:
     """Run one proof from local commits and publish only a fully validated bundle."""
 
@@ -1202,6 +1221,8 @@ def run_proof_product(
             ),
         )
     product_started = time.perf_counter()
+    observation: ProofObservationRun | None = None
+    observation_phase = "execution"
     try:
         task = load_task_contract(task_path)
         configuration = load_proof_configuration(catalog_path)
@@ -1233,15 +1254,36 @@ def run_proof_product(
             mandatory_template_ids=configuration.proof_policy.mandatory_template_ids,
             max_diff_bytes=max_diff_bytes,
         )
-        planning_started = time.perf_counter()
-        planning = plan_proof_request(
-            mode=mode,
-            replay_path=replay_path,
-            model=model,
-            request=request,
-            approved_replay_bundle_digests=(configuration.approved_replay_bundle_digests),
+        observation = (
+            start_proof_observation(
+                request=request,
+                proof_policy=configuration.proof_policy,
+                directory=observations_directory,
+                repository_root=context.repository_root,
+                proof_output_directory=output,
+                requested_model_id=model,
+                mode=mode,
+                dry_run=dry_run,
+            )
+            if observations_directory is not None
+            else None
         )
+        planning_started = time.perf_counter()
+        try:
+            planning = plan_proof_request(
+                mode=mode,
+                replay_path=replay_path,
+                model=model,
+                request=request,
+                approved_replay_bundle_digests=(configuration.approved_replay_bundle_digests),
+            )
+        except ProofPlanningError as exc:
+            if observation is not None:
+                observation.record_failure(exc)
+            raise
         planning_seconds = time.perf_counter() - planning_started
+        if observation is not None:
+            observation.record_result(planning)
         context_manifest = context.manifest(
             redacted_diff_text=request.redacted_diff_text,
             redacted_diff_digest=request.redacted_diff_digest,
@@ -1276,6 +1318,9 @@ def run_proof_product(
                 execution_policy=execution_policy,
             )
             proof_execution_seconds = time.perf_counter() - execution_started
+            if observation is not None:
+                observation.record_workflow(workflow)
+        observation_phase = "publication"
         output.parent.mkdir(parents=True, exist_ok=True)
         stage = Path(
             tempfile.mkdtemp(prefix=f".{output.name}.faber-proof-stage-", dir=output.parent)
@@ -1311,7 +1356,15 @@ def run_proof_product(
             report_path=output / "report.html",
         )
     except ProofProductError:
+        _observe_failed_phase(observation, observation_phase)
         raise
+    except ProofObservationError as exc:
+        raise ProofProductError(
+            "observation_error",
+            str(exc),
+            why="Requested observation capture must succeed explicitly; it grants no authority.",
+            next_step="Choose a safe dedicated observations directory and retry.",
+        ) from None
     except GitContextError as exc:
         raise ProofProductError(
             exc.code,
@@ -1336,6 +1389,7 @@ def run_proof_product(
             next_step="Verify the replay pin and inputs, or retry the guarded live planner.",
         ) from None
     except ProofWorkflowError as exc:
+        _observe_failed_phase(observation, observation_phase)
         raise ProofProductError(
             exc.code,
             exc.public_message,
@@ -1345,6 +1399,7 @@ def run_proof_product(
             ),
         ) from None
     except (ValidationError, OSError) as exc:
+        _observe_failed_phase(observation, observation_phase)
         public = "proof inputs or generated artifacts failed validation"
         if isinstance(exc, ValidationError):
             public = str(exc)

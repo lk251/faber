@@ -223,6 +223,10 @@ def build_parser() -> argparse.ArgumentParser:
     proof.add_argument("--max-diff-bytes", type=int, default=262_144)
     proof.add_argument("--out-dir", default=".faber/proof")
     proof.add_argument(
+        "--observations-dir",
+        help="Opt-in local proposal history; below .faber and separate from --out-dir.",
+    )
+    proof.add_argument(
         "--json",
         action="store_true",
         help="Print only the canonical machine-readable run summary.",
@@ -325,6 +329,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 max_diff_bytes=args.max_diff_bytes,
                 output_directory=args.out_dir,
                 dry_run=args.dry_run,
+                observations_directory=args.observations_dir,
             )
         except ProofProductError as exc:
             _print_cli_error(exc.failure, why=exc.why, next_step=exc.next_step)

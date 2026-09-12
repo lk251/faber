@@ -1,0 +1,69 @@
+{
+  "research_date": "2026-09-12",
+  "observation_window_utc": "2026-09-12T04:16:00Z/2026-09-12T04:27:00Z",
+  "method": "Read-only shallow clone, tracked-tree searches, public GitHub REST source/history/actions reads. No upstream code executed.",
+  "repository": "omacom/omarchy",
+  "previous_repository_url": "https://github.com/basecamp/omarchy",
+  "default_branch": "quattro",
+  "head_sha": "31bd80daa4613ffdee995ac27467fce5a2990806",
+  "head_committed_at": "2026-09-11T19:51:13Z",
+  "source_url": "https://github.com/omacom/omarchy/tree/31bd80daa4613ffdee995ac27467fce5a2990806",
+  "inventory": {
+    "tracked_files": 1832,
+    "shell_suite_files_excluding_helper": 236,
+    "acceptance_suite_files_excluding_helper": 8,
+    "checked_in_workflow_files": 0,
+    "dynamic_workflows_listed": ["Copilot", "Copilot code review", "Copilot cloud agent", "CodeQL"],
+    "head_check_runs_observed": 0,
+    "upstream_test_runs_executed_by_this_study": 0,
+    "hidden_protection_enforcement": "unknown; branch rules empty, classic protection 404"
+  },
+  "inspected_main_paths": [
+    "AGENTS.md", "README.md", "docs/testing.md", "docs/file-layout.md",
+    "docs/update-process.md", "docs/omarchy-shell.md", "docs/audio-tuning.md",
+    "agents/skills/acceptance-tests.md", "agents/skills/visual-verification.md",
+    "agents/skills/install-scripts.md", "agents/skills/shell-dev.md",
+    "agents/skills/migrations.md", "default/agents/skills/omarchy/contributing.md",
+    ".github/CODEOWNERS", ".github/SECURITY.md", ".github/ISSUE_TEMPLATE/bug.yml",
+    "test/all", "test/cli", "test/shell", "test/shell.d/base-test.sh",
+    "test/shell.d/bin-style-test.sh", "test/acceptance", "test/acceptance.d/security-test.sh"
+  ],
+  "siblings": [
+    {
+      "repository": "omacom/omarchy-iso",
+      "sha": "a23f8d464dcb0616a61bfaa8026e23d0533da209",
+      "inspected_paths": ["README.md", ".github/workflows/nightly-build.yml"],
+      "recursive_tree_inspected": true
+    },
+    {
+      "repository": "omacom/omarchy-pkgs",
+      "sha": "5083e0272297d670b3769f1b6899402b9541d19c",
+      "inspected_paths": ["README.md", ".github/workflows/test.yml", "pkgbuilds/omarchy/PKGBUILD"],
+      "recursive_tree_inspected": true,
+      "stable_packaged_source_sha": "0534987009061cbe2dacdde4ad564092ab698d12"
+    }
+  ],
+  "history": [
+    {
+      "incident": "Optional touchpad setup aborts chroot installation",
+      "issue_url": "https://github.com/omacom/omarchy/issues/6985",
+      "issue_created_at": "2026-08-15T14:50:46Z",
+      "preincident_release": "v4.0.0",
+      "preincident_sha": "f0020448ca87329199de7cb12f2015ebc4a3e5e7",
+      "pre_repair_sha": "535d8f3485581b35ab0d368d4179b362eb6dea32",
+      "repair_sha": "20400badda3862b5d533cadcb20730720360934d",
+      "repair_url": "https://github.com/omacom/omarchy/pull/7236",
+      "assessment": "Historical policy simulation; independent execution and counterfactual outcomes unknown"
+    },
+    {
+      "incident": "First failing test file hides later suites",
+      "pre_repair_sha": "007d6fcd7dd9bb992c3bd92ebd36db089f3b470f",
+      "repair_sha": "2b9e2720b33c3124b476d33362faef137d907605",
+      "repair_url": "https://github.com/omacom/omarchy/pull/6622",
+      "assessment": "Diagnostics/completeness improvement; old runner already returned failure, not false green"
+    }
+  ],
+  "willingness_to_pay_observed": false,
+  "maintainer_interviews": 0,
+  "historical_detection_rate_claim": null
+}
