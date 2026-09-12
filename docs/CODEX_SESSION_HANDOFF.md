@@ -5,6 +5,28 @@ and points to the authoritative design documents; it does not replace them. Read
 file after `AGENTS.md` on every fresh clone. Update it before a machine switch or when
 the recommended next action or validation baseline changes.
 
+## Current sprint override — 2026-09-12
+
+Javier explicitly authorized a strategic/revenue reassessment, separate branch,
+coherent commits and safe push, without changing the audited candidate. Work lives on
+`codex/revenue-validation-sprint` in `C:/Users/javie/repos/Faber-revenue-sprint`, based
+on `96d6c7c`. The original checkout's Episode Envelope edits remain untouched.
+
+Start with [the strategic decision](strategy/2026-09-12-decision.md),
+[current-state reconciliation](strategy/2026-09-12-current-state.md), and
+[sprint handoff](strategy/2026-09-12-sprint-handoff.md). The active roadmap is a bounded
+paid acceptance-evidence pilot with opt-in policy-decision observation capture.
+Verification-policy learning is unresolved; test it against frontier+retrieval before
+training. No customer contact, real payment, private data or production execution was
+authorized by the research request.
+
+The July transfer instructions below are retained history. Their “last audit A1” and
+“only two remote branches” statements are stale. Current product source contains all
+four A2 P0 fixes, but independent A2 remains not-green pending exact-candidate review.
+Hermes #61631 is closed. Do not automatically resume that contribution, a market
+feature queue or competition submission work from this sprint's next-action prompt.
+The Build Week ledger and audited branch remain separate and unchanged.
+
 ## Active override: OpenAI Build Week 2026
 
 Faber Proof is the active implementation priority through the competition submission

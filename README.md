@@ -1,5 +1,10 @@
 # Faber Proof
 
+Current development direction (2026-09-12): [revenue validation and policy-learning
+study](docs/strategy/README.md). The Build Week presentation below is retained history;
+independent A2 verification remains pending. This sprint adds opt-in observation
+capture without declaring production readiness or training effectiveness.
+
 **Codex can write the patch. Faber makes the patch prove itself.**
 
 An AI-generated patch can pass every ordinary test and still miss the exact boundary

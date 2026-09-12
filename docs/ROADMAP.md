@@ -1,5 +1,38 @@
 # Roadmap
 
+## Active direction — revenue validation, 2026-09-12
+
+The [strategic decision](strategy/2026-09-12-decision.md) supersedes the sequencing
+below for the current sprint. Faber is an OSS/research verification toolkit testing
+a small paid acceptance-evidence service, with a possible recurring developer-tool
+layer. No customer, paid pilot, training advantage or venture-scale business is yet
+validated. [State reconciliation](strategy/2026-09-12-current-state.md) records branch
+divergence and the unchanged independent audit boundary.
+
+| Priority | Work and exit condition |
+|---|---|
+| **NOW** | Complete pinned Hermes/Omarchy/nginx study, concrete offer and temporal policy-learning records. Preserve otherwise-lost proposal/failure chronology with opt-in capture. Test one €250 diagnostic / €1,000 pilot offer with a qualified buyer; contact and payment require Javier. |
+| **NEXT** | Deliver one paid pilot using existing CI and owner-approved checks. Compare static policy, frontier context and frontier+retrieval on the same changes. Measure reviewer effort, coverage gaps, setup and upkeep. Get a second purchase before hosting. |
+| **LATER** | If three independent pilots and two repeat purchases justify it, package the repeated evidence/coverage component. Consider a learned check router only when it beats retrieval at total cost; broader structured-policy learning needs a separate experiment. |
+| **BLOCKED** | Production acceptance authority based on Proof: independent A2 verification of source `b254458` remains pending. Production untrusted execution needs isolation. Real data requires lawful access; contact/commercial commitments need a human. Competition final gates remain in their existing queue. |
+| **DEFERRED / speculative** | Marketplace, payments, A2A contracting, arena, universal policy bootstrap, generic GitHub App, Episode Envelope, training infrastructure expansion, model fine-tuning/RL, capacity-routing platform and freight/clinic integrations. Promote only when a measured customer experiment requires them. |
+
+Policy learning is **unresolved**, not dismissed: existing records preserve much of
+the context, but errors, prior iterations, owner corrections and delayed outcomes
+need reliable linkage. [Learning analysis](strategy/2026-09-12-policy-learning.md)
+defines the deterministic owner boundary and the frontier+retrieval baseline that
+training must beat. [Experiments and kill criteria](strategy/2026-09-12-experiments.md)
+and [first-revenue offer](strategy/2026-09-12-first-revenue-plan.md) govern this sequence.
+
+No old source is deleted and no independent audit is marked green by this decision.
+The existing Build Week candidate and other worktrees remain unchanged. The old
+Hermes issue #61631 closed in July; a contribution to that issue is not the next task.
+
+## Historical roadmap and deferred hypotheses
+
+The following records preserve prior work and reasoning. References to “next” and
+the no-money pilot describe the earlier roadmap and are superseded by the table above.
+
 Faber now has a coherent local foundation for verifier-first paid work and
 RL-grade trajectory collection. The next strategic question is whether that
 foundation survives a respectful external workflow, not whether another schema can

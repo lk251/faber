@@ -1,0 +1,869 @@
+{
+  "schema": "faber.research-source-manifest.v1",
+  "study_date": "2026-09-12",
+  "retrieved_at_utc": "2026-09-12T04:31:04.443948+00:00",
+  "repository": "https://github.com/NixOS/nixpkgs",
+  "snapshot_revision": "2f788abe393b6639416941926d53e106915f269d",
+  "snapshot_committed_at_utc": "2026-09-12T03:31:20Z",
+  "scope": "NixOS nginx module and directly related nginx/ACME integration tests",
+  "method": "Read-only GitHub API and pinned raw-file retrieval; source inspection; no upstream evaluation or execution.",
+  "cache_path": ".faber/research/nixpkgs",
+  "reproduction_note": "For immutable source rows, retrieve url and compare sha256. API rows are mutable dated snapshots; their later live bytes may differ. Cache is ignored and not a deliverable dependency.",
+  "upstream_code_executed": false,
+  "tests_executed": false,
+  "contact_made": false,
+  "temporal_reconstructions": [
+    {
+      "id": "nixpkgs-nginx-2026-vm-to-container",
+      "record_kind": "retrospective_source_reconstruction",
+      "input_cutoff_utc": "2026-06-28T02:21:13Z",
+      "input_revision": "b767296f886cf7a6fe23f913f58bfdd9d18e6e10",
+      "parent_revision": "ae295d6c7bf1ce6348f61d868ac2c25d7814c0e0",
+      "input_features": {
+        "machine_class_transition": [
+          "qemu_vm_nodes",
+          "systemd_nspawn_containers"
+        ],
+        "existing_module_settings": [
+          "ProtectSystem",
+          "ProtectHome",
+          "PrivateTmp"
+        ],
+        "prior_documentation_describes_vm_namespacing_advantage": true
+      },
+      "observed_decision": {
+        "action": "merged",
+        "at_utc": "2026-06-28T02:21:13Z",
+        "revision": "4b8b28cce1a97752cf40973acb0b65b4243a0cd0",
+        "source": "https://github.com/NixOS/nixpkgs/pull/536169"
+      },
+      "later_feedback": {
+        "label": "reverted_for_hardening_coverage_concern",
+        "at_utc": "2026-06-28T10:44:00Z",
+        "revision": "fae7a03a83882ca5337e3e04f6d3ff0a3798e6b2",
+        "source": "https://github.com/NixOS/nixpkgs/pull/536256"
+      },
+      "measured_check_results": null,
+      "maintainer_minutes": null,
+      "compute_cost": null,
+      "production_failure_observed": null,
+      "unchosen_action_outcome": null,
+      "label_limits": [
+        "Revert rationale supports an environment-fidelity review target, not a proven-correctness label.",
+        "Historical check-run logs were not independently verified.",
+        "Later feedback must not enter decision-time input."
+      ],
+      "research_proposed_target": "Route a test environment substitution intersecting service hardening to owner review; propose an explicit VM-fidelity invariant.",
+      "sources": [
+        "https://github.com/NixOS/nixpkgs/commit/b767296f886cf7a6fe23f913f58bfdd9d18e6e10",
+        "https://github.com/NixOS/nixpkgs/blob/ae295d6c7bf1ce6348f61d868ac2c25d7814c0e0/nixos/modules/services/web-servers/nginx/default.nix",
+        "https://github.com/NixOS/nixpkgs/blob/ae295d6c7bf1ce6348f61d868ac2c25d7814c0e0/nixos/doc/manual/development/writing-nixos-tests.section.md"
+      ]
+    },
+    {
+      "id": "nixpkgs-nginx-2023-tempdir-regression-request",
+      "record_kind": "retrospective_source_reconstruction",
+      "input_cutoff_utc": "2023-09-28T23:28:54Z",
+      "input_revision": null,
+      "input_features": {
+        "reported_failure": "large requests fail after nginx temporary directory cleanup",
+        "reported_delay": "10 days inactivity",
+        "proposed_remediation": "tmpfiles exclusion"
+      },
+      "input_snapshot_limit": "Issue and PR text are current API snapshots; the exact initial posted diff and immutable original body at decision time were not recovered.",
+      "observed_decision": {
+        "action": "reviewer_requested_before_fail_after_pass_test",
+        "at_utc": "2023-09-28T23:28:54Z",
+        "source": "https://github.com/NixOS/nixpkgs/pull/257828#issuecomment-1740121233"
+      },
+      "later_feedback": {
+        "label": "regression_test_requested_then_added_and_merged",
+        "at_utc": "2023-10-06T13:28:36Z",
+        "test_revision": "040cf48d2855175006d20ba90efbea5e438b3543",
+        "fix_revision": "ea1eb4ee0fa44dd4cd37e8ece2634370d1c2b0d2",
+        "merge_revision": "c22f1c1cfa96e1bd87408aeebd0bab842b4e5157",
+        "source": "https://github.com/NixOS/nixpkgs/pull/257828"
+      },
+      "measured_check_results": null,
+      "maintainer_minutes": null,
+      "compute_cost": null,
+      "production_failure_observed": "reporter-described; not independently reproduced in this sprint",
+      "unchosen_action_outcome": null,
+      "label_limits": [
+        "Test source and merged repair are observable; historic executed results were not independently reproduced.",
+        "Elapsed time is not labor cost.",
+        "The subsequently added test and repair must not enter the original proposal input."
+      ],
+      "research_proposed_target": "Request an accelerated cleanup lifecycle reproducer and require before/after evidence for a regression repair.",
+      "sources": [
+        "https://github.com/NixOS/nixpkgs/issues/257812",
+        "https://github.com/NixOS/nixpkgs/pull/257828",
+        "https://github.com/NixOS/nixpkgs/commit/040cf48d2855175006d20ba90efbea5e438b3543",
+        "https://github.com/NixOS/nixpkgs/commit/ea1eb4ee0fa44dd4cd37e8ece2634370d1c2b0d2"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "path": ".github/workflows/README.md",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/.github/workflows/README.md",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "1d31aaf406a0d4143cc0c47450c82ee73c8fa3d78b636862d7d5779752f11c79",
+      "bytes": 5614,
+      "status": "fetched"
+    },
+    {
+      "path": ".github/workflows/check.yml",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/.github/workflows/check.yml",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "bac1c5fb6b2901c55b575e9e27fff7900ea6360a9ef8dfab9b8d989c32c9a8af",
+      "bytes": 7411,
+      "status": "fetched"
+    },
+    {
+      "path": ".github/workflows/lint.yml",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/.github/workflows/lint.yml",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "1a730418a1e227e82250109316150570bbc2a7f34df396f4776d9fb1e7ff41f1",
+      "bytes": 5771,
+      "status": "fetched"
+    },
+    {
+      "path": ".github/workflows/test.yml",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/.github/workflows/test.yml",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "9fb36918e76ed0a65e67e30bdc9ed19e9d069ad3e41ebd73af2b641facedafb6",
+      "bytes": 5567,
+      "status": "fetched"
+    },
+    {
+      "path": ".github/workflows/build.yml",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/.github/workflows/build.yml",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "9079eb1b60a9c764230938f58f3927dfeae28e69ad364c275a0ed9574b8b159b",
+      "bytes": 3962,
+      "status": "fetched"
+    },
+    {
+      "path": ".github/workflows/eval.yml",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/.github/workflows/eval.yml",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "bad9698380d09ddd342e905107eff20e2a1b335e8d53e6bb51228e57bfa0a0c8",
+      "bytes": 21003,
+      "status": "fetched"
+    },
+    {
+      "path": ".github/workflows/review.yml",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/.github/workflows/review.yml",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "f5eb1301dca6af7968e5e89403e57fee32ee516e907620243dff1e9105ad0307",
+      "bytes": 3910,
+      "status": "fetched"
+    },
+    {
+      "path": ".github/workflows/merge-group.yml",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/.github/workflows/merge-group.yml",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "06613701c3f7f216645829be0983d8d266b464d52f6f2b5ccf194c3b56f4aa1f",
+      "bytes": 5342,
+      "status": "fetched"
+    },
+    {
+      "path": ".github/CODEOWNERS",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/.github/CODEOWNERS",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "status": "HTTP Error 404: Not Found"
+    },
+    {
+      "path": ".github/PULL_REQUEST_TEMPLATE.md",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/.github/PULL_REQUEST_TEMPLATE.md",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "cf9a45eba5acc991d55537ec6002e506273361f246382d66f8e5b0d0fcfdae23",
+      "bytes": 2050,
+      "status": "fetched"
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/CONTRIBUTING.md",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "a3b71f72a2895870bca12b6a9cf3faa5d986778994ba07cb448a9d0f44d6bfea",
+      "bytes": 54739,
+      "status": "fetched"
+    },
+    {
+      "path": "AGENTS.md",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/AGENTS.md",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "status": "HTTP Error 404: Not Found"
+    },
+    {
+      "path": "ci/README.md",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/ci/README.md",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "1c0d31907bb4dc48f2aa35087c64f156d56ab2577b96beadb17ae4adfa3231d2",
+      "bytes": 6635,
+      "status": "fetched"
+    },
+    {
+      "path": "ci/flake.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/ci/flake.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "status": "HTTP Error 404: Not Found"
+    },
+    {
+      "path": "nixos/modules/services/web-servers/nginx/default.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/modules/services/web-servers/nginx/default.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "92fae8c2992b737f87d91fa9647f1ffb17d51a17a2a82d1032faa1c7c512f331",
+      "bytes": 64822,
+      "status": "fetched"
+    },
+    {
+      "path": "nixos/modules/services/web-servers/nginx/vhost-options.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/modules/services/web-servers/nginx/vhost-options.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "5e3ab0a0d78605259a25a3933891ff3fa571948bdbcc189aeb0d8d7a7ea08d44",
+      "bytes": 11542,
+      "status": "fetched"
+    },
+    {
+      "path": "nixos/modules/services/web-servers/nginx/location-options.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/modules/services/web-servers/nginx/location-options.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "e0ebe001ff543178e35427eea6a5852ba99cb4d7b55705c382ac5d8d59c90d8e",
+      "bytes": 4653,
+      "status": "fetched"
+    },
+    {
+      "path": "nixos/tests/nginx.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/tests/nginx.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "aeb1e57768e9f62dbcb323aa75d054c463ec3d17e9a096bff8c047e9e89813d5",
+      "bytes": 5399,
+      "status": "fetched"
+    },
+    {
+      "path": "nixos/tests/nginx-unix-socket.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/tests/nginx-unix-socket.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "cd47b4fcd398c7fbf330014b3512ca7f2ded147066e2b06939d47929bfc94ed2",
+      "bytes": 1209,
+      "status": "fetched"
+    },
+    {
+      "path": "nixos/tests/nginx-tmpdir.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/tests/nginx-tmpdir.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "df700c3e2df6f1c19eb7c53fac7e2f141f02bcfb0f704ce77782de4f1e22c925",
+      "bytes": 2220,
+      "status": "fetched"
+    },
+    {
+      "path": "nixos/tests/nginx-variants.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/tests/nginx-variants.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "5fa4ca740cca635510fc31bb9b23e7e0af403ca4676cf76ded55355fec84d88e",
+      "bytes": 748,
+      "status": "fetched"
+    },
+    {
+      "path": "nixos/tests/nginx-pubhtml.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/tests/nginx-pubhtml.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "2a7c335ef64c223d59d830c12fb19646516cbb9e5a5765d8ae4eee61e845fa44",
+      "bytes": 738,
+      "status": "fetched"
+    },
+    {
+      "path": "nixos/tests/nginx-auth.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/tests/nginx-auth.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "d8d412a8d5338b9b5631575ade48c71827d99b13705235f50e23c69d652d8181",
+      "bytes": 1380,
+      "status": "fetched"
+    },
+    {
+      "path": "nixos/tests/all-tests.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/tests/all-tests.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "77102e66e61bf3c9df6dc48a60269bb5d56f2e88eec5e0e089219838dea32955",
+      "bytes": 83604,
+      "status": "fetched"
+    },
+    {
+      "path": "nixos/release.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/release.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "c0ba56447f106bfb466fd94d0a7282574de1e37189b46eb13dfc3ed48a09c706",
+      "bytes": 14502,
+      "status": "fetched"
+    },
+    {
+      "path": "pkgs/servers/http/nginx/generic.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/pkgs/servers/http/nginx/generic.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "6c7ad95c9035015f119b672724797b0664960bf936fb75f9ab5cd2aa473ab599",
+      "bytes": 10112,
+      "status": "fetched"
+    },
+    {
+      "path": "pkgs/servers/http/nginx/default.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/pkgs/servers/http/nginx/default.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "status": "HTTP Error 404: Not Found"
+    },
+    {
+      "path": "maintainers/README.md",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/maintainers/README.md",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "15e029fc17f1735977efddb6ed499a21845c8e4661e904a3dfbcbdcef16f9a4a",
+      "bytes": 12554,
+      "status": "fetched"
+    },
+    {
+      "path": "doc/contributing/reviewing-contributions.chapter.md",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/doc/contributing/reviewing-contributions.chapter.md",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "e16bdd4128a8e82bc4bea9ed1b6b6530f547f991d79e2eb189a81bb2a42619cb",
+      "bytes": 1636,
+      "status": "fetched"
+    },
+    {
+      "path": "doc/contributing/coding-conventions.chapter.md",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/doc/contributing/coding-conventions.chapter.md",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "886c4442891e8aa1a723a227cb8e9650b77d32f9a747c6e998c241c4daa55d9b",
+      "bytes": 2572,
+      "status": "fetched"
+    },
+    {
+      "path": "nixos/doc/manual/development/writing-modules.section.md",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/doc/manual/development/writing-modules.section.md",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "status": "HTTP Error 404: Not Found"
+    },
+    {
+      "path": "nixos/doc/manual/development/writing-nixos-tests.section.md",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/doc/manual/development/writing-nixos-tests.section.md",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "5271d3f3a88f9881c926bee6f35b7ffdb4c3006bef5eadfc902495871a1ed782",
+      "bytes": 18374,
+      "status": "fetched"
+    },
+    {
+      "path": "doc/contributing/vulnerability-roundup.section.md",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/doc/contributing/vulnerability-roundup.section.md",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "status": "HTTP Error 404: Not Found"
+    },
+    {
+      "path": "doc/contributing/security.section.md",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/doc/contributing/security.section.md",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "status": "HTTP Error 404: Not Found"
+    },
+    {
+      "path": ".github/SECURITY.md",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/.github/SECURITY.md",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "status": "HTTP Error 404: Not Found"
+    },
+    {
+      "path": ".github/workflows/pull-request-target.yml",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/.github/workflows/pull-request-target.yml",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "29dda6117eddac0abf7b6f4cc6a57996b786e4c8f25317ab8faf4f936ceb41f1",
+      "bytes": 6328,
+      "status": "fetched"
+    },
+    {
+      "path": ".github/zizmor.yml",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/.github/zizmor.yml",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "d5a5de36ddaf12796aa282a894678f4bc2b670e28ebf2b4f3a27749ee4a479c2",
+      "bytes": 587,
+      "status": "fetched"
+    },
+    {
+      "path": "ci/treefmt.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/ci/treefmt.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "b22c017377432850088159d26ccf98b245d96f53c9c1143fa50fe805354566a5",
+      "bytes": 4939,
+      "status": "fetched"
+    },
+    {
+      "path": "ci/default.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/ci/default.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "48fca60db44d28f3fb23a8ba798196c6e3492d41ff915f2c0acb11c048e97786",
+      "bytes": 2772,
+      "status": "fetched"
+    },
+    {
+      "path": "ci/parse.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/ci/parse.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "47819ef79b3d55a07adb41faab054ff15ca082a0b05c4fe46c6552d741751390",
+      "bytes": 1014,
+      "status": "fetched"
+    },
+    {
+      "path": "ci/OWNERS",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/ci/OWNERS",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "faa26e1959e85bb6e6a68b1c9f76cd0e679b296a29f9762eeb448a4cf5aa39e1",
+      "bytes": 21698,
+      "status": "fetched"
+    },
+    {
+      "path": "ci/github-script/reviewers.js",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/ci/github-script/reviewers.js",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "8d9ed506cd4745b2c1845f3b4951816a102748794f6972a8dfe4ab0f9b318948",
+      "bytes": 6852,
+      "status": "fetched"
+    },
+    {
+      "path": "ci/github-script/supportedSystems.js",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/ci/github-script/supportedSystems.js",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "21b9db22f123b0e5ed922be8974c6c9a579e781a34c6d5df3d45c169c7978921",
+      "bytes": 336,
+      "status": "fetched"
+    },
+    {
+      "path": "ci/github-script/check-owners.js",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/ci/github-script/check-owners.js",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "status": "HTTP Error 404: Not Found"
+    },
+    {
+      "path": "maintainers/maintainer-list.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/maintainers/maintainer-list.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "b261b7e67802c98b9367cc08f7e3e38d6608674405128270bb7860076fda046c",
+      "bytes": 781000,
+      "status": "fetched"
+    },
+    {
+      "path": "pkgs/top-level/release.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/pkgs/top-level/release.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "c258dedab6330aaf5ca3af695192cacd3b4c618909bc779e98b7ef83ec638502",
+      "bytes": 10613,
+      "status": "fetched"
+    },
+    {
+      "path": "pkgs/top-level/release-supported-systems.json",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/pkgs/top-level/release-supported-systems.json",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "b44a4e6a2c55df7bb6cce8ce4e87f98dc1446dfb436589ef21b476d0a5b069ea",
+      "bytes": 60,
+      "status": "fetched"
+    },
+    {
+      "path": "nixos/tests/acme/default.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/tests/acme/default.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "de859c1f90bcca003d9c1147369ed11d5211285a571ad3563abc2ff903b2247b",
+      "bytes": 2411,
+      "status": "fetched"
+    },
+    {
+      "path": "nixos/tests/acme/webserver.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/tests/acme/webserver.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "6aaa6fc756038ec074f9a3ff8bd1a5c9602860cbe8aee4ad15aa6f3a714b4442",
+      "bytes": 9513,
+      "status": "fetched"
+    },
+    {
+      "path": "nixos/tests/acme/utils.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/tests/acme/utils.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "0b55302fa3c69ade5a36d9b003069f6916906c384297b697b58dac717e276522",
+      "bytes": 89,
+      "status": "fetched"
+    },
+    {
+      "path": "nixos/doc/manual/development/running-nixos-tests.section.md",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/doc/manual/development/running-nixos-tests.section.md",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "1a3de095a983261917a5eb71f3de08d65943eafdd91f230ccb5efd329a705302",
+      "bytes": 2921,
+      "status": "fetched"
+    },
+    {
+      "path": "nixos/doc/manual/development/linking-nixos-tests-to-packages.section.md",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/doc/manual/development/linking-nixos-tests-to-packages.section.md",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "76d740c6edaee27c96a6b86e304099145dcddce950dcfe9a297e24f25506d8b9",
+      "bytes": 346,
+      "status": "fetched"
+    },
+    {
+      "path": "nixos/doc/manual/development/writing-modules.chapter.md",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/doc/manual/development/writing-modules.chapter.md",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "9de5b0350df4923a0370254a7b25335d39e2204cb6c0ee853c9b23b05b29b5a3",
+      "bytes": 6869,
+      "status": "fetched"
+    },
+    {
+      "path": "nixos/doc/manual/development/meta-attributes.section.md",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/doc/manual/development/meta-attributes.section.md",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "31242595ce864fcc44b6a06993c11ba819085009b62e8a8c0c2d25e37e33a982",
+      "bytes": 2759,
+      "status": "fetched"
+    },
+    {
+      "path": "api/pulls/536169.json",
+      "url": "https://api.github.com/repos/NixOS/nixpkgs/pulls/536169",
+      "revision": null,
+      "sha256": "09299b332faa2556bd9e1caf3715b5f067bec30a8a9f2fdd8f70ce2f6c5cbe81",
+      "bytes": 19982,
+      "status": "fetched",
+      "kind": "mutable_api_snapshot"
+    },
+    {
+      "path": "api/pulls/536256.json",
+      "url": "https://api.github.com/repos/NixOS/nixpkgs/pulls/536256",
+      "revision": null,
+      "sha256": "c6a702e3be6f7f6026a8e12a7f2a0f71c998c9b6415168a2456415a39038ab64",
+      "bytes": 16239,
+      "status": "fetched",
+      "kind": "mutable_api_snapshot"
+    },
+    {
+      "path": "api/pulls/536256/files.json",
+      "url": "https://api.github.com/repos/NixOS/nixpkgs/pulls/536256/files",
+      "revision": null,
+      "sha256": "ffb0ee19a1a18ed655a28a7377fc95fe1903c8dd20401d9846d3873ad1d97648",
+      "bytes": 12740,
+      "status": "fetched",
+      "kind": "mutable_api_snapshot"
+    },
+    {
+      "path": "api/pulls/536169/files.json",
+      "url": "https://api.github.com/repos/NixOS/nixpkgs/pulls/536169/files",
+      "revision": null,
+      "sha256": "5e4908e4375af490ec0ee10d47a65aa3aab0c6037e15cef14101ae82779acaf1",
+      "bytes": 12740,
+      "status": "fetched",
+      "kind": "mutable_api_snapshot"
+    },
+    {
+      "path": "api/pulls/257828.json",
+      "url": "https://api.github.com/repos/NixOS/nixpkgs/pulls/257828",
+      "revision": null,
+      "sha256": "bd854cea57653cf69abb4b45be2ede145c6b6f0c01fd35f5feb7c1cb3e74bee6",
+      "bytes": 20280,
+      "status": "fetched",
+      "kind": "mutable_api_snapshot"
+    },
+    {
+      "path": "api/pulls/257828/files.json",
+      "url": "https://api.github.com/repos/NixOS/nixpkgs/pulls/257828/files",
+      "revision": null,
+      "sha256": "2aaf74649f02f5479127877e8a0ba60effbd3ca255f43ab3712d2d1e9a9bb516",
+      "bytes": 5083,
+      "status": "fetched",
+      "kind": "mutable_api_snapshot"
+    },
+    {
+      "path": "api/pulls/257828/commits.json",
+      "url": "https://api.github.com/repos/NixOS/nixpkgs/pulls/257828/commits",
+      "revision": null,
+      "sha256": "e7133c2673a56eaa7e0a308afb6882d43bcf7c375f2ee2de8ff05a564393b628",
+      "bytes": 10557,
+      "status": "fetched",
+      "kind": "mutable_api_snapshot"
+    },
+    {
+      "path": "api/commits/040cf48d2855175006d20ba90efbea5e438b3543.json",
+      "url": "https://api.github.com/repos/NixOS/nixpkgs/commits/040cf48d2855175006d20ba90efbea5e438b3543",
+      "revision": null,
+      "sha256": "6db45d8ba7536b29014b43edd2874e65cbe2e9c7fb6c83e716432c645d5280f9",
+      "bytes": 9525,
+      "status": "fetched",
+      "kind": "mutable_api_snapshot"
+    },
+    {
+      "path": "api/commits/b767296f886cf7a6fe23f913f58bfdd9d18e6e10.json",
+      "url": "https://api.github.com/repos/NixOS/nixpkgs/commits/b767296f886cf7a6fe23f913f58bfdd9d18e6e10",
+      "revision": null,
+      "sha256": "70d5fedd82208b88be48ab39f6ee0458666a125c2e3ded65fcf87cbb959296c3",
+      "bytes": 16746,
+      "status": "fetched",
+      "kind": "mutable_api_snapshot"
+    },
+    {
+      "path": "api/commits/db155a44a08e5d738877e18d809058c7c8e2c280.json",
+      "url": "https://api.github.com/repos/NixOS/nixpkgs/commits/db155a44a08e5d738877e18d809058c7c8e2c280",
+      "revision": null,
+      "sha256": "61442ecfbbbca07be884fa7e34447dcd68c9a34a19f86a4c054fe72d79438d06",
+      "bytes": 17168,
+      "status": "fetched",
+      "kind": "mutable_api_snapshot"
+    },
+    {
+      "path": "api/issues/84391.json",
+      "url": "https://api.github.com/repos/NixOS/nixpkgs/issues/84391",
+      "revision": null,
+      "sha256": "d3df42fe822bae1ea6bb1ffc884d7e76cc97ea5725acacdcef8bec48f4707077",
+      "bytes": 4939,
+      "status": "fetched",
+      "kind": "mutable_api_snapshot"
+    },
+    {
+      "path": "api/pulls/56255.json",
+      "url": "https://api.github.com/repos/NixOS/nixpkgs/pulls/56255",
+      "revision": null,
+      "sha256": "0771159bee950d91c762b3b6628c23f1e711f0c6d31ad6f32f8aaa2360396552",
+      "bytes": 21934,
+      "status": "fetched",
+      "kind": "mutable_api_snapshot"
+    },
+    {
+      "path": "api/pulls/84960.json",
+      "url": "https://api.github.com/repos/NixOS/nixpkgs/pulls/84960",
+      "revision": null,
+      "sha256": "903604259211b69eb01f74a10c1f1b4350981392f7cc359b9bfd70ddba316dd8",
+      "bytes": 17891,
+      "status": "fetched",
+      "kind": "mutable_api_snapshot"
+    },
+    {
+      "path": "nixos/tests/nginx-compression.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/tests/nginx-compression.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "7a2d7521e1b8a9af5fbc3079058135c63f3112e1f33775ac4f16e6a16361fe1a",
+      "bytes": 2492,
+      "status": "fetched"
+    },
+    {
+      "path": "nixos/tests/nginx-dynamic-modules.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/tests/nginx-dynamic-modules.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "cda2e768884823627ce1a079357fb0601b5862e5756a66bb0c1694ce99dd31d4",
+      "bytes": 873,
+      "status": "fetched"
+    },
+    {
+      "path": "nixos/tests/nginx-etag-compression.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/tests/nginx-etag-compression.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "a007fd42e44bf9aa0a864522245f4ad2d70297cb70ccf035ffcc902b4dd6aee8",
+      "bytes": 1799,
+      "status": "fetched"
+    },
+    {
+      "path": "nixos/tests/nginx-etag.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/tests/nginx-etag.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "7842bae87b1447a1d31cb3103930b549b04ba9bbb2e72f19ffac961cbe2bff72",
+      "bytes": 3252,
+      "status": "fetched"
+    },
+    {
+      "path": "nixos/tests/nginx-globalredirect.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/tests/nginx-globalredirect.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "30728d528603e57f50374e7eca8268800c3628411bd8f9f34bd49baf279128b1",
+      "bytes": 649,
+      "status": "fetched"
+    },
+    {
+      "path": "nixos/tests/nginx-grpc-error-pages.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/tests/nginx-grpc-error-pages.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "b7be1c2e541c63293afb5adb01b5f8946d9aca5ad7c481f747e488ca655ae178",
+      "bytes": 1254,
+      "status": "fetched"
+    },
+    {
+      "path": "nixos/tests/nginx-http3.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/tests/nginx-http3.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "b198b14d372ae29f8f1f5f564dba934357e5517c264b40b4fd9aaf6a39f7a6f3",
+      "bytes": 3754,
+      "status": "fetched"
+    },
+    {
+      "path": "nixos/tests/nginx-lua.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/tests/nginx-lua.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "451f4694b902de26983a6e2f58fc69b5cc484afff68a14d6952f57ba288b2686",
+      "bytes": 925,
+      "status": "fetched"
+    },
+    {
+      "path": "nixos/tests/nginx-mime.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/tests/nginx-mime.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "ab951db4bcd6419e8b12d47ba043c09c8f8cbd0280de13c956774816288a2b36",
+      "bytes": 508,
+      "status": "fetched"
+    },
+    {
+      "path": "nixos/tests/nginx-modsecurity.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/tests/nginx-modsecurity.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "e6d52d0e98ea47ccab3af90b4d467972f3e91ec1676341f09f116e137704ea93",
+      "bytes": 1439,
+      "status": "fetched"
+    },
+    {
+      "path": "nixos/tests/nginx-moreheaders.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/tests/nginx-moreheaders.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "5e19b8011083310466abd10fe86d5d8ac7cb846c6592200fb37c02e9dad0faf4",
+      "bytes": 1242,
+      "status": "fetched"
+    },
+    {
+      "path": "nixos/tests/nginx-njs.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/tests/nginx-njs.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "79e20ce8964859beca5e5c228578cb095dce5e68d18633c4185ab05d1875d2cc",
+      "bytes": 828,
+      "status": "fetched"
+    },
+    {
+      "path": "nixos/tests/nginx-proxyprotocol/default.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/tests/nginx-proxyprotocol/default.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "70032a70df4f6c345cf8613582a3ffa98b9cb5b36b4ad8e6a68de673a8df1c7f",
+      "bytes": 6346,
+      "status": "fetched"
+    },
+    {
+      "path": "nixos/tests/nginx-redirectcode.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/tests/nginx-redirectcode.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "09cfbd8e2b36b613058a2a77ae9203e7b3f225ad1e59f86710a6b0961fb44726",
+      "bytes": 691,
+      "status": "fetched"
+    },
+    {
+      "path": "nixos/tests/nginx-sso.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/tests/nginx-sso.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "b1e62f7a8bd2f5a9d854864458885422775ef1939a810eb85c407f6bf7982a99",
+      "bytes": 1353,
+      "status": "fetched"
+    },
+    {
+      "path": "nixos/tests/nginx-status-page.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/2f788abe393b6639416941926d53e106915f269d/nixos/tests/nginx-status-page.nix",
+      "revision": "2f788abe393b6639416941926d53e106915f269d",
+      "sha256": "a51185fb0e86cc89b222f84d2d79823df6eda59175bd1f20e5003d763a2ac51d",
+      "bytes": 2054,
+      "status": "fetched"
+    },
+    {
+      "path": "history/3dfaa2a965f3ab82ab1f19c543c2917621c0014c/nixos/modules/services/web-servers/nginx/default.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/3dfaa2a965f3ab82ab1f19c543c2917621c0014c/nixos/modules/services/web-servers/nginx/default.nix",
+      "revision": "3dfaa2a965f3ab82ab1f19c543c2917621c0014c",
+      "sha256": "67ff269a16a7c62cd446e52f4473a27dbc192060fc4616272edcfeb713ac6a26",
+      "bytes": 51280,
+      "status": "fetched"
+    },
+    {
+      "path": "history/040cf48d2855175006d20ba90efbea5e438b3543/nixos/tests/nginx-tmpdir.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/040cf48d2855175006d20ba90efbea5e438b3543/nixos/tests/nginx-tmpdir.nix",
+      "revision": "040cf48d2855175006d20ba90efbea5e438b3543",
+      "sha256": "5a1940ea0bbf3fee7a8d63de50c61b79d0c1cae19ebbe28fb0b1012b24a4e34d",
+      "bytes": 2285,
+      "status": "fetched"
+    },
+    {
+      "path": "history/ea1eb4ee0fa44dd4cd37e8ece2634370d1c2b0d2/nixos/modules/services/web-servers/nginx/default.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/ea1eb4ee0fa44dd4cd37e8ece2634370d1c2b0d2/nixos/modules/services/web-servers/nginx/default.nix",
+      "revision": "ea1eb4ee0fa44dd4cd37e8ece2634370d1c2b0d2",
+      "sha256": "e9aa1b6b40eb8cc26f227b5524dcb8a203ed9397bc9c23eec609661199069b59",
+      "bytes": 51457,
+      "status": "fetched"
+    },
+    {
+      "path": "api/issues/257812.json",
+      "url": "https://api.github.com/repos/NixOS/nixpkgs/issues/257812",
+      "revision": null,
+      "sha256": "80dd054eb53297aeb38d4940cb7348faa576113eb512f5f3271e7a895f4f02ef",
+      "bytes": 5408,
+      "status": "fetched",
+      "kind": "mutable_api_snapshot"
+    },
+    {
+      "path": "api/issues/257828/comments.json",
+      "url": "https://api.github.com/repos/NixOS/nixpkgs/issues/257828/comments",
+      "revision": null,
+      "sha256": "8a1efb954b01727f14df18ef34302c2eb5833128103eead60ab6095ef07d6c92",
+      "bytes": 12404,
+      "status": "fetched",
+      "kind": "mutable_api_snapshot"
+    },
+    {
+      "path": "history/ae295d6c7bf1ce6348f61d868ac2c25d7814c0e0/nixos/modules/services/web-servers/nginx/default.nix",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/ae295d6c7bf1ce6348f61d868ac2c25d7814c0e0/nixos/modules/services/web-servers/nginx/default.nix",
+      "revision": "ae295d6c7bf1ce6348f61d868ac2c25d7814c0e0",
+      "sha256": "405e76cd724ebe7e585a6fb5da130443b7ee4f54486dbdbea735135072fe342a",
+      "bytes": 63592,
+      "status": "fetched"
+    },
+    {
+      "path": "history/ae295d6c7bf1ce6348f61d868ac2c25d7814c0e0/nixos/doc/manual/development/writing-nixos-tests.section.md",
+      "url": "https://raw.githubusercontent.com/NixOS/nixpkgs/ae295d6c7bf1ce6348f61d868ac2c25d7814c0e0/nixos/doc/manual/development/writing-nixos-tests.section.md",
+      "revision": "ae295d6c7bf1ce6348f61d868ac2c25d7814c0e0",
+      "sha256": "d52bfbf65a88ad9204546c0780a60867d270055f96202626333868ce4fa3a571",
+      "bytes": 17783,
+      "status": "fetched"
+    },
+    {
+      "path": "api/NixOS/nixpkgs/commits/ea1eb4ee0fa44dd4cd37e8ece2634370d1c2b0d2.json",
+      "url": "https://api.github.com/repos/NixOS/nixpkgs/commits/ea1eb4ee0fa44dd4cd37e8ece2634370d1c2b0d2",
+      "revision": null,
+      "sha256": "614cc9a3a5b918c7e914b2ce9286f2d623c423d088ffd32672a29c87e5e50435",
+      "bytes": 6229,
+      "status": "fetched",
+      "kind": "mutable_api_snapshot"
+    },
+    {
+      "path": "api/NixOS/nixpkgs/issues/536169/comments.json",
+      "url": "https://api.github.com/repos/NixOS/nixpkgs/issues/536169/comments",
+      "revision": null,
+      "sha256": "3fab62551a72dd2cea24db86e802e33b57a07d39c8bc406ff1fd567c48a07bbe",
+      "bytes": 9728,
+      "status": "fetched",
+      "kind": "mutable_api_snapshot"
+    },
+    {
+      "path": "api/NixOS/nixpkgs/issues/536256/comments.json",
+      "url": "https://api.github.com/repos/NixOS/nixpkgs/issues/536256/comments",
+      "revision": null,
+      "sha256": "711f786606bac09e68068c2783146641da16d59569396e66be8b308bfcccf281",
+      "bytes": 1753,
+      "status": "fetched",
+      "kind": "mutable_api_snapshot"
+    },
+    {
+      "path": "api/NixOS/ofborg/commits/released.json",
+      "url": "https://api.github.com/repos/NixOS/ofborg/commits/released",
+      "revision": null,
+      "sha256": "d69233487e4cf09beb352106e30f1829b1c36d9952a0ad7228998a99164c1f3e",
+      "bytes": 5833,
+      "status": "fetched",
+      "kind": "mutable_api_snapshot"
+    },
+    {
+      "path": "ofborg/README.md",
+      "url": "https://raw.githubusercontent.com/NixOS/ofborg/80074b9649c2249c116a88650620f27a7f4030d7/README.md",
+      "revision": "80074b9649c2249c116a88650620f27a7f4030d7",
+      "sha256": "af5a9925ddecc4a2cb8efada28dc76fe5edc81c864a689bf2973c2ada484901f",
+      "bytes": 7336,
+      "status": "fetched"
+    }
+  ]
+}

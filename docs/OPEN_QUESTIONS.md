@@ -1,5 +1,31 @@
 # Open questions
 
+## Active questions — revenue and policy learning
+
+The [2026-09-12 decision](strategy/2026-09-12-decision.md) supersedes the old pilot
+priority. The highest-value unresolved questions are:
+
+1. Will a small engineering team's budget owner pay €250/€1,000 for repeated
+   acceptance-evidence work after seeing what existing CI and a frontier agent can do?
+2. Does persistent owner-approved policy reduce total reviewer/setup/maintenance effort,
+   or would a short CI patch solve the entire job?
+3. Do learned check selection or structured proposals beat frontier reasoning with
+   the same temporally valid retrieved history? What paid retention/efficiency benefit
+   results, rather than merely a better offline score?
+4. Can proposal-time views, rejected/failed proposals, owner corrections, absent
+   counterfactuals and delayed regressions be retained with explicit rights and
+   observation horizons? See the [schema audit](strategy/2026-09-12-policy-learning-schema-audit.md).
+5. Does value transfer across repositories, or primarily accumulate in customer-owned
+   within-repository memory? The latter can support retention without granting Faber
+   a shared data moat.
+6. After a stable verifier exists, can heterogeneous agent routing improve accepted
+   work per total euro beyond a simple escalation rule? This September master-branch
+   dogfooding hypothesis remains conditional, not the next platform build.
+
+The [experiment plan](strategy/2026-09-12-experiments.md) supplies specific falsifiers.
+The historical questions below remain context; Hermes #61631 is closed and its
+freshness question is resolved, not an invitation to reopen the old pilot.
+
 These questions require product, maintainer, security, legal, or research judgment.
 They are intentionally narrower than the completed 0047-0074 implementation queue.
 

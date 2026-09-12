@@ -1,5 +1,29 @@
 # Milestones
 
+## Active commercial milestones — 2026-09-12
+
+The [revised roadmap](ROADMAP.md) supersedes the old milestone order for the revenue
+validation sprint. Historical completion evidence below is retained.
+
+- **R0: evidence and usable observation capture.** Pinned three-repository policies,
+  honest temporal examples, source/schema gap audit, concrete priced offer, and an
+  opt-in way to retain failed and repeated policy proposals. Completion is documented
+  in the sprint handoff; this is not a product-market-fit milestone.
+- **R1: first payment.** One qualified buyer purchases a diagnostic or pilot and
+  supplies lawful cases. Not complete; no contact or payment has occurred.
+- **R2: useful paid delivery.** One buyer accepts the scoped deliverable; active review
+  effort and missing coverage are measured against existing CI and frontier+retrieval.
+- **R3: repeatability.** Three independent buyers in one task family, at least two
+  second purchases/renewals, and bounded delivery/support hours.
+- **R4: learning advantage, conditional.** A learned selection/proposal method beats
+  frontier+retrieval at total cost under the same owner-approved safety floor. If not,
+  keep retrieval and stop training. Separate within-repo and cross-repo evidence.
+
+The older Hermes #61631 target is closed. Independent Build Week audits remain a
+separate exact-candidate gate; none is cleared by R0–R4.
+
+## Historical foundation milestones
+
 ## Milestone 0: protocol skeleton - complete
 
 Core task, attempt, verifier, receipt, trajectory, settlement, worker, routing,

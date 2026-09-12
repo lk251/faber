@@ -1,0 +1,840 @@
+{
+  "schema": "faber.research.source_manifest.v1",
+  "study": "2026-09-12-hermes-policy-study.md",
+  "retrieved_on": "2026-09-12",
+  "repository": "https://github.com/NousResearch/hermes-agent",
+  "snapshot_sha": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+  "snapshot_committed_at": "2026-09-12T02:58:07Z",
+  "upstream_execution_performed": false,
+  "current_tracked_counts": {
+    "workflow_files": 35,
+    "pytest_style_files": 4048,
+    "agents_md_files": 12,
+    "codeowners_files": 0
+  },
+  "branch_protection": {
+    "endpoint": "https://api.github.com/repos/NousResearch/hermes-agent/branches/main/protection",
+    "http_status": 404,
+    "conclusion": "unknown"
+  },
+  "observed_ci": {
+    "url": "https://github.com/NousResearch/hermes-agent/actions/runs/34669093407",
+    "created_at": "2026-09-12T02:58:11Z",
+    "conclusion": "success",
+    "executed_locally": false
+  },
+  "latest_release": {
+    "tag": "v2026.9.11",
+    "version": "0.21.2",
+    "published_at": "2026-09-11T19:20:31Z",
+    "url": "https://github.com/NousResearch/hermes-agent/releases/tag/v2026.9.11"
+  },
+  "sources": [
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/dependabot.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/dependabot.yml",
+      "git_blob_id": "3854c8f9302fdc1a1bdbb5c37932d27a0dc3c69f",
+      "checkout_sha256": "13100b66e00a0911cfe4aeac91424e1d9029ee2e2e07aef329f41e89aaa4110e",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/PULL_REQUEST_TEMPLATE.md",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/PULL_REQUEST_TEMPLATE.md",
+      "git_blob_id": "5496eb534fef9d08c091b8186e7edd1b5cf356db",
+      "checkout_sha256": "f3bee0cc00c8d1e58b78e40900c4ded50e79bd579928c47a6bd6c8b093dd5dcb",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/case-collision-check.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/case-collision-check.yml",
+      "git_blob_id": "946feb0a34e93669a47fe50bfbc9bffddc66fcb7",
+      "checkout_sha256": "087e41297f6244f72ffe36f31476b80adeecb8e8be7d63049f6e0ea7f0fb57b8",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/ci-review-comment.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/ci-review-comment.yml",
+      "git_blob_id": "216d0c05dbdb55acf10608c0a3827a4601426f22",
+      "checkout_sha256": "37ee27e97a125a9f6f15e0e12b0547fccb1aef92985d8c0e10a3883050dd914f",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/ci.yaml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/ci.yaml",
+      "git_blob_id": "aaa8da03863def29ee80949bfab23f36a4baf284",
+      "checkout_sha256": "0e9a978da23a36af6496bc455cfcf8aaac7fb187b6fadaa7706efaf22a5c2ce0",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/contributor-check.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/contributor-check.yml",
+      "git_blob_id": "b532d3551222540308bfc3a12742337329d984a7",
+      "checkout_sha256": "be4ed9fe5095180603bcf598f02c5acdf50047c2aa89121d3c242a4a08f8be6c",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/deploy-site.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/deploy-site.yml",
+      "git_blob_id": "b75bbaed008d5623fdf20b5bb30fc0e6614b7e86",
+      "checkout_sha256": "7626b777521d59f5a7514c12393d64ac14ed6342a638ca9eee575c8276d1d831",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/docker-lint.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/docker-lint.yml",
+      "git_blob_id": "89b80fa10e09943e217e21b3c8723962629b275e",
+      "checkout_sha256": "4365049e32d200b308dfe91e520de97be0113011ea8b7b3dcf978b6d057bdec0",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/docker.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/docker.yml",
+      "git_blob_id": "7e6b916f2ae9651ef9508e81380c46cec62325ff",
+      "checkout_sha256": "2886d998c3691fa4df9d294b65a57885bd4934fa4bf78164adb2e9845558135d",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/docs-site-checks.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/docs-site-checks.yml",
+      "git_blob_id": "1e82698218e411c2776dae90ff671799d10da1b7",
+      "checkout_sha256": "3d6f384f1855974ab17aa53dc99c1a91fd0a9667734d888c57b37a912f749ceb",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/e2e-desktop.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/e2e-desktop.yml",
+      "git_blob_id": "8692f05d7a41305c476d61526bf76c08d3084aa9",
+      "checkout_sha256": "95d1455a4b8d5c7cdfaf9f640f3c6848e0f9bae497d99b60a0dbbc06acae3fc4",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/history-check.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/history-check.yml",
+      "git_blob_id": "f679007810f07e71254aede00c4242f4e1f9aac8",
+      "checkout_sha256": "3704576128234784d21bb3212a4a21f43c8726aa5187524a7821e9b45cf4557e",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/infographic-check.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/infographic-check.yml",
+      "git_blob_id": "288f6f493a05a7d2e75d1583305cca18b7039282",
+      "checkout_sha256": "9b7359abc2e0bc42ca1385c388c3ff85727824e7e5b55458545dea662d0236f7",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/install-e2e-macos-run.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/install-e2e-macos-run.yml",
+      "git_blob_id": "46245b73c54fec3114b60d1a8a9babd1f358d596",
+      "checkout_sha256": "435987b2af745e4d215c3043eed507572da9a048aae66923bfc4f192c8f7b055",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/install-e2e-run.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/install-e2e-run.yml",
+      "git_blob_id": "8a0f41ea70c74f2f9fadf54b9f34c4fe9d1afa94",
+      "checkout_sha256": "7d2137a6da39417361c17907a527dd8ee694dbee23ff106a812460cdaddb50c3",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/install-e2e-windows-run.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/install-e2e-windows-run.yml",
+      "git_blob_id": "223ae9f6ab6ac8d4466b0c8dde28d166ec2a76ad",
+      "checkout_sha256": "0fe8734ce59c00429963245c0412381547d5a38434b5c03df7cca22df514e813",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/install-e2e.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/install-e2e.yml",
+      "git_blob_id": "84817d4dbb683bd9dd3e7c83435dbfbdc05c78f9",
+      "checkout_sha256": "cf54da3bc410b5085f013291990e1e319178f070eb2dcf4b602c1991dc196379",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/installer-tests.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/installer-tests.yml",
+      "git_blob_id": "109db526ff1ee090febe134636d09bc0cc11e74a",
+      "checkout_sha256": "ad3260d9b7211df832ac7f1d65cdf7b5fa1bfa24e347f4a6892d839d6dcab2bb",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/js-autofix.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/js-autofix.yml",
+      "git_blob_id": "bd4ee6d1c92dc57c4eb63ae86d8f304785d00d46",
+      "checkout_sha256": "7ce6867345a1af93b20eba0497f858999c103ca2a263a8997e9d3198f3ea2de8",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/js-tests.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/js-tests.yml",
+      "git_blob_id": "956908293c247a0bbd86661422e5ab4b53f78e33",
+      "checkout_sha256": "e8d4bcc035e9b36e6d10c7c7dd80e8425b65bc2d4e2b79fedcbfb7fe1b4583a8",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/label-rerun.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/label-rerun.yml",
+      "git_blob_id": "6eb1a4445e723ac51701f1e5b428162d7ba7b91c",
+      "checkout_sha256": "e030aebc0d5e9fe57592466fbb4793252544df2baae00ac7daf2389a9ca8b02b",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/lint.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/lint.yml",
+      "git_blob_id": "ff6e60781e07a871607421c8df9370c9b7f83e5d",
+      "checkout_sha256": "d3b53fb3d7ed4c02efac58d3d688d476632c73902da0f0dcec570b57451b9206",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/lockfile-diff.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/lockfile-diff.yml",
+      "git_blob_id": "aa72e3190459ef257d4eb09d72527befd2db814d",
+      "checkout_sha256": "d18a8514f97330968c6e87f4dd436ab9b4942539e863c71282650933b979adbb",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/nix.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/nix.yml",
+      "git_blob_id": "ccd47d1b09d24737a0ed69a66586b954daa2c94a",
+      "checkout_sha256": "326db358450c0d593226b52869320b8a705e18a309725ccf29204e62c0d658d9",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/osv-scanner.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/osv-scanner.yml",
+      "git_blob_id": "671eecb9474a387df05c6c1fa8a9ee591bf90720",
+      "checkout_sha256": "ef35a691fcdeb5e3a38279922fcf6b52e52a8440685205d91f25089eb3c35fe5",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/plugin-catalog-ci.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/plugin-catalog-ci.yml",
+      "git_blob_id": "84efbc076187e1510b23d2d473b320aba24ea192",
+      "checkout_sha256": "dc5957beb6f172272580919d8affbb08c236b936f06ba500ee7898de4d96f927",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/profile-artifact-check.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/profile-artifact-check.yml",
+      "git_blob_id": "0e3ff286e9524d44ff1bb5183f73f05c207687e8",
+      "checkout_sha256": "3ca17419c8c6adc602cfca2b38c2fdb260e88fc330d5719d8a42f8578b9406d6",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/publish-e2e-evidence.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/publish-e2e-evidence.yml",
+      "git_blob_id": "c4f22c21d4645f31a3ac4cc97b544d9902be6617",
+      "checkout_sha256": "59577c49c4038e4cd19268ac2cbd7da0c2c2c8e8679e4ca31969014b8ca9da02",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/review-labels.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/review-labels.yml",
+      "git_blob_id": "8b40fcaad229ec8f37dc8b0eb954002f9716e81d",
+      "checkout_sha256": "be9612c54de05625eeef83d3554b572f7cd88988f4446f9df9a64c7c24b57ff2",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/rust-tests.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/rust-tests.yml",
+      "git_blob_id": "5c91e1a3528f9e5b10fcee8af80d3e7ad767a131",
+      "checkout_sha256": "52de509c82bd231847c69407e88daba4fbed07544046738b8cc0116cdc7a7d57",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/skills-index-freshness.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/skills-index-freshness.yml",
+      "git_blob_id": "ff2bc393aa28ae529979db40a5f5d00fb1922ad1",
+      "checkout_sha256": "2c7927835e092ba08d9f36c720e2384bc6d3c4fffcf04598d093278a6b44a70c",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/skills-index.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/skills-index.yml",
+      "git_blob_id": "cf6812630ebdd3018751a17cf3f7b655a4fb15be",
+      "checkout_sha256": "477f7ee9cddf6b100a3758983a9f4bbe23f18629b2cc30116229843e45811728",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/supply-chain-audit.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/supply-chain-audit.yml",
+      "git_blob_id": "d73b749ab489ea2c475fb6e5cf187b60f148e669",
+      "checkout_sha256": "a08aa26cfacd7e5c162df58b9c16f8a810acabc335adec9dd5b1667c959f2530",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/tests-os.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/tests-os.yml",
+      "git_blob_id": "2477c839f45bb7909c7fee024bb9c54ce1c4f24d",
+      "checkout_sha256": "adbc3de50bb44915159118fbee3d35a102e81191398e02c4e90005da73509379",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/tests.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/tests.yml",
+      "git_blob_id": "a0dca54ad0030aeff9e9d7eb86c0246a4ee94c7d",
+      "checkout_sha256": "b701bdd489438d5db2f8b0fb8fa700dec04d477b321a68223ee72f2ca2fc955b",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/uv-lockfile-check.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/uv-lockfile-check.yml",
+      "git_blob_id": "d258ad731d0ef518cfa353ca9e5e08434da42167",
+      "checkout_sha256": "070d7ddcaced02780abba47ab4d5c92a4e0773193d548ce10d9d71e946c26fb0",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": ".github/workflows/windows-venv-e2e.yml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/.github/workflows/windows-venv-e2e.yml",
+      "git_blob_id": "a09b2f2d45377ad3efe50ecac7477cce482fb318",
+      "checkout_sha256": "1728e4df7e052b41ce50f19bf338400106b8e5ec331e5ebbc35aef049a7cb5c9",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": "agent/conversation_loop.py",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/agent/conversation_loop.py",
+      "git_blob_id": "6739c096e40ed3a34d370b74ba8c709785838913",
+      "checkout_sha256": "2086d4d084a7cba728a5862f2f27d172860908af967e2b83a43d22fe757548c2",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": "agent/turn_finalizer.py",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/agent/turn_finalizer.py",
+      "git_blob_id": "0a9dec481fa56ef2f62c12028ac0bcfe4a41a110",
+      "checkout_sha256": "3e9658908b7421d3ee2da6516f2ac511541f7e134fcacaace8c807c996747fb1",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": "AGENTS.md",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/AGENTS.md",
+      "git_blob_id": "aecd44860c669bbb997e90b11112dab540042f97",
+      "checkout_sha256": "b6b61900b170909e4133d6f7ecf932492d5fbeb6b53e7cb7be2aa2d7514fa4d5",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": "CONTRIBUTING.md",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/CONTRIBUTING.md",
+      "git_blob_id": "0e6761ee18a4670be2657195f6f8ba944e0a0473",
+      "checkout_sha256": "ded473ce7c809574d1db8f8424fec03470a688a3368e8205e8593e7d1fcc1b8f",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": "cron/AGENTS.md",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/cron/AGENTS.md",
+      "git_blob_id": "15701943f08cf00b74dcdd347e96c326cab94ac8",
+      "checkout_sha256": "0e92a12fb5b92d0f681df9312f686bcb280e2bd5cd42f6c46cb8ac6a390fb09e",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": "flake.lock",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/flake.lock",
+      "git_blob_id": "5e59b460ce6adaf44e726c9ad57e8d491035543c",
+      "checkout_sha256": "55d2e63e184be57b072b9db530b2d9db708fd8c73619cc1198ee099443d36946",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": "flake.nix",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/flake.nix",
+      "git_blob_id": "46e1f3d4ff74ee4ce1bf07f3fcd3ccd8c32e8538",
+      "checkout_sha256": "4ddd032d641082a4bab959c6ce63788803ba634aaa492a6d0a27ac8c1ddfcfe7",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": "nix/checks.nix",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/nix/checks.nix",
+      "git_blob_id": "227f57d5e51e3633cdfb9daea6eea97c26b577e4",
+      "checkout_sha256": "9e5dfdfc732353c2db58082315d8620896bfc8d2e74e6968adb919691e955b8f",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": "package.json",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/package.json",
+      "git_blob_id": "406b73b205a32c1ddc7fd1dabfb02250efa5407f",
+      "checkout_sha256": "8b5b2ea9721e8d4bdedea457f5b5bab038e7f3e11ea4e1381bd43f2e87ce04cd",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": "pyproject.toml",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/pyproject.toml",
+      "git_blob_id": "41b21a82eef471bbb9b330801ecea77e0ff4ab17",
+      "checkout_sha256": "c71aa5bc9e437bac3b662fd04a4a7e121735ebc898373019a366d91e217e58a8",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": "scripts/ci/classify_changes.py",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/scripts/ci/classify_changes.py",
+      "git_blob_id": "aee7d724a66f04936b8bb8f04747d309e806ed52",
+      "checkout_sha256": "6000ba8ff8ab9dacdae888361d4bf4ab6567609c7479870d638d5aae0e9e079c",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": "scripts/release.py",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/scripts/release.py",
+      "git_blob_id": "5a07abf88a50c3bc9dda5927b56eb750e94ab13d",
+      "checkout_sha256": "d030a72216e1370cf706225a27d4a8222b110325b4aafca4f617923c1e98a71c",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": "scripts/run_tests_parallel.py",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/scripts/run_tests_parallel.py",
+      "git_blob_id": "eb923cc9b43b3a7af8a2f19461ce91e38e18ec10",
+      "checkout_sha256": "d71999ea44ef18352ff0f0d08512fae2109ac748a654553b15aa02d72f368bd9",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": "scripts/run_tests.sh",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/scripts/run_tests.sh",
+      "git_blob_id": "4445d6d5428b657e3d780903915229acbc1666ce",
+      "checkout_sha256": "9ef635bcee1f879d31f37b4eeccab6e203283036d38ed0bf4e249efcd7d0469e",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": "SECURITY.md",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/SECURITY.md",
+      "git_blob_id": "cea2a9a2e8869ac7a4b7307332b974a27e9fd27a",
+      "checkout_sha256": "08b733d1f2c71f8cdd87200beb10c06185d0912a6eb19bbf69149dbb4e207a55",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": "tests/agent/test_turn_finalizer_iteration_limit_exit.py",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/tests/agent/test_turn_finalizer_iteration_limit_exit.py",
+      "git_blob_id": "8594afe63efa4373dc2137a0ddab6e67ee21da85",
+      "checkout_sha256": "f75fa4852931a37c718f6292f58424c5b5ad908d56d096e3047d4d51b03dd730",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": "tests/conftest.py",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/tests/conftest.py",
+      "git_blob_id": "62201be60ac99c6583bc0d6ac35e2521aef7d37c",
+      "checkout_sha256": "b0d77f015bc8b134540b2891d9c2c74f880597f8a0018eade30a6e04d0d62c33",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": "tests/run_agent/test_verification_continuation_budget.py",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/tests/run_agent/test_verification_continuation_budget.py",
+      "git_blob_id": "2231b2c1706562c5fc958b44188985d686b6f58e",
+      "checkout_sha256": "2b260408fe8b9637c4714be06705c465240e947861ad3d77d53fbb321ce31ab3",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "repository_file",
+      "revision": "284d220ba48e25f2e3623b3afe72db8f24a4c2db",
+      "path": "uv.lock",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/284d220ba48e25f2e3623b3afe72db8f24a4c2db/uv.lock",
+      "git_blob_id": "f4fc4ab429e7185d8973ced9b20794853f57fd02",
+      "checkout_sha256": "83929af26dffcdd07acfb991558ab30c65db3c83ba1af966d5fedb76a43d4ec0",
+      "sha256_scope": "Windows checked-out bytes; Git blob ID is canonical source identity",
+      "executed": false
+    },
+    {
+      "kind": "historical_repository_file",
+      "revision": "60b1f6ce3f26c57dac480265fbf4a38e7a5c3a25",
+      "path": "agent/turn_finalizer.py",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/60b1f6ce3f26c57dac480265fbf4a38e7a5c3a25/agent/turn_finalizer.py",
+      "git_blob_id": "5eaad31848c78028c9081af302c72b0a36a1bd12",
+      "executed": false
+    },
+    {
+      "kind": "historical_repository_file",
+      "revision": "60b1f6ce3f26c57dac480265fbf4a38e7a5c3a25",
+      "path": "agent/conversation_loop.py",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/60b1f6ce3f26c57dac480265fbf4a38e7a5c3a25/agent/conversation_loop.py",
+      "git_blob_id": "be80362535536f2cce0b00c71092f23e8e86dc40",
+      "executed": false
+    },
+    {
+      "kind": "historical_repository_file",
+      "revision": "60b1f6ce3f26c57dac480265fbf4a38e7a5c3a25",
+      "path": "cron/scheduler.py",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/60b1f6ce3f26c57dac480265fbf4a38e7a5c3a25/cron/scheduler.py",
+      "git_blob_id": "4c764bd13a445ec08a472e51b4d5d8542c3d6469",
+      "executed": false
+    },
+    {
+      "kind": "historical_repository_file",
+      "revision": "8e3f9537db21b49ebe796f7b5a6ff489028fe1fb",
+      "path": "cron/scheduler.py",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/8e3f9537db21b49ebe796f7b5a6ff489028fe1fb/cron/scheduler.py",
+      "git_blob_id": "9e645d3728f3d1c10680e7a017ef45113c01783f",
+      "executed": false
+    },
+    {
+      "kind": "historical_repository_file",
+      "revision": "8e3f9537db21b49ebe796f7b5a6ff489028fe1fb",
+      "path": "agent/turn_finalizer.py",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/8e3f9537db21b49ebe796f7b5a6ff489028fe1fb/agent/turn_finalizer.py",
+      "git_blob_id": "5eaad31848c78028c9081af302c72b0a36a1bd12",
+      "executed": false
+    },
+    {
+      "kind": "historical_repository_file",
+      "revision": "cc1af0c2d8ec90c1ca2d876df02c2ea999a052dd",
+      "path": "cron/scheduler.py",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/cc1af0c2d8ec90c1ca2d876df02c2ea999a052dd/cron/scheduler.py",
+      "git_blob_id": "5dd3451db60860d5d77a4195489e7b340ac5d9a8",
+      "executed": false
+    },
+    {
+      "kind": "historical_repository_file",
+      "revision": "cc1af0c2d8ec90c1ca2d876df02c2ea999a052dd",
+      "path": "tests/cron/test_scheduler.py",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/cc1af0c2d8ec90c1ca2d876df02c2ea999a052dd/tests/cron/test_scheduler.py",
+      "git_blob_id": "10256eeb3ebdaea0a629402d2dc3721d9aaee5ae",
+      "executed": false
+    },
+    {
+      "kind": "historical_repository_file",
+      "revision": "f8361d29c8e2a2be6ba9ada32f1d694bf47a4b6a",
+      "path": "AGENTS.md",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/f8361d29c8e2a2be6ba9ada32f1d694bf47a4b6a/AGENTS.md",
+      "git_blob_id": "e1dbaaa5c43c129f3de8a0e40098e602fd4e40e1",
+      "executed": false
+    },
+    {
+      "kind": "historical_repository_file",
+      "revision": "f8361d29c8e2a2be6ba9ada32f1d694bf47a4b6a",
+      "path": "agent/conversation_loop.py",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/f8361d29c8e2a2be6ba9ada32f1d694bf47a4b6a/agent/conversation_loop.py",
+      "git_blob_id": "4295bdad60224ad08f6f12c53a44387cf4fa9e8f",
+      "executed": false
+    },
+    {
+      "kind": "historical_repository_file",
+      "revision": "f8361d29c8e2a2be6ba9ada32f1d694bf47a4b6a",
+      "path": "agent/turn_finalizer.py",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/f8361d29c8e2a2be6ba9ada32f1d694bf47a4b6a/agent/turn_finalizer.py",
+      "git_blob_id": "5eaad31848c78028c9081af302c72b0a36a1bd12",
+      "executed": false
+    },
+    {
+      "kind": "historical_repository_file",
+      "revision": "f8361d29c8e2a2be6ba9ada32f1d694bf47a4b6a",
+      "path": "cron/scheduler.py",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/f8361d29c8e2a2be6ba9ada32f1d694bf47a4b6a/cron/scheduler.py",
+      "git_blob_id": "9e645d3728f3d1c10680e7a017ef45113c01783f",
+      "executed": false
+    },
+    {
+      "kind": "historical_repository_file",
+      "revision": "f8361d29c8e2a2be6ba9ada32f1d694bf47a4b6a",
+      "path": "tests/cron/test_scheduler.py",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/f8361d29c8e2a2be6ba9ada32f1d694bf47a4b6a/tests/cron/test_scheduler.py",
+      "git_blob_id": "8cb81cb6177a835caa1febed9de95c4d3bb7f5dd",
+      "executed": false
+    },
+    {
+      "kind": "historical_repository_file",
+      "revision": "6fa9465ce34c5e5db54fe8b34544fd79f797f423",
+      "path": "agent/conversation_loop.py",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/6fa9465ce34c5e5db54fe8b34544fd79f797f423/agent/conversation_loop.py",
+      "git_blob_id": "ce62ffcde1a9161e2438fa33fd5bcc4b0c96dac1",
+      "executed": false
+    },
+    {
+      "kind": "historical_repository_file",
+      "revision": "6fa9465ce34c5e5db54fe8b34544fd79f797f423",
+      "path": "agent/turn_finalizer.py",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/6fa9465ce34c5e5db54fe8b34544fd79f797f423/agent/turn_finalizer.py",
+      "git_blob_id": "b41f0fdd506f504273334c7c6c907550dad5a2b0",
+      "executed": false
+    },
+    {
+      "kind": "historical_repository_file",
+      "revision": "6fa9465ce34c5e5db54fe8b34544fd79f797f423",
+      "path": "tests/run_agent/test_verification_continuation_budget.py",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/6fa9465ce34c5e5db54fe8b34544fd79f797f423/tests/run_agent/test_verification_continuation_budget.py",
+      "git_blob_id": "d6f65407e7abcf659693cd7d8a9fdd3abfef7e05",
+      "executed": false
+    },
+    {
+      "kind": "historical_repository_file",
+      "revision": "6fa9465ce34c5e5db54fe8b34544fd79f797f423",
+      "path": "tests/agent/test_turn_finalizer_iteration_limit_exit.py",
+      "url": "https://github.com/NousResearch/hermes-agent/blob/6fa9465ce34c5e5db54fe8b34544fd79f797f423/tests/agent/test_turn_finalizer_iteration_limit_exit.py",
+      "git_blob_id": "3d1d342f5f40122d158850bb35e236466ea45af6",
+      "executed": false
+    }
+  ],
+  "learning_episode_rows": [
+    {
+      "id": "hermes-61636-review",
+      "incident_group": "NousResearch/hermes-agent#61631",
+      "record_kind": "historical_reconstruction",
+      "training_eligible": false,
+      "input": {
+        "base_sha": "8e3f9537db21b49ebe796f7b5a6ff489028fe1fb",
+        "head_sha": "cc1af0c2d8ec90c1ca2d876df02c2ea999a052dd",
+        "base_committed_at": "2026-07-09T21:40:09Z",
+        "head_committed_at": "2026-07-09T22:45:30Z",
+        "proposed_cutoff": "2026-07-09T23:42:03Z",
+        "observed_input_receipt_at": null,
+        "public_availability_at_cutoff_verified": false,
+        "issue_url": "https://github.com/NousResearch/hermes-agent/issues/61631",
+        "issue_created_at": "2026-07-09T20:11:20Z",
+        "candidate_url": "https://github.com/NousResearch/hermes-agent/pull/61636",
+        "candidate_created_at": "2026-07-09T20:33:45Z",
+        "observable_features": [
+          "scheduler acceptance condition broadened to budget_exhausted and unknown",
+          "new tests mock AIAgent result rather than invoking real loop",
+          "producer/finalizer production files unchanged"
+        ],
+        "excluded_future_inputs": [
+          "PR 61900",
+          "September main tree",
+          "final issue closure"
+        ]
+      },
+      "decision": {
+        "actor_kind": "upstream_maintainer",
+        "action": "close_unmerged",
+        "explicit_comment_at": "2026-07-09T23:42:04Z",
+        "closed_at": "2026-07-09T23:42:05Z",
+        "source_url": "https://github.com/NousResearch/hermes-agent/pull/61636#issuecomment-4930549778",
+        "stated_reasons": [
+          "proposal misses normal finalizer exit-reason normalization",
+          "generic unknown acceptance risks delivering unrelated abnormal partial output"
+        ],
+        "faber_action": null
+      },
+      "feedback": {
+        "merged": false,
+        "label_interpretation": "Observed maintainer rejection of this candidate and rationale, not absence of underlying incident.",
+        "later_related_merge": "https://github.com/NousResearch/hermes-agent/pull/61900",
+        "independently_executed_checks": null,
+        "counterfactual_faber_result": null,
+        "counterfactual_frontier_retrieval_result": null,
+        "reviewer_minutes": null,
+        "execution_cost": null,
+        "later_regression_observation_window": null
+      },
+      "limitations": [
+        "historical candidate publication receipt unavailable",
+        "current PR base/head retrieved retrospectively",
+        "no independent causal correctness label",
+        "correlated with 61900; keep in same split"
+      ]
+    },
+    {
+      "id": "hermes-61900-review",
+      "incident_group": "NousResearch/hermes-agent#61631",
+      "record_kind": "historical_reconstruction",
+      "training_eligible": false,
+      "input": {
+        "base_sha": "f8361d29c8e2a2be6ba9ada32f1d694bf47a4b6a",
+        "head_sha": "6fa9465ce34c5e5db54fe8b34544fd79f797f423",
+        "base_committed_at": "2026-07-10T04:32:01Z",
+        "head_committed_at": "2026-07-10T06:11:43Z",
+        "proposed_cutoff": "2026-07-10T06:23:58Z",
+        "observed_input_receipt_at": null,
+        "public_availability_at_cutoff_verified": false,
+        "issue_url": "https://github.com/NousResearch/hermes-agent/issues/61631",
+        "issue_created_at": "2026-07-09T20:11:20Z",
+        "candidate_url": "https://github.com/NousResearch/hermes-agent/pull/61900",
+        "candidate_created_at": "2026-07-10T06:07:00Z",
+        "observable_features": [
+          "explicit pending verification response provenance",
+          "real-loop regression file and finalizer negative controls",
+          "candidate changes conversation_loop and turn_finalizer rather than scheduler"
+        ],
+        "excluded_future_inputs": [
+          "merge event",
+          "issue closure",
+          "September main tree"
+        ],
+        "validation_prose_cutoff_availability_verified": false
+      },
+      "decision": {
+        "actor_kind": "upstream_maintainer",
+        "action": "merge",
+        "merged_at": "2026-07-10T06:23:59Z",
+        "merge_sha": "6abf1956829d93c487e18eb3051c395b111d3d39",
+        "source_url": "https://github.com/NousResearch/hermes-agent/pull/61900",
+        "faber_action": null
+      },
+      "feedback": {
+        "merged": true,
+        "issue_closed_at": "2026-07-10T06:24:00Z",
+        "confirmation_url": "https://github.com/NousResearch/hermes-agent/issues/61631#issuecomment-4932597300",
+        "label_interpretation": "Observed acceptance and issue closure; upstream-reported checks, not universal correctness.",
+        "upstream_reported_targeted_tests_passed": 98,
+        "upstream_reported_mutation_checks": true,
+        "independently_executed_checks": null,
+        "counterfactual_faber_result": null,
+        "counterfactual_frontier_retrieval_result": null,
+        "reviewer_minutes": null,
+        "execution_cost": null,
+        "later_regression_observation_window": null
+      },
+      "limitations": [
+        "historical candidate publication receipt unavailable",
+        "current PR description revision timing unavailable",
+        "no independent execution in this study",
+        "correlated with 61636; keep in same split"
+      ]
+    }
+  ]
+}
