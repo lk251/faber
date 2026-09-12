@@ -27,10 +27,10 @@ Hermes #61631 is closed. Do not automatically resume that contribution, a market
 feature queue or competition submission work from this sprint's next-action prompt.
 The Build Week ledger and audited branch remain separate and unchanged.
 
-## Active override: OpenAI Build Week 2026
+## Historical override: OpenAI Build Week 2026
 
-Faber Proof is the active implementation priority through the competition submission
-freeze.
+The following was the July implementation priority through the competition submission
+freeze. For this sprint, use the September override above.
 
 The single entrypoint is:
 
