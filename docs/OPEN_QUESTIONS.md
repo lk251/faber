@@ -27,6 +27,26 @@ They are intentionally narrower than the completed 0047-0074 implementation queu
   false-accept risk? See
   [`verification-leverage-ai-capacity-dogfooding-2026-09-06.md`](research/verification-leverage-ai-capacity-dogfooding-2026-09-06.md).
 
+## Adoption, application, and outreach
+
+- What measurable evidence can Pushin.eu or willing maintainers provide about the
+  scale and cost of low-quality contribution volume: rejection rates, review time,
+  abandoned work, false-positive triage, contributor gaming, or burnout?
+- Where should contributor/account reputation stop and submission-specific proof
+  begin? Can Faber's evidence layer complement reputation-based triage without
+  creating another opaque quality score?
+- Would Pushin itself, or a project hosted there, be willing to test a small
+  maintainer-approved Faber pilot, and what outcome would make the pilot valuable?
+  See
+  [`pushin-contribution-quality-field-note-2026-09-13.md`](research/pushin-contribution-quality-field-note-2026-09-13.md).
+- Which adjacent domain has the strongest version of the same structural problem:
+  work becoming cheap to generate while trustworthy verification remains scarce?
+- Which relevant contacts in Volt DigiPub and, where appropriate, in or around Guy
+  Verhofstadt's party/political network can provide warm introductions to startups,
+  companies, technical operators, pilot partners, investors, or grant/funding
+  channels? What concise Faber artifact and ask should be prepared before that
+  outreach?
+
 ## Market and money
 
 - Which jurisdiction and operating model should receive legal review first?
