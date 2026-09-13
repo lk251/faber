@@ -87,6 +87,42 @@ Exit criteria are defined as Milestone 2 in [`MILESTONES.md`](MILESTONES.md).
    consent/license review, withdrawal propagation, verifier-quality thresholds, and
    a human approval report before any model-training experiment.
 
+## Deferred external validation, application discovery, and outreach
+
+These items are deliberately deferred so they do not displace the current no-money
+external pilot, but they should be reconsidered as Faber accumulates external proof
+and a clearer product narrative.
+
+1. **Study Pushin.eu as real-world evidence of the contribution-quality problem.**
+   Pushin publicly treats low-quality contribution volume and maintainer overload as
+   a product-level pain point and is building reputation, triage, and contribution
+   limits around it. Use the field note in
+   [`research/pushin-contribution-quality-field-note-2026-09-13.md`](research/pushin-contribution-quality-field-note-2026-09-13.md)
+   as a starting point, track how its mechanisms evolve, and seek measurable data
+   about review load, low-quality contribution rates, false positives/negatives, and
+   maintainer time.
+2. **Evaluate Pushin as a potential Faber application or pilot surface.** Distinguish
+   account/contributor reputation from submission-specific verification evidence and
+   test whether Faber can complement rather than duplicate Pushin's anti-slop layer.
+   Look for the smallest maintainer-approved pilot before building any
+   Pushin-specific adapter.
+3. **Generalize from Pushin to other Faber markets.** Search for the same structural
+   pattern — submissions becoming cheaper and more numerous faster than humans can
+   verify them — across Git forges, open-source projects, package registries,
+   security-report queues, agent/bounty markets, code-generation platforms, and
+   high-volume internal engineering organizations. Rank opportunities by pain,
+   verification tractability, access to operators/data, willingness to pilot, and
+   eventual willingness to pay.
+4. **Use existing European political/technology networks for human-led partner and
+   funding discovery.** Once there is a concise Faber explanation and something
+   concrete to show, tell relevant contacts in Volt DigiPub and, where appropriate,
+   people in or around Guy Verhofstadt's party/political network about Faber. The
+   goal is to discover startups and companies that may have the verification problem,
+   potential pilot partners, and people who can make introductions to investors,
+   grant/funding channels, or other supporters. Keep this as human-led relationship
+   building rather than autonomous outreach, and keep any project/funding discussion
+   appropriately separate from confidential or policy-advisory work.
+
 ## Blockers before real money or external autonomous work
 
 - Human approval of the task, verifier policy, risk review, publication action, and
